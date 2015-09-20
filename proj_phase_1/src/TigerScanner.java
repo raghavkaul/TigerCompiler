@@ -1,5 +1,8 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -11,24 +14,31 @@ public class TigerScanner {
     private Scanner infileScanner;
     private DFA dfa;
 
-    public TigerScanner(File infile) {
+    public TigerScanner(File stateFile, File transitionFile) {
+        dfa = new DFA(stateFile, transitionFile);
+    }
+
+    public void scan(File infile) {
         this.infile = infile;
 
         try {
-            infileScanner = new Scanner(this.infile);
+            this.infileScanner = new Scanner(this.infile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        // TODO
-        dfa = new DFA(null, null);
-    }
+        List<Token> tokenList = new LinkedList<Token>();
 
-    public void Scan() {
+        // FIXME : assumes whitespace delimited file only
         while(infileScanner != null && infileScanner.hasNext()) {
-            String currLine = infileScanner.nextLine();
-            for (int i = 0; i < currLine.length(); i++) {
+            String[] currLine = infileScanner.nextLine().split(" ");
 
+            for (String s : currLine) {
+                for (int i = 0; i < s.length(); i++) {
+                    dfa.setState(dfa.getNextState(s.charAt(i)));
+                }
+
+                tokenList.add(new Token(dfa.getState().tokenType(), s));
             }
         }
     }

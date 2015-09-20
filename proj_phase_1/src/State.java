@@ -39,8 +39,12 @@ public class State {
         return transitions.get(inputChar);
     }
 
-    public TokenType isAccepting() {
+    public TokenType tokenType() {
         return tokenType;
+    }
+
+    public boolean isAccepting() {
+        return tokenType != TokenType.NON_ACCEPTING;
     }
 
     public boolean equals(Object o) {

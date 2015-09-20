@@ -20,6 +20,18 @@ public class DFA {
         return currState.getNextState(inputChar);
     }
 
+    public State getState() {
+        return currState;
+    }
+
+    public void setState(State state) {
+        this.currState = state;
+    }
+
+    public void returnToStart() {
+        currState = startState;
+    }
+
     private void populateTransitions(File statesFile, File transitionsFile) {
         Scanner scan = null;
 
@@ -33,7 +45,8 @@ public class DFA {
         List<State> states = new ArrayList<State>();
 
         while (scan.hasNextLine()) {
-            //
+            String[] row = scan.nextLine().split(",");
+            states.add(new State(row[0], TokenType.valueOf(row[1])));
         }
 
         try {
@@ -44,7 +57,14 @@ public class DFA {
 
         while(scan.hasNextLine()) {
             String[] row = scan.nextLine().split(",");
-            
+
+            // What follows is a terrible <hack>
+            State current = states.get(states.indexOf(row[0]));
+            State next = states.get(states.indexOf(row[1]));
+            // </hack>
+
+            transitions.put(new StateInputWrapper(current, row[1].charAt(0)), next);
+
         }
     }
 
