@@ -1,5 +1,4 @@
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Raghav K on 9/17/15.
@@ -13,7 +12,16 @@ public class DFA {
 
     private static DFA DFAInstance;
 
+    private DFA() {
+        states = new HashSet<State>();
+        states.add(new State("Start", false));
+
+
+
+
+    }
+
     public State getNextState(State currState, char inputChar) {
-        return transitions.get(new StateInputWrapper(currState, inputChar));
+        return transitions.get(currState).getNextState(inputChar);
     }
 }
