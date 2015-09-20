@@ -1,27 +1,51 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
  * Created by Raghav K on 9/17/15.
  */
 public class DFA {
-    private Set<State> states;
-    private Set<Character> alphabet;
     private Map<StateInputWrapper, State> transitions;
     private State startState;
-    private Set<State> acceptingStates;
+    private State currState;
 
-    private static DFA DFAInstance;
-
-    private DFA() {
-        states = new HashSet<State>();
-        states.add(new State("Start", false));
-
-
-
-
+    public DFA(File statesFile, File transitionsFile) {
+        populateTransitions(statesFile, transitionsFile);
+        startState = new State("Start", TokenType.NON_ACCEPTING);
+        currState = startState;
     }
 
-    public State getNextState(State currState, char inputChar) {
-        return transitions.get(currState).getNextState(inputChar);
+    public State getNextState(char inputChar) {
+        return currState.getNextState(inputChar);
     }
+
+    private void populateTransitions(File statesFile, File transitionsFile) {
+        Scanner scan = null;
+
+        try {
+            scan = new Scanner(statesFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        // Tables are denormalized
+        List<State> states = new ArrayList<State>();
+
+        while (scan.hasNextLine()) {
+            //
+        }
+
+        try {
+            scan = new Scanner(transitionsFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        while(scan.hasNextLine()) {
+            String[] row = scan.nextLine().split(",");
+            
+        }
+    }
+
 }

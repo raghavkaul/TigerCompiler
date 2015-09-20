@@ -7,18 +7,17 @@ import java.util.Map;
 public class State {
     private String name;
     private Map<Character, State> transitions;
-    private boolean isAccepting;
+    private TokenType tokenType;
 
 
     public State(String name) {
         this.name = name;
-        isAccepting = false;
         transitions = new HashMap<Character, State>();
     }
 
-    public State(String name, boolean isAccepting) {
+    public State(String name, TokenType tokenType) {
         this.name = name;
-        this.isAccepting = isAccepting;
+        this.tokenType = tokenType;
     }
 
     public void addTransition(Character inputChar, State nextState) {
@@ -40,7 +39,22 @@ public class State {
         return transitions.get(inputChar);
     }
 
-    public boolean isAccepting() {
-        return isAccepting;
+    public TokenType isAccepting() {
+        return tokenType;
+    }
+
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        } else if (o instanceof State) {
+            if (((State) o).getName() == this.getName()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getName() {
+        return name;
     }
 }

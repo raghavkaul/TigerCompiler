@@ -1,6 +1,6 @@
-State name,isaccepting
+statename,tokentype
 Start,
-Comma accepting state,
+Comman accepting state,
 Colon accepting state,
 Lparen accepting state,
 Rparen accepting state,
@@ -21,7 +21,5 @@ Lessereq accepting state,
 Greatereq accepting state,
 And accepting state,
 Or accepting state,
-Assign accepting state,
-array_a_state,
-arrray_r_state,
-array_r_2_state,
+Assign_accepting_state,
+“Array_state_a,id

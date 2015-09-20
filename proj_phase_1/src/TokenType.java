@@ -10,5 +10,5 @@ public enum TokenType {
     ARRAY, BREAK, DO, ELSE, FOR, FUNC, IF, IN, LET, NIL, OF, THEN, TO, TYPE,
     VAR, WHILE, ENDIF, BEGIN, END, ENDDO,
     // Literal token types
-    ID, FLOATLIT, INTLIT;
+    ID, FLOATLIT, INTLIT, NON_ACCEPTING;
 }
