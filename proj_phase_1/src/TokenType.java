@@ -8,7 +8,9 @@ public enum TokenType {
     OR, ASSIGN,
     // Keyword token types
     ARRAY, BREAK, DO, ELSE, FOR, FUNC, IF, IN, LET, NIL, OF, THEN, TO, TYPE,
-    VAR, WHILE, ENDIF, BEGIN, END, ENDDO,
+    VAR, WHILE, ENDIF, BEGIN, END, ENDDO, INT_TYPE, FLOAT_TYPE,
     // Literal token types
-    ID, FLOATLIT, INTLIT, NON_ACCEPTING;
+    ID, FLOATLIT, INTLIT, NON_ACCEPTING,
+    // For error handling
+    INVALID;
 }

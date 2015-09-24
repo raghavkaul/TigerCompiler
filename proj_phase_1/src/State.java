@@ -58,6 +58,20 @@ public class State {
         return false;
     }
 
+    @Override
+    public String toString() {
+        String result = "State name : " + name;
+
+        result += "\nToken type: " + tokenType.toString();
+        result += "\nTransitions:";
+
+        for (Map.Entry<Character, State> m : transitions.entrySet()) {
+            result += "\n\t Input character : " + m.getKey() + "\t -> Out state: " + m.getValue().getName();
+        }
+
+        return result;
+    }
+
     public String getName() {
         return name;
     }
