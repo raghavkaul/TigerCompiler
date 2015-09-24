@@ -47,11 +47,12 @@ public class State {
         return tokenType != TokenType.NON_ACCEPTING;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o == null) {
             return false;
         } else if (o instanceof State) {
-            if (((State) o).getName() == this.getName()) {
+            if (((State) o).getName().equals(this.getName())) {
                 return true;
             }
         }
@@ -62,12 +63,12 @@ public class State {
     public String toString() {
         String result = "State name : " + name;
 
-        result += "\nToken type: " + tokenType.toString();
-        result += "\nTransitions:";
+        // result += "\nToken type: " + tokenType.toString();
+        // result += "\nTransitions:";
 
-        for (Map.Entry<Character, State> m : transitions.entrySet()) {
-            result += "\n\t Input character : " + m.getKey() + "\t -> Out state: " + m.getValue().getName();
-        }
+        // for (Map.Entry<Character, State> m : transitions.entrySet()) {
+        //     result += "\n\t Input character : " + m.getKey() + "\t -> Out state: " + m.getValue().getName();
+        // }
 
         return result;
     }

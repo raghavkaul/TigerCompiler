@@ -9,4 +9,17 @@ public class StateInputWrapper {
         this.state = state;
         this.inputChar = inputChar;
     }
+
+    public State getState() {
+    	return state;
+    }
+
+    public char getInput() {
+    	return inputChar;
+    }
+
+    @Override
+    public String toString() {
+    	return state.toString() + "\nInput Char: " + inputChar;
+    }
 }

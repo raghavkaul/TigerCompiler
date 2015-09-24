@@ -7,10 +7,12 @@ public enum TokenType {
     PLUS, MINUS, MULT, DIV, EQ, NEQ, LESSER, GREATER, LESSEREQ, GREATEREQ, AND,
     OR, ASSIGN,
     // Keyword token types
-    ARRAY, BREAK, DO, ELSE, FOR, FUNC, IF, IN, LET, NIL, OF, THEN, TO, TYPE,
-    VAR, WHILE, ENDIF, BEGIN, END, ENDDO, INT_TYPE, FLOAT_TYPE,
+    ARRAY, BREAK, DO, ELSE, FOR, FUNCTION, IF, IN, LET, NIL, OF, THEN, TO, TYPE,
+    VAR, WHILE, ENDIF, BEGIN, END, ENDDO, RETURN, INT_TYPE, FLOAT_TYPE,
     // Literal token types
     ID, FLOATLIT, INTLIT, NON_ACCEPTING,
+    // Comment handling
+    COMMENT_END, COMMENT_BEGIN,
     // For error handling
     INVALID;
 }

@@ -17,6 +17,7 @@ public class DFA {
      * @param transitionsFile a tsv with relations state -> inputChar -> nextState
      */
     public DFA(File statesFile, File transitionsFile) {
+        transitions = new HashMap<StateInputWrapper, State>();
         populateTransitions(statesFile, transitionsFile);
         startState = new State("Start", TokenType.NON_ACCEPTING);
         currState = startState;
@@ -74,15 +75,17 @@ public class DFA {
         while(scan.hasNextLine()) {
             String[] row = scan.nextLine().split(infileDelimiter);
 
-            // What follows is a terrible <hack>
-            State current = states.get(states.indexOf(row[0]));
-            State next = states.get(states.indexOf(row[1]));
+            // What follows is a fix of the worst <hack>
+            State current = new State(row[0]);
+            State next = new State(row[2]);
             // </hack>
 
             // TODO : call regex helper to help populate transitions
+            Set<Character> characters = regexHelper(row[1]);
 
-            transitions.put(new StateInputWrapper(current, row[1].charAt(0)), next);
-
+            for (Character c : characters) {
+                transitions.put(new StateInputWrapper(current, c), next);
+            }
         }
     }
 
