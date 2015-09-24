@@ -79,6 +79,10 @@ public class DFA {
             State next = states.get(states.indexOf(row[1]));
             // </hack>
 
+            Set<Character> characters = regexHelper(row[1]);
+            for (Character c : characters) {
+                transitions.put(new StateInputWrapper(current, c), next);
+            }
             // TODO : call regex helper to help populate transitions
 
             transitions.put(new StateInputWrapper(current, row[1].charAt(0)), next);

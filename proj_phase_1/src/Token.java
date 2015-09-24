@@ -1,5 +1,6 @@
 /**
- * Created by Raghav K on 9/17/15.
+ * Created by Raghav K on 9/17/15
+ * Struct class for tokenization
  */
 public class Token {
     private TokenType type;

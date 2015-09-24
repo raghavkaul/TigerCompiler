@@ -7,23 +7,29 @@ import java.util.*;
  * Class representing high-level scanner
  */
 public class TigerScanner implements  AbstractScanner {
-    private File infile;
     private Scanner infileScanner;
+    private String currLine;
     private DFA dfa;
-    private int lineNum = 0, columnNum = 0, prevTokLocation = 0;
+    private int lineNum, columnNum, prevTokLocation;
 
-    public TigerScanner(File stateFile, File transitionFile) {
-        dfa = new DFA(stateFile, transitionFile);
-    }
-
-    public void initScanner(File infile) {
-        this.infile = infile;
-
+    public TigerScanner(File infile, File stateFile, File transitionFile) {
         try {
-            this.infileScanner = new Scanner(this.infile);
+            this.infileScanner = new Scanner(infile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+        if (infileScanner.hasNextLine()) {
+            currLine = infileScanner.nextLine();
+        } else {
+            System.out.println("No code in file to be compiled.");
+        }
+
+        lineNum = 0;
+        columnNum = 0;
+        prevTokLocation = 0;
+
+        dfa = new DFA(stateFile, transitionFile);
     }
 
     @Deprecated
@@ -64,14 +70,44 @@ public class TigerScanner implements  AbstractScanner {
 
     @Override
     public Token peekToken() {
-        // TODO implement
-        return null;
+        // Clone state data
+        DFA dfaCopy = dfa;
+        Scanner infileScannerCopy = infileScanner;
+        int columnNumCopy = columnNum;
+
+        if (!infileScannerCopy.hasNext()) {
+            currLine = infileScannerCopy.nextLine();
+        }
+
+        // Get first character and reinitialize DFA
+        char currChar = currLine.charAt(columnNumCopy++);
+
+        // Restore DFA to start state
+        dfaCopy.returnToStart();
+        State currentState = dfaCopy.getNextState(currChar);
+
+        // Advance DFA until error no transition exists
+        while (currentState != null) {
+            dfaCopy.setState(currentState);
+            currChar = currLine.charAt(columnNumCopy++);
+            currentState = dfaCopy.getNextState(currChar);
+        }
+
+        Token result = new Token (currentState.tokenType(),
+                currLine.substring(prevTokLocation, columnNumCopy - 1),
+                lineNum,
+                columnNumCopy);
+
+        return result;
     }
 
     @Override
     public Token nextToken() {
-        String currLine = infileScanner.nextLine();
-        char currChar = currLine.charAt(columnNum++);
+        if (!infileScanner.hasNext()) {
+            currLine = infileScanner.nextLine();
+        }
+
+        char currChar = 'i';
         State currentState = dfa.getNextState(currChar);
 
         // TODO verify
@@ -87,7 +123,6 @@ public class TigerScanner implements  AbstractScanner {
                 columnNum);
 
         prevTokLocation = columnNum;
-
 
         return result;
     }
