@@ -12,8 +12,13 @@ public class TigerScanner implements  AbstractScanner {
     private DFA dfa;
     private int lineNum = 0, columnNum = 0, prevTokLocation = 0;
 
+    private boolean peeked;
+    private Token peekedToken;
+
     public TigerScanner(File stateFile, File transitionFile) {
         dfa = new DFA(stateFile, transitionFile);
+
+        peeked = false;
     }
 
     public void initScanner(File infile) {
@@ -64,12 +69,22 @@ public class TigerScanner implements  AbstractScanner {
 
     @Override
     public Token peekToken() {
-        // TODO implement
-        return null;
+        if (peeked == false) {
+            peekedToken = nextToken();
+            peeked = true;
+        }
+        return peekedToken;
     }
 
     @Override
     public Token nextToken() {
+        // Returned the peeked token if peeked previously
+        if (peeked) {
+            peeked = false;
+            return peekedToken;
+        }
+
+        // else
         String currLine = infileScanner.nextLine();
         char currChar = currLine.charAt(columnNum++);
         State currentState = dfa.getNextState(currChar);
@@ -87,7 +102,6 @@ public class TigerScanner implements  AbstractScanner {
                 columnNum);
 
         prevTokLocation = columnNum;
-
 
         return result;
     }
