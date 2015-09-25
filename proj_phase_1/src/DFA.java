@@ -100,16 +100,16 @@ public class DFA {
      * @ : wildcard alpha
      * @return a set of characters matching that primitive regex
      */
-    Set<Character> regexHelper(String regexString) {
+    protected Set<Character> regexHelper(String regexString) {
         Set<Character> validChars = new HashSet<Character>();
         Set<Character> exceptedChars = new HashSet<Character>();
         char[] symbols = new char[]
                 {',',':',';','(',')','[',']','{','}','+','-','*','/','=','<','>','&','|', '.'};
 
-        // TODO : refactor loops, can't increment a -> Z.
+        // Verify : refactor loops, can't increment a -> Z.
         switch(regexString.charAt(0)) {
             case '@':
-                for (char alpha = 'a'; alpha <= 'Z'; alpha++) {
+                for (char alpha = 'A'; alpha < '[' && alpha >= 'a' && alpha <= 'z'; alpha++) {
                     validChars.add(alpha);
                 }
                 break;
@@ -128,7 +128,7 @@ public class DFA {
                 }
             case '~':
                 char alphanum;
-                for (alphanum = 'a'; alphanum <= 'Z'; alphanum++) {
+                for (alphanum = 'A'; alphanum < '[' && alphanum >= 'a' && alphanum <= 'z'; alphanum++) {
                     if (!exceptedChars.contains(alphanum)) {
                         validChars.add(alphanum);
                     }

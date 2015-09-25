@@ -105,4 +105,12 @@ public class TigerScanner implements  AbstractScanner {
 
         return result;
     }
+
+    protected boolean isValidChar(char character) {
+        boolean result = false;
+        for (char alpha = 'A'; alpha < '[' && alpha >= 'a' && alpha <= 'z'; alpha++) {
+            if (alpha == character) result = true;
+        }
+        return result;
+    }
 }

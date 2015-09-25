@@ -2,22 +2,26 @@
  * Created by Raghav K on 9/23/15.
  */
 
-// import org.junit.Before;
-// import org.junit.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Scanner;
 
 public class DFATest {
 
     public DFA dfa;
-    private static final String statesFilename = "../data/states.csv", transitionsFilename = "../data/transitions.csv";
+    private static final String statesFilename = "./data/states.csv",
+            transitionsFilename = "./data/transitions.csv";
 
-    public DFATest() {
+    @Before
+    public void setUp() {
         dfa = new DFA(new File(statesFilename), new File(transitionsFilename));
     }
 
-    // @Test
+    @Test
     public void testDumpMapFileIO() {
         List<State> states = dfa.states;
 
@@ -33,17 +37,12 @@ public class DFATest {
         }
     }
 
-    public static void main(String[] args) {
-        DFATest test = new DFATest();
-        test.testDumpMapFileIO();
+    @Test
+    public void testIOEcho() throws FileNotFoundException {
+        Scanner scan = new Scanner(new File(transitionsFilename));
 
-        System.out.println("Testing: array");
-        String str = "array";
-        for (int i = 0; i < str.length(); i++) {
-            System.out.println(test.dfa.getState());
-            test.dfa.getNextState(str.charAt(i));
+        while (scan.hasNextLine()) {
+            System.out.println(scan.nextLine());
         }
-
-        System.out.println("Final State: " + test.dfa.getState());
     }
 }
