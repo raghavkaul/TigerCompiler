@@ -21,8 +21,15 @@ public class DFATest {
     public void testDumpMapFileIO() {
         List<State> states = dfa.states;
 
+        System.out.println("Printing out all the states recorded");
         for (State s : states) {
             System.out.println(s);
+        }
+
+        System.out.println("Printing out all the transitions");
+        for (StateInputWrapper siw : dfa.transitions.keySet()) {
+            System.out.print(siw + " ");
+            System.out.println(dfa.transitions.get(siw));
         }
     }
 
@@ -33,10 +40,10 @@ public class DFATest {
         System.out.println("Testing: array");
         String str = "array";
         for (int i = 0; i < str.length(); i++) {
-            System.out.println("Current State: " + test.dfa.getState());
+            System.out.println(test.dfa.getState());
             test.dfa.getNextState(str.charAt(i));
         }
 
-            System.out.println("Current State: " + test.dfa.getState());
+        System.out.println("Final State: " + test.dfa.getState());
     }
 }

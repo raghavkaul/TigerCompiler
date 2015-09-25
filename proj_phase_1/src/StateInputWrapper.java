@@ -19,7 +19,20 @@ public class StateInputWrapper {
     }
 
     @Override
+    public boolean equals(Object o) {
+    	if (o == null)
+    		return false;
+    	if (o instanceof StateInputWrapper) {
+    		StateInputWrapper temp = (StateInputWrapper) o;
+    		if (temp.getState().equals(this.state) && temp.getInput() == this.inputChar)
+    			return true;
+    	}
+
+    	return false;
+    }
+
+    @Override
     public String toString() {
-    	return state.toString() + "\nInput Char: " + inputChar;
+    	return state.toString() + "\tInput Char: " + inputChar;
     }
 }

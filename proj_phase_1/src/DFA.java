@@ -6,7 +6,7 @@ import java.util.*;
  * Created by Raghav K on 9/17/15.
  */
 public class DFA {
-    private Map<StateInputWrapper, State> transitions;
+    public Map<StateInputWrapper, State> transitions;
     protected List<State> states;
     private State startState;
     private State currState;
@@ -19,7 +19,7 @@ public class DFA {
     public DFA(File statesFile, File transitionsFile) {
         transitions = new HashMap<StateInputWrapper, State>();
         populateTransitions(statesFile, transitionsFile);
-        startState = new State("Start", TokenType.NON_ACCEPTING);
+        startState = new State("START_STATE", TokenType.NON_ACCEPTING);
         currState = startState;
     }
 
@@ -29,7 +29,8 @@ public class DFA {
      * @return next state associated with character or null if no transition exists
      */
     public State getNextState(char inputChar) {
-        return currState.getNextState(inputChar);
+        currState = transitions.get(new StateInputWrapper(currState, inputChar));
+        return currState;
     }
 
     public State getState() {
@@ -37,7 +38,7 @@ public class DFA {
     }
 
     public void setState(State state) {
-        this.currState = state;
+        currState = state;
     }
 
     public void returnToStart() {
