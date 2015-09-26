@@ -9,12 +9,6 @@ public class State {
     private Map<Character, State> transitions;
     private TokenType tokenType;
 
-
-    public State(String name) {
-        this.name = name;
-        transitions = new HashMap<Character, State>();
-    }
-
     public State(String name, TokenType tokenType) {
         this.name = name;
         this.tokenType = tokenType;
@@ -62,13 +56,7 @@ public class State {
     @Override
     public String toString() {
         String result = "State name : " + name;
-
-        // result += "\nToken type: " + tokenType.toString();
-        // result += "\nTransitions:";
-
-        // for (Map.Entry<Character, State> m : transitions.entrySet()) {
-        //     result += "\n\t Input character : " + m.getKey() + "\t -> Out state: " + m.getValue().getName();
-        // }
+        result += "\tToken type: " + tokenType.toString();
 
         return result;
     }
