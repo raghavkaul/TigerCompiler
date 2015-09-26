@@ -11,7 +11,7 @@ import java.util.Scanner;
  */
 public class ScannerTest {
     public DFA dfa;
-    private static final String statesFilename = "./data/states.csv",
+    private static final String statesFilename = "./data/states_dup.csv",
             transitionsFilename = "./data/transitions.csv";
 
     @Before

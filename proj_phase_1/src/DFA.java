@@ -46,7 +46,7 @@ public class DFA {
     }
 
     private void populateTransitions(File statesFile, File transitionsFile) {
-        String infileDelimiter = "\t";
+        final String infileDelimiter = "\t";
         Scanner scan = null;
 
         try {
@@ -73,9 +73,11 @@ public class DFA {
 
         // Each line in transitions.csv is a tuple (state, inChar, outState)
         // Sequentially read lines, populating transitions table
+        int i = 0;
         while(scan.hasNextLine()) {
             String[] row = scan.nextLine().split(infileDelimiter);
 
+            System.out.println(i++);
             // What follows is a fix of the worst <hack>
             State current = new State(row[0]);
             State next = new State(row[2]);
