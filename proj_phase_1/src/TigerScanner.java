@@ -1,116 +1,117 @@
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.*;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Created by Raghav K on 9/17/15
  * Class representing high-level scanner
  */
 public class TigerScanner implements  AbstractScanner {
-    private File infile;
-    private Scanner infileScanner;
+    private FileReader infileReader;
     private DFA dfa;
-    private int lineNum = 0, columnNum = 0, prevTokLocation = 0;
+    private int lineNum, columnNum;
 
-    private boolean peeked;
-    private Token peekedToken;
-
-    public TigerScanner(File stateFile, File transitionFile) {
-        dfa = new DFA(stateFile, transitionFile);
-
-        peeked = false;
-    }
-
-    public void initScanner(File infile) {
-        this.infile = infile;
-
+    public TigerScanner(File infile, File stateFile, File transitionFile) {
         try {
-            this.infileScanner = new Scanner(this.infile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Deprecated
-    public Collection<Token> sillyScan(File infile) {
-        List<Token> tokenList = new LinkedList<Token>();
-
-        while(infileScanner != null && infileScanner.hasNext()) {
-            String currLine = infileScanner.nextLine();
-
-            for (int i = 0; i < currLine.length(); i++) {
-                // Efficiency
-                char currChar = currLine.charAt(i);
-                State nextState = dfa.getNextState(currChar);
-
-                // Move to next state if a valid one exists
-                if(nextState != null) {
-                    dfa.setState(nextState);
-                } else {
-                    // No valid state transition implies we've completed a token
-                    State state = dfa.getState();
-
-                    // Add the token represented by the current state to our token list
-                    tokenList.add(new Token(state.tokenType(),
-                            currLine.substring(prevTokLocation, i), lineNum, columnNum));
-
-                    prevTokLocation = i + 1;
-                    dfa.returnToStart();
-                    dfa.setState(dfa.getNextState(currChar));
-                }
-                columnNum++;
-
-            }
-            lineNum++;
+            this.infileReader = new FileReader(infile);
+        } catch (IOException i) {
+            i.printStackTrace();
         }
 
-        return tokenList;
+        lineNum = 0;
+        columnNum = 0;
+
+        dfa = new DFA(stateFile, transitionFile);
     }
 
     @Override
     public Token peekToken() {
-        if (peeked == false) {
-            peekedToken = nextToken();
-            peeked = true;
-        }
-        return peekedToken;
+        return null;
     }
 
     @Override
     public Token nextToken() {
-        // Returned the peeked token if peeked previously
-        if (peeked) {
-            peeked = false;
-            return peekedToken;
-        }
+        // Reinitialize DFA
+        dfa.returnToStart();
 
-        // else
-        String currLine = infileScanner.nextLine();
-        char currChar = currLine.charAt(columnNum++);
+        // Initialize token data
+        Character currChar;
+        StringBuilder tokenLiteral = new StringBuilder();
+
+        // Pre-process whitespace
+        do {
+            currChar = safeRead();
+        } while (currChar == '\n' || currChar == ' ');
+
         State currentState = dfa.getNextState(currChar);
 
-        // TODO verify
-        while (currentState != null) {
-            dfa.setState(currentState);
-            currChar = currLine.charAt(columnNum++);
-            currentState = dfa.getNextState(currChar);
+        if (currentState == null) {
+            return new Token(TokenType.INVALID,
+                    currChar.toString(),
+                    lineNum,
+                    columnNum);
         }
 
-        Token result = new Token(currentState.tokenType(),
-                currLine.substring(prevTokLocation, columnNum - 1),
+        while (true) {
+            tokenLiteral.append(currChar);
+            dfa.setState(currentState);
+
+            try {
+                currChar = Character.toChars(infileReader.read())[0];
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (dfa.getNextState(currChar) == null) {
+                try {
+                    infileReader.reset();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            } else {
+                currentState = dfa.getNextState(currChar);
+                try {
+                    infileReader.mark(Integer.MAX_VALUE);
+                    columnNum++;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return new Token(currentState.tokenType(),
+                tokenLiteral.toString(),
                 lineNum,
                 columnNum);
-
-        prevTokLocation = columnNum;
-
-        return result;
     }
 
-    protected boolean isValidChar(char character) {
-        boolean result = false;
-        for (char alpha = 'A'; alpha < '[' && alpha >= 'a' && alpha <= 'z'; alpha++) {
-            if (alpha == character) result = true;
+    /**
+     * Modular-izes calls to the file reader
+     * Updates line and column numbers
+     * @return the next character in the file buffer
+     */
+    private Character safeRead() {
+        Character currChar = null;
+
+        try {
+            currChar = Character.toChars(infileReader.read())[0];
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return result;
+
+        columnNum++;
+
+        if (currChar != null && currChar == '\n') {
+            lineNum++;
+        }
+
+        try {
+            infileReader.mark(Integer.MAX_VALUE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return currChar;
     }
 }
