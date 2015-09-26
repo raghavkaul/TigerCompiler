@@ -72,7 +72,7 @@ public class DFA {
         }
 
         // Each line in transitions.csv is a tuple (state, inChar, outState)
-        // Sequentially read lines, populating transitions tabl
+        // Sequentially read lines, populating transitions table
         while(scan.hasNextLine()) {
             String[] row = scan.nextLine().split(infileDelimiter);
 
@@ -91,7 +91,6 @@ public class DFA {
     }
 
     /**
-     *
      * @param regexString string from transition table to parse, using primitive regex rules
      * Rules;
      * ^ : negation
