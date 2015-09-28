@@ -99,6 +99,7 @@ public class DFA {
      * ~ : wildcard alphanumeric and symbols
      * # : wildcard numeric
      * @ : wildcard alpha
+     * $ : wildcard numeric and symbols
      * @return a set of characters matching that primitive regex
      */
     protected Set<Character> regexHelper(String regexString) {
