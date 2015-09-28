@@ -7,7 +7,7 @@ import java.util.*;
  */
 public class DFA {
     public Map<StateInputWrapper, State> transitions;
-    protected List<State> states;
+    protected Map<String, State> states;
     private State startState;
     private State currState;
     private Set<Token> punctuationTokens = new HashSet<Token>();
@@ -19,7 +19,7 @@ public class DFA {
     public DFA(File statesFile, File transitionsFile) {
         transitions = new HashMap<StateInputWrapper, State>();
         populateTransitions(statesFile, transitionsFile);
-        startState = new State("START_STATE", TokenType.NON_ACCEPTING);
+        startState = states.get("START_STATE");
         currState = startState;
     }
 
@@ -58,11 +58,11 @@ public class DFA {
         // Tables are denormalized
         // We have to read on table of State -> TokenType
         // And another of State -> Input character -> Next State
-        states = new ArrayList<State>();
+        states = new HashMap<String, State>();
 
         while (scan.hasNextLine()) {
             String[] row = scan.nextLine().split(infileDelimiter);
-            states.add(new State(row[0], TokenType.valueOf(row[1])));
+            states.put(row[0], new State(row[0], TokenType.valueOf(row[1])));
         }
 
         try {
@@ -77,13 +77,11 @@ public class DFA {
         while(scan.hasNextLine()) {
             String[] row = scan.nextLine().split(infileDelimiter);
 
-            System.out.println(i++);
             // What follows is a fix of the worst <hack>
-            State current = new State(row[0]);
-            State next = new State(row[2]);
+            State current = states.get(row[0]);
+            State next = states.get(row[2]);
             // </hack>
 
-            // TODO : call regex helper to help populate transitions
             Set<Character> characters = regexHelper(row[1]);
 
             for (Character c : characters) {
@@ -111,7 +109,10 @@ public class DFA {
         // Verify : refactor loops, can't increment a -> Z.
         switch(regexString.charAt(0)) {
             case '@':
-                for (char alpha = 'A'; alpha < '[' && alpha >= 'a' && alpha <= 'z'; alpha++) {
+                for (char alpha = 'A'; alpha <= 'Z'; alpha++) {
+                    validChars.add(alpha);
+                }
+                for (char alpha = 'a'; alpha <= 'z'; alpha++){
                     validChars.add(alpha);
                 }
                 break;
@@ -130,7 +131,12 @@ public class DFA {
                 }
             case '~':
                 char alphanum;
-                for (alphanum = 'A'; alphanum < '[' && alphanum >= 'a' && alphanum <= 'z'; alphanum++) {
+                for (alphanum = 'A'; alphanum <= 'Z'; alphanum++) {
+                    if (!exceptedChars.contains(alphanum)) {
+                        validChars.add(alphanum);
+                    }
+                }
+                for (alphanum = 'a';  alphanum <= 'z'; alphanum++) {
                     if (!exceptedChars.contains(alphanum)) {
                         validChars.add(alphanum);
                     }

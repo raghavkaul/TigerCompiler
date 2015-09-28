@@ -35,4 +35,9 @@ public class StateInputWrapper {
     public String toString() {
     	return state.toString() + "\tInput Char: " + inputChar;
     }
+
+    @Override
+    public int hashCode() {
+        return state.tokenType().hashCode() + ((int) inputChar);
+    }
 }
