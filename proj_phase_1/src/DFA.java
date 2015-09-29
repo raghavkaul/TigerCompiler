@@ -104,7 +104,7 @@ public class DFA {
         Set<Character> validChars = new HashSet<Character>();
         Set<Character> exceptedChars = new HashSet<Character>();
         char[] symbols = new char[]
-                {',',':',';','(',')','[',']','{','}','+','-','*','/','=','<','>','&','|', '.'};
+                {',',':',';','(',')','[',']','{','}','+','-','*','/','=','<','>','&','|', '.', '_'};
 
         // Verify : refactor loops, can't increment a -> Z.
         switch(regexString.charAt(0)) {
@@ -115,6 +115,14 @@ public class DFA {
                 for (char alpha = 'a'; alpha <= 'z'; alpha++){
                     validChars.add(alpha);
                 }
+                for (int i = 0; i < symbols.length; i++) {
+                    if (symbols[i] != '*' && symbols[i] != '/') {
+                        validChars.add(symbols[i]);
+                    }
+                }
+                for (char alpha = '0'; alpha <= '9'; alpha++) {
+                    validChars.add(alpha);
+                }
                 break;
             case '!':
                 for (int i = 1; i < regexString.length(); i++) {
@@ -122,7 +130,9 @@ public class DFA {
                 }
             case '#':
                 for (char numeric = '0'; numeric <= '9'; numeric++) {
-                    validChars.add(numeric);
+                    if (!exceptedChars.contains(numeric)) {
+                        validChars.add(numeric);
+                    }
                 }
                 break;
             case '^':
@@ -146,11 +156,15 @@ public class DFA {
                         validChars.add(alphanum);
                     }
                 }
-                for (alphanum = 0; alphanum < symbols.length; alphanum++) {
-                    if (!exceptedChars.contains(alphanum)) {
-                        validChars.add(symbols[alphanum]);
-                    }
+
+                if (!exceptedChars.contains('_')) {
+                    validChars.add('_');
                 }
+//                for (alphanum = 0; alphanum < symbols.length; alphanum++) {
+//                    if (!exceptedChars.contains(alphanum)) {
+//                        validChars.add(symbols[alphanum]);
+//                    }
+//                }
                 break;
             default:
                 for (char c : regexString.toCharArray()) {

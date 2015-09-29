@@ -1,21 +1,20 @@
 /**
  * Created by Raghav K on 9/26/15.
  */
-public class RuleTokenWrapper {
-    private ParseRule rule;
+public class NontermTokenWrapper {
+    private Nonterminal rule;
     private Token token;
 
-
-    public RuleTokenWrapper(ParseRule rule, Token token) {
+    public NontermTokenWrapper(Nonterminal rule, Token token) {
         this.rule = rule;
         this.token = token;
     }
 
-    public ParseRule getRule() {
+    public Nonterminal getRule() {
         return rule;
     }
 
-    public void setRule(ParseRule rule) {
+    public void setRule(Nonterminal rule) {
         this.rule = rule;
     }
 

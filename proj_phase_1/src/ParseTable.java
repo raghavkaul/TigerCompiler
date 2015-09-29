@@ -7,12 +7,8 @@ import java.util.Scanner;
  * Created by Raghav K on 9/26/15.
  */
 public class ParseTable {
-    private Map<RuleTokenWrapper, ParseRule> ruleTable;
+    private Map<NontermTokenWrapper, Rule> ruleTable;
 
-
-    /**
-     * Add rules
-     */
     public ParseTable(File rulesFile) {
         Scanner rulesFileScanner = null;
 
@@ -22,9 +18,13 @@ public class ParseTable {
             e.printStackTrace();
         }
 
-        while (rulesFileScanner.hasNextLine()) {
+        while (rulesFileScanner != null && rulesFileScanner.hasNextLine()) {
 
         }
 
+    }
+
+    public Rule matchRule(Nonterminal nonterminal, Token token) {
+        return ruleTable.get(new NontermTokenWrapper(nonterminal, token));
     }
 }
