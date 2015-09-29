@@ -170,6 +170,16 @@ public class DFA {
                     validChars.add('_');
                 }
                 break;
+            case '%':
+                for (int i = 1; i < regexString.length(); i++) {
+                    exceptedChars.add(regexString.charAt(i));
+                }
+                for (int i = 0; i < symbols.length; i++) {
+                    if (!exceptedChars.contains(symbols[i])) {
+                        validChars.add(symbols[i]);
+                    }
+                }
+                break;
             default:
                 for (char c : regexString.toCharArray()) {
                     validChars.add(c);

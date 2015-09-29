@@ -74,6 +74,7 @@ public class DFATest {
                 ,"in", "let", "of", "then", "to", "type", "var", "while", "endif"
                 , "begin", "end", "enddo", "return"};
 
+
         for (String keyword : keywords) {
             dfa.returnToStart();
             for (int i = 0; i < keyword.length(); i++) {
@@ -82,11 +83,45 @@ public class DFATest {
             }
             System.out.println(keyword + " = " + dfa.getState());
         }
+
+
+    }
+
+    @Test
+    public void testID() throws Exception {
+        String ids[] = {"arraya", "breakd", "doe", "elsse", "endf", "fov", "functdion", "iaf"
+                ,"idn", "leet", "ofs", "thven", "tco", "typae", "vear", "whfile", "endiff"
+                , "begind", "endd", "enddoa", "returne", "a19238021i", "d_13"};
+
+        String errors[] = {"0d", "_D", "sd/"};
+
+        for (String id : ids) {
+            dfa.returnToStart();
+            for (int i = 0; i < id.length(); i++) {
+                System.out.println(dfa.getState());
+                dfa.getNextState(id.charAt(i));
+            }
+            Assert.assertTrue(dfa.getState().tokenType() == TokenType.ID);
+        }
+
+        for (String e: errors) {
+            dfa.returnToStart();
+            System.out.println(dfa.getState());
+            for (int i = 0; i < e.length(); i++) {
+                dfa.getNextState(e.charAt(i));
+                if (dfa.getState().tokenType() == TokenType.INVALID)
+                    break;
+            }
+            if (dfa.getState().tokenType() != TokenType.INVALID){
+                Assert.fail("Invalid token validated: " + e);
+            }
+            System.out.println(e + " = " + dfa.getState());
+        }
     }
 
     @Test
     public void testComment() throws Exception {
-        String comments[] = {"/**/", "/*hello world*/","/*137812uikna,vjolk.234*/", "/*hello**/"};
+        String comments[] = {"/**/", "/*hello world*/","/*137812uikna<vjolk.234*/", "/*hello**/"};
         String errors[] = {"//*fuck*/", "/*/**/*/"};
 
         for (String comment: comments) {
