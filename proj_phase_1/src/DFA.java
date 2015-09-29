@@ -10,6 +10,7 @@ public class DFA {
     protected Map<String, State> states;
     private State startState;
     private State currState;
+    private State errorState;
     private Set<Token> punctuationTokens = new HashSet<Token>();
 
     /**
@@ -21,6 +22,7 @@ public class DFA {
         populateTransitions(statesFile, transitionsFile);
         startState = states.get("START_STATE");
         currState = startState;
+        errorState = new State("ERROR", TokenType.INVALID);
     }
 
     /**
@@ -30,6 +32,9 @@ public class DFA {
      */
     public State getNextState(char inputChar) {
         currState = transitions.get(new StateInputWrapper(currState, inputChar));
+        if (currState == null) {
+            currState = errorState;
+        }
         return currState;
     }
 
@@ -145,9 +150,9 @@ public class DFA {
                         validChars.add(alphanum);
                     }
                 }
-                for (alphanum = 0; alphanum < symbols.length; alphanum++) {
-                    if (!exceptedChars.contains(alphanum)) {
-                        validChars.add(symbols[alphanum]);
+                for (int i = 0; i < symbols.length; i++) {
+                    if (!exceptedChars.contains(symbols[i])) {
+                        validChars.add(symbols[i]);
                     }
                 }
                 break;
