@@ -11,6 +11,9 @@ public class TigerScanner implements  AbstractScanner {
     private DFA dfa;
     private int lineNum, columnNum;
 
+    private boolean peeked;
+    private Token peekedToken;
+
     public TigerScanner(File infile, File stateFile, File transitionFile) {
         try {
             this.infileReader = new FileReader(infile);
@@ -26,11 +29,19 @@ public class TigerScanner implements  AbstractScanner {
 
     @Override
     public Token peekToken() {
-        return null;
+        if (peeked == false) {
+            peekedToken = nextToken();
+            peeked = true;
+        }
+        return peekedToken;
     }
 
     @Override
     public Token nextToken() {
+        if (peeked) {
+            peeked = false;
+            return peekedToken;
+        }
         // Reinitialize DFA
         dfa.returnToStart();
 
@@ -45,6 +56,7 @@ public class TigerScanner implements  AbstractScanner {
 
         State currentState = dfa.getNextState(currChar);
 
+        // Checks for invalid characters, unicode, UTF-16, etc.
         if (currentState == null) {
             return new Token(TokenType.INVALID,
                     currChar.toString(),
