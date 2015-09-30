@@ -46,23 +46,45 @@ public class TigerParser {
     public boolean parse() {
         boolean hasErrors = false;
         Set<Token> errors = new HashSet<Token>();
+        Token lookahead;
+        Lexeme topOfStack;
 
-        while (infileScanner.peekToken() != null) { // TODO change this to check stack size.
-            Token lookahead = infileScanner.nextToken();
-            // TODO
+        while (true) {
+            topOfStack = stack.peek();
+            lookahead = infileScanner.nextToken();
+
+            if (topOfStack.equals(EOF)) {
+                break;
+            } else if (topOfStack instanceof Terminal) {
+                if (((Terminal) topOfStack).matches(lookahead)) {
+                    stack.pop();
+                } else {
+                    hasErrors = true;
+                    errors.add(lookahead);
+                    System.out.println("Failed to match the following token " +
+                            "to a nonterminal: " + infileScanner.peekToken());
+                }
+            } else {
+                Rule matchedRule = parseTable.matchRule((Nonterminal) topOfStack,
+                        lookahead);
+
+                if (matchedRule != null) {
+                    stack.pop();
+                    for (Lexeme l : matchedRule.getExpansion()) {
+                        stack.push(l);
+                    }
+                } else {
+                    hasErrors = true;
+                    errors.add(lookahead);
+                    System.out.println("Failed to match the following token " +
+                            "to a rule : " + lookahead);
+                }
+            }
         }
 
-        if (stack.size() != 1) {
-            System.out.println("Unexpected end of file.");
-            return false;
-        }
+        System.out.println("Parse completed with " + errors.size() + " errors.");
 
-        if (hasErrors) {
-            System.out.println("Parse completed with " + errors.size() + " errors.");
-        }
-
-        System.out.println("");
-        return hasErrors; // TODO fix
+        return hasErrors;
     }
     private Set<Rule> populateRules() {
         return null;
