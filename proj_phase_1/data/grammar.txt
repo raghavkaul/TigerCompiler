@@ -1,0 +1,78 @@
+<tiger-program> → LET <declaration-segment> IN <stat-seq> END
+
+<declaration-segment> → <type-declaration-list> <var-declaration-list> <funct-declaration-list>
+
+<type-declaration-list> → NULL
+<type-declaration-list> → <type-declaration> <type-declaration-list>
+
+<var-declaration-list> → NULL
+<var-declaration-list> → <var-declaration> <var-declaration-list>
+
+<funct-declaration-list> → NULL
+<funct-declaration-list> → <funct-declaration> <funct-declaration-list>
+
+<type-declaration> → TYPE ID EQ <type> SEMI
+
+<type> → <type-id>
+<type> → ARRAY LBRACK INTLIT RBRACK OF <type-id>
+<type> → ID
+
+<type-id> → int | float
+
+<var-declaration> → VAR <id-list> COLON <type> <optional-init> SEMI
+
+<id-list> → ID <id-list-tail>
+<id-list-tail> -> NULL
+<id-list-tail> -> COMMA <id-list>
+
+<optional-init> → NULL
+<optional-init> → ASSIGN <const>
+
+<funct-declaration> → FUNCTION ID LPAREN <param-list> RPAREN <ret-type> BEGIN <stat-seq> END SEMI
+
+<param-list> → NULL
+<param-list> → <param> <param-list-tail>
+<param-list-tail> → NULL
+<param-list-tail> → COMMA <param> <param-list-tail>
+
+<ret-type> → NULL
+<ret-type> → COLON <type>
+
+<param> → ID COLON <type>
+
+<stat-seq> → <stat> <stat-seq-tail>
+<stat-seq-tail> -> NULL
+<stat-seq-tail> -> <stat-seq>
+
+<stat> → <lvalue> ASSIGN <expr> SEMI
+<stat> -> IF <expr> THEN <stat-seq> <stat-tail> ENDIF SEMI
+<stat-tail> -> ELSE <stat-seq>
+<stat-tail> -> NULL
+<stat> → WHILE <expr> DO <stat-seq> ENDDO SEMI
+<stat> → FOR ID ASSIGN <expr> TO <expr> DO <stat-seq> ENDDO SEMI
+<stat> → <opt­prefix> ID LPAREN <expr­list> RPAREN SEMI
+
+<opt­prefix> → <lvalue> ASSIGN
+<opt­prefix> → NULL
+
+<stat> → BREAK SEMI
+<stat> → RETURN <expr> SEMI
+
+<expr> → <const>
+<expr> → <lvalue>
+<expr> -> <binary-operator> <expr>
+<expr> -> LPAREN <expr> RPAREN
+
+<const> → INTLIT
+<const> → FLOATLIT
+
+<binary-operator> → PLUS | MINUS | MULT | DIV | EQUALS | NEQ | LESSER | GREATER | LESSEREQ | GREATEREQ | AND | OR
+
+<expr-list> → NULL
+<expr-list> → <expr> <expr-list-tail>
+<expr-list-tail> → COMMA <expr> <expr-list-tail>
+<expr-list-tail> → NULL
+
+<lvalue> → ID <lvalue-tail>
+<lvalue-tail> → LBRACK <expr> RBRACK
+<lvalue-tail> → NULL

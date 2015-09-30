@@ -44,4 +44,13 @@ public class Token {
     public TokenType getType() {
         return type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o != null && o instanceof Token) {
+            return ((Token) o).getType() == this.type;
+        } else {
+            return false;
+        }
+    }
 }
