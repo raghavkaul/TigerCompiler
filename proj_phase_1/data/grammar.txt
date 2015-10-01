@@ -14,16 +14,18 @@
 <type-declaration> → TYPE ID EQ <type> SEMI
 
 <type> → <type-id>
-<type> → ARRAY LBRACK INTLIT RBRACK OF <type-id>
-<type> → ID
-
-<type-id> → int | float
+<type> → ARRAY LBRACK INTLIT RBRACK <arr-dim> OF <type-id>
+<arr-dim> -> NULL
+<arr-dim> -> LBRACK INTLIT RBRACK <arr-dim>
+<type-id> → ID
+<type-id> → int
+<type-id> -> float
 
 <var-declaration> → VAR <id-list> COLON <type> <optional-init> SEMI
 
 <id-list> → ID <id-list-tail>
 <id-list-tail> -> NULL
-<id-list-tail> -> COMMA <id-list>
+<id-list-tail> -> COMMA <id-list-tail>
 
 <optional-init> → NULL
 <optional-init> → ASSIGN <const>
@@ -42,7 +44,7 @@
 
 <stat-seq> → <stat> <stat-seq-tail>
 <stat-seq-tail> -> NULL
-<stat-seq-tail> -> <stat-seq>
+<stat-seq-tail> -> <stat-seq> <stat-seq-tail>
 
 <stat> → <lvalue> ASSIGN <expr> SEMI
 <stat> -> IF <expr> THEN <stat-seq> <stat-tail> ENDIF SEMI
