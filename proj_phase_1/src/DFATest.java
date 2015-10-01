@@ -64,8 +64,8 @@ public class DFATest {
 
     @Test
     public void testStartState() throws Exception {
-        Assert.assertTrue(dfa.getState().tokenType() == TokenType.NON_ACCEPTING
-                && dfa.getState().getName().equals("START_STATE"));
+        Assert.assertTrue(dfa.getCurrState().tokenType() == TokenType.NON_ACCEPTING
+                && dfa.getCurrState().getName().equals("START_STATE"));
     }
 
     @Test
@@ -78,10 +78,10 @@ public class DFATest {
         for (String keyword : keywords) {
             dfa.returnToStart();
             for (int i = 0; i < keyword.length(); i++) {
-                System.out.println(dfa.getState());
+                System.out.println(dfa.getCurrState());
                 dfa.getNextState(keyword.charAt(i));
             }
-            System.out.println(keyword + " = " + dfa.getState());
+            System.out.println(keyword + " = " + dfa.getCurrState());
         }
 
 
@@ -91,31 +91,31 @@ public class DFATest {
     public void testID() throws Exception {
         String ids[] = {"arraya", "breakd", "doe", "elsse", "endf", "fov", "functdion", "iaf"
                 ,"idn", "leet", "ofs", "thven", "tco", "typae", "vear", "whfile", "endiff"
-                , "begind", "endd", "enddoa", "returne", "a19238021i", "d_13"};
+                , "begind", "endd", "enddoa", "returne", "a19238021i", "d_D3", "D", "A"};
 
         String errors[] = {"0d", "_D", "sd/"};
 
         for (String id : ids) {
             dfa.returnToStart();
             for (int i = 0; i < id.length(); i++) {
-                System.out.println(dfa.getState());
-                dfa.getNextState(id.charAt(i));
+                System.out.println(dfa.getCurrState() + " " + id.charAt(i));
+                dfa.setNextState(id.charAt(i));
             }
-            Assert.assertTrue(dfa.getState().tokenType() == TokenType.ID);
+            Assert.assertTrue(dfa.getCurrState().tokenType() == TokenType.ID);
         }
 
         for (String e: errors) {
             dfa.returnToStart();
-            System.out.println(dfa.getState());
+            System.out.println(dfa.getCurrState());
             for (int i = 0; i < e.length(); i++) {
-                dfa.getNextState(e.charAt(i));
-                if (dfa.getState().tokenType() == TokenType.INVALID)
+                dfa.setNextState(e.charAt(i));
+                if (dfa.getCurrState().tokenType() == TokenType.INVALID)
                     break;
             }
-            if (dfa.getState().tokenType() != TokenType.INVALID){
+            if (dfa.getCurrState().tokenType() != TokenType.INVALID){
                 Assert.fail("Invalid token validated: " + e);
             }
-            System.out.println(e + " = " + dfa.getState());
+            System.out.println(e + " = " + dfa.getCurrState());
         }
     }
 
@@ -128,25 +128,25 @@ public class DFATest {
             dfa.returnToStart();
             for (int i = 0; i < comment.length(); i++) {
 
-                System.out.println(dfa.getState() + " " + comment.charAt(i));
-                dfa.getNextState(comment.charAt(i));
+                System.out.println(dfa.getCurrState() + " " + comment.charAt(i));
+                dfa.setNextState(comment.charAt(i));
             }
-            Assert.assertTrue(dfa.getState().tokenType() == TokenType.COMMENT_END);
-            System.out.println(comment + " = " + dfa.getState());
+            Assert.assertTrue(dfa.getCurrState().tokenType() == TokenType.COMMENT_END);
+            System.out.println(comment + " = " + dfa.getCurrState());
         }
 
         for (String e: errors) {
             dfa.returnToStart();
-            System.out.println(dfa.getState());
+            System.out.println(dfa.getCurrState());
             for (int i = 0; i < e.length(); i++) {
-                dfa.getNextState(e.charAt(i));
-                if (dfa.getState().tokenType() == TokenType.INVALID)
+                dfa.setNextState(e.charAt(i));
+                if (dfa.getCurrState().tokenType() == TokenType.INVALID)
                     break;
             }
-            if (dfa.getState().tokenType() != TokenType.INVALID){
+            if (dfa.getCurrState().tokenType() != TokenType.INVALID){
                 Assert.fail("Invalid token validated: " + e);
             }
-            System.out.println(e + " = " + dfa.getState());
+            System.out.println(e + " = " + dfa.getCurrState());
         }
     }
 
@@ -159,34 +159,34 @@ public class DFATest {
         for (String ints : integers) {
             dfa.returnToStart();
             for (int i = 0; i < ints.length(); i++) {
-                System.out.println(dfa.getState());
-                dfa.getNextState(ints.charAt(i));
+                System.out.println(dfa.getCurrState());
+                dfa.setNextState(ints.charAt(i));
             }
-            Assert.assertTrue(dfa.getState().tokenType() == TokenType.INTLIT);
-            System.out.println(ints + " = " + dfa.getState());
+            Assert.assertTrue(dfa.getCurrState().tokenType() == TokenType.INTLIT);
+            System.out.println(ints + " = " + dfa.getCurrState());
         }
 
         for (String f : floats) {
             dfa.returnToStart();
             for (int i = 0; i < f.length(); i++) {
-                System.out.println(dfa.getState());
-                dfa.getNextState(f.charAt(i));
+                System.out.println(dfa.getCurrState());
+                dfa.setNextState(f.charAt(i));
             }
-            Assert.assertTrue(dfa.getState().tokenType() == TokenType.FLOATLIT);
-            System.out.println(f + " = " + dfa.getState());
+            Assert.assertTrue(dfa.getCurrState().tokenType() == TokenType.FLOATLIT);
+            System.out.println(f + " = " + dfa.getCurrState());
         }
 
         for (String e: errors) {
             dfa.returnToStart();
-            System.out.println(dfa.getState());
+            System.out.println(dfa.getCurrState());
             for (int i = 0; i < e.length(); i++) {
-                dfa.getNextState(e.charAt(i));
-                if (dfa.getState().tokenType() == TokenType.INVALID)
+                dfa.setNextState(e.charAt(i));
+                if (dfa.getCurrState().tokenType() == TokenType.INVALID)
                     break;
             }
-            if (dfa.getState().tokenType() != TokenType.INVALID)
+            if (dfa.getCurrState().tokenType() != TokenType.INVALID)
                 Assert.fail("Invalid token validated" + e);
-            System.out.println(e + " = " + dfa.getState());
+            System.out.println(e + " = " + dfa.getCurrState());
         }
     }
 }

@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * Created by Raghav K on 9/17/15
@@ -10,6 +11,8 @@ public class TigerScanner implements  AbstractScanner {
     private FileReader infileReader;
     private DFA dfa;
     private int lineNum, columnNum;
+
+    private boolean done;
 
     private boolean peeked;
     private Token peekedToken;
@@ -25,6 +28,7 @@ public class TigerScanner implements  AbstractScanner {
         columnNum = 0;
 
         dfa = new DFA(stateFile, transitionFile);
+        done = false;
     }
 
     @Override
@@ -52,50 +56,58 @@ public class TigerScanner implements  AbstractScanner {
         // Pre-process whitespace
         do {
             currChar = safeRead();
-        } while (currChar == '\n' || currChar == ' ');
+        } while (currChar == '\n' || currChar == ' ' || currChar == '\t');
 
         State currentState = dfa.getNextState(currChar);
 
         // Checks for invalid characters, unicode, UTF-16, etc.
-        if (currentState == null) {
+        if (currentState.tokenType() == TokenType.INVALID) {
             return new Token(TokenType.INVALID,
                     currChar.toString(),
                     lineNum,
                     columnNum);
         }
 
-        while (true) {
+        while (!done) {
             tokenLiteral.append(currChar);
-            dfa.setState(currentState);
+            dfa.setNextState(currChar);
 
             try {
                 currChar = Character.toChars(infileReader.read())[0];
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
+            } catch (IllegalArgumentException e) {
+                if (currChar == 'd')
+                    return new Token(currentState.tokenType(),
+                        tokenLiteral.toString(),
+                        lineNum,
+                        columnNum);
+                else
+                    System.out.println("Missing END");
+                    e.printStackTrace();
+                return null;
             }
 
-            if (dfa.getNextState(currChar) == null) {
-                try {
-                    infileReader.reset();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
-            } else {
+            // If no transition is found, push back character and finish tokenizing
+            if (dfa.getNextState(currChar).tokenType() == TokenType.INVALID) {
+                return new Token(currentState.tokenType(),
+                        tokenLiteral.toString(),
+                        lineNum,
+                        columnNum);
+//                try {
+//                    infileReader.reset();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                break;
+            } else { // If transition is found, keep going
                 currentState = dfa.getNextState(currChar);
-                try {
-                    infileReader.mark(Integer.MAX_VALUE);
-                    columnNum++;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                columnNum++;
             }
         }
-
-        return new Token(currentState.tokenType(),
-                tokenLiteral.toString(),
-                lineNum,
-                columnNum);
+        // should never happen
+        return null;
     }
 
     /**
@@ -116,12 +128,6 @@ public class TigerScanner implements  AbstractScanner {
 
         if (currChar != null && currChar == '\n') {
             lineNum++;
-        }
-
-        try {
-            infileReader.mark(Integer.MAX_VALUE);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         return currChar;

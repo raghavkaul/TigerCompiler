@@ -31,14 +31,21 @@ public class DFA {
      * @return next state associated with character or null if no transition exists
      */
     public State getNextState(char inputChar) {
+        State temp = transitions.get(new StateInputWrapper(currState, inputChar));
+        if (temp == null)
+            return errorState;
+        else
+            return temp;
+    }
+
+    public void setNextState(char inputChar) {
         currState = transitions.get(new StateInputWrapper(currState, inputChar));
         if (currState == null) {
             currState = errorState;
         }
-        return currState;
     }
 
-    public State getState() {
+    public State getCurrState() {
         return currState;
     }
 
@@ -98,11 +105,12 @@ public class DFA {
     /**
      * @param regexString string from transition table to parse, using primitive regex rules
      * Rules;
-     * ^ : negation
+     * ^ : negation for alpha and _
      * ~ : wildcard alphanumeric and symbols
      * # : wildcard numeric
      * @ : wildcard alpha
      * $ : wildcard numeric and symbols
+     * % : negation for symbols
      * @return a set of characters matching that primitive regex
      */
     protected Set<Character> regexHelper(String regexString) {
