@@ -17,6 +17,9 @@ public class TigerScanner implements  AbstractScanner {
     private boolean peeked;
     private Token peekedToken;
 
+    private char invalidChar;
+    private boolean invalidated;
+
     public TigerScanner(File infile, File stateFile, File transitionFile) {
         try {
             this.infileReader = new FileReader(infile);
@@ -91,6 +94,8 @@ public class TigerScanner implements  AbstractScanner {
 
             // If no transition is found, push back character and finish tokenizing
             if (dfa.getNextState(currChar).tokenType() == TokenType.INVALID) {
+                invalidated = true;
+                invalidChar = currChar;
                 return new Token(currentState.tokenType(),
                         tokenLiteral.toString(),
                         lineNum,
@@ -117,6 +122,12 @@ public class TigerScanner implements  AbstractScanner {
      */
     private Character safeRead() {
         Character currChar = null;
+
+        if (invalidated) {
+            currChar = invalidChar;
+            invalidated = false;
+            return currChar;
+        }
 
         try {
             currChar = Character.toChars(infileReader.read())[0];
