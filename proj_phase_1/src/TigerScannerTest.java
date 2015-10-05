@@ -28,7 +28,7 @@ public class TigerScannerTest {
 
     @Test
     public void testExample1() throws Exception {
-        while (ts.peekToken().getType() != TokenType.END)
+        while (ts.peekToken().getType() != TokenType.EOF_TOKEN)
             System.out.print(ts.nextToken().getType() + " ");
         System.out.println(ts.peekToken().getType());
     }

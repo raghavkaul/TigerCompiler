@@ -61,6 +61,12 @@ public class TigerScanner implements  AbstractScanner {
             currChar = safeRead();
         } while (currChar == '\n' || currChar == ' ' || currChar == '\t');
 
+        if (currChar == '\0')
+            return new Token(TokenType.EOF_TOKEN,
+                    "EOF",
+                    lineNum,
+                    columnNum);
+
         State currentState = dfa.getNextState(currChar);
 
         // Checks for invalid characters, unicode, UTF-16, etc.
@@ -87,9 +93,10 @@ public class TigerScanner implements  AbstractScanner {
                         lineNum,
                         columnNum);
                 else
-                    System.out.println("Missing END");
-                    e.printStackTrace();
-                return null;
+                    return new Token(TokenType.EOF_TOKEN,
+                            "EOF",
+                            lineNum,
+                            columnNum);
             }
 
             // If no transition is found, push back character and finish tokenizing
@@ -133,6 +140,8 @@ public class TigerScanner implements  AbstractScanner {
             currChar = Character.toChars(infileReader.read())[0];
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            return '\0';
         }
 
         columnNum++;
