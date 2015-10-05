@@ -17,6 +17,9 @@ public class TigerScanner implements  AbstractScanner {
     private boolean peeked;
     private Token peekedToken;
 
+    private char invalidChar;
+    private boolean invalidated;
+
     public TigerScanner(File infile, File stateFile, File transitionFile) {
         try {
             this.infileReader = new FileReader(infile);
@@ -58,6 +61,12 @@ public class TigerScanner implements  AbstractScanner {
             currChar = safeRead();
         } while (currChar == '\n' || currChar == ' ' || currChar == '\t');
 
+        if (currChar == '\0')
+            return new Token(TokenType.EOF_TOKEN,
+                    "EOF",
+                    lineNum,
+                    columnNum);
+
         State currentState = dfa.getNextState(currChar);
 
         // Checks for invalid characters, unicode, UTF-16, etc.
@@ -84,13 +93,16 @@ public class TigerScanner implements  AbstractScanner {
                         lineNum,
                         columnNum);
                 else
-                    System.out.println("Missing END");
-                    e.printStackTrace();
-                return null;
+                    return new Token(TokenType.EOF_TOKEN,
+                            "EOF",
+                            lineNum,
+                            columnNum);
             }
 
             // If no transition is found, push back character and finish tokenizing
             if (dfa.getNextState(currChar).tokenType() == TokenType.INVALID) {
+                invalidated = true;
+                invalidChar = currChar;
                 return new Token(currentState.tokenType(),
                         tokenLiteral.toString(),
                         lineNum,
@@ -118,10 +130,18 @@ public class TigerScanner implements  AbstractScanner {
     private Character safeRead() {
         Character currChar = null;
 
+        if (invalidated) {
+            currChar = invalidChar;
+            invalidated = false;
+            return currChar;
+        }
+
         try {
             currChar = Character.toChars(infileReader.read())[0];
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            return '\0';
         }
 
         columnNum++;
