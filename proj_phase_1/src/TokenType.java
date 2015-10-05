@@ -14,5 +14,7 @@ public enum TokenType {
     // Comment handling
     COMMENT_END, COMMENT_BEGIN,
     // For error handling
-    INVALID;
+    INVALID,
+    // For parser lenience
+    EOF_TOKEN
 }

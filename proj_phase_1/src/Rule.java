@@ -1,21 +1,26 @@
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by Raghav K on 9/28/15.
  */
 public class Rule {
-    private Nonterminal nonterminal;
+    private List<Lexeme> expansion;
     private int ruleNo;
 
-    public List<Lexeme> getExpansion() {
-        return nonterminal.getExpansion(ruleNo);
+    public Rule() {
+        expansion = new LinkedList<Lexeme>();
     }
 
-    public void setNonterminal(Nonterminal nonterminal) {
-        this.nonterminal = nonterminal;
+    public List<Lexeme> getExpansion() {
+        return expansion;
     }
 
     public void setRuleNo(int ruleNo) {
         this.ruleNo = ruleNo;
+    }
+
+    public void addLexeme(Lexeme l) {
+        expansion.add(l);
     }
 }

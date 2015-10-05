@@ -1,2 +1,5 @@
 /bin/
 ./proj_phase_1.iml
+./.DS_Store
+./data/DS_Store
+./src/TigerGrammar.g4

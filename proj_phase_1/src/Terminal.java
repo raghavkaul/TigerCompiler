@@ -2,14 +2,22 @@
  * Created by Raghav K on 9/28/15.
  */
 public class Terminal implements Lexeme {
-    private Token token;
+    private TokenType tokenType;
 
-    public void setToken(Token token) {
-        this.token = token;
+    public Terminal(String termName) {
+        this.tokenType = TokenType.valueOf(termName);
+    }
+
+    public Terminal(TokenType tokenType) {
+        this.tokenType = tokenType;
+    }
+
+    public void setTokenType(TokenType tokenType) {
+        this.tokenType = tokenType;
     }
 
     public boolean matches(Token token) {
-        return this.token.equals(token);
+        return this.tokenType.equals(token);
     }
     
 }

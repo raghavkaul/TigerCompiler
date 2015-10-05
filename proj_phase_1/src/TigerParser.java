@@ -30,7 +30,7 @@ public class TigerParser {
         rules = populateRules();
 
         EOF = null;
-        tigerProg = null;
+        tigerProg = null; // TODO get these from the rules
 
         // Initialize stack to contain end symbol and Tiger-prog nonterminal.
         stack = new Stack<Lexeme>();

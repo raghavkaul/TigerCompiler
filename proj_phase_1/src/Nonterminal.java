@@ -4,17 +4,28 @@ import java.util.List;
  * Created by Raghav K on 9/26/15.
  */
 public class Nonterminal implements Lexeme {
-    private List<List<Lexeme>> expansions;
+    private String name;
+    private List<Rule> expansions;
 
-    public Nonterminal() {
-
+    public Nonterminal(String name) {
+        this.name = name;
     }
 
-    public List<Lexeme> getExpansion(int expansionNo) {
+    public String getName() {
+        return name;
+    }
+
+    public Rule getExpansion(int expansionNo) {
         return expansions.get(expansionNo);
     }
 
-    public void setExpansion(int expansionNo, List<Lexeme> expansion) {
-        expansions.add(expansionNo, expansion);
+    public void addExpansion(Rule expansion) {
+        expansions.add(expansion);
+    }
+
+    public boolean equals(Object o) {
+        return (o != null
+                && o instanceof Nonterminal
+                && ((Nonterminal) o).getName().equals(this.getName()));
     }
 }
