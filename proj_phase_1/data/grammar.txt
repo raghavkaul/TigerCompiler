@@ -14,12 +14,10 @@
 <type-declaration> ::= TYPE ID EQ <type> SEMI
 
 <type> ::= <type-id>
-<type> ::= ARRAY LBRACK INTLIT RBRACK <arr-dim> OF <type-id>
-<arr-dim> ::= NULL
-<arr-dim> ::= LBRACK INTLIT RBRACK <arr-dim>
+<type> ::= ARRAY LBRACK INTLIT RBRACK OF <type-id>
 <type-id> ::= ID
-<type-id> ::= int
-<type-id> ::= float
+<type-id> ::= INT_TYPE
+<type-id> ::= FLOAT_TYPE
 
 <var-declaration> ::= VAR <id-list> COLON <type> <optional-init> SEMI
 
@@ -44,36 +42,73 @@
 
 <stat-seq> ::= <stat> <stat-seq-tail>
 <stat-seq-tail> ::= NULL
-<stat-seq-tail> ::= <stat-seq> <stat-seq-tail>
+<stat-seq-tail> ::= <stat> <stat-seq-tail>
 
-<stat> ::= ID <stat-tail>
-<stat-tail> ::= LPAREN <exprlist> RPAREN SEMI
-<stat-tail> ::= <lvalue-tail> ASSIGN <stat-rhs> SEMI
-
-<stat-rhs> ::= <expr>
-<stat-rhs> ::= ID LPAREN <exprlist> RPAREN
-
-<stat> ::= IF <expr> THEN <stat-seq> <stat-tail> ENDIF SEMI
-<stat-tail> ::= ELSE <stat-seq>
-<stat-tail> ::= NULL
+<stat> ::= IF <expr> THEN <stat-seq> <stat—ELSE-tail> ENDIF SEMI
+<stat—ELSEtail> ::= ELSE <stat-seq>
+<stat—ELSE-tail> ::= NULL
 <stat> ::= WHILE <expr> DO <stat-seq> ENDDO SEMI
 <stat> ::= FOR ID ASSIGN <expr> TO <expr> DO <stat-seq> ENDDO SEMI
-
-<opt­prefix> ::= <lvalue> ASSIGN
-<opt­prefix> ::= NULL
-
 <stat> ::= BREAK SEMI
 <stat> ::= RETURN <expr> SEMI
 
-<expr> ::= <const>
-<expr> ::= <lvalue>
-<expr> ::= <expr> <binary-operator> <expr>
-<expr> ::= LPAREN <expr> RPAREN
+<stat> ::= ID <stat-ID-tail>
+<stat-ID-tail> ::= LPAREN <expr-list> RPAREN SEMI
+<stat-ID-tail> ::= <lvalue-tail> ASSIGN <stat-ID-expr-tail> SEMI
+<state-ID-expr-tail> ::= <expr-no-ID>
+<state-ID-expr-tail> ::= ID <expr-func-tail>
+<expr-func-tail> ::= LPAREN <expr-list> RPAREN
+<expr-func-tail> ::= <expr-lvalue-only>
+
+<expr> ::= <term-OR> <expr-tail>
+<expr-tail> ::= NULL
+<expr-tail> ::= OR <term-OR> <expr-tail>
+
+<term-OR> ::= <term-AND> <term-OR-tail>
+<term-OR-tail> ::= NULL
+<term-OR-tail> ::= AND <term-AND> <term-OR-tail>
+
+<term-AND> ::= <term-comp> <term—AND-tail>
+<op-comp> ::= EQ
+<op-comp> ::= NEQ
+<op-comp> ::= LESSER
+<op-comp> ::= GREATER
+<op-comp> ::= LESSEREQ
+<op-comp> ::= GREATEREQ
+<term—AND-tail> ::= <op-comp> <term-comp> <term-AND-tail>
+<term-AND-tail> ::= NULL
+
+<term-comp> ::= <term> <term-comp-tail>
+<op-add> ::= PLUS
+<op-add> ::= MINUS
+<term-comp-tail> ::= NULL
+<term-comp-tail> ::= <op-add> <term> <term-comp-tail>
+
+<term> ::= <factor> <term-tail>
+<op-mul> ::= MUL
+<op-mul> ::= DIV
+<term-tail> ::= <op-mul> <factor> <term-tail>
+<term-tail> ::= NULL
+
+<factor> ::= <factor-no-ID>
+<factor> ::= <lvalue>
+
+<expr-no-ID> ::= <term—OR-no-ID> <expr-tail>
+<term-OR-no-ID> ::= <term-AND-no-ID> <term—OR-tail>
+<term-AND-no-ID> ::= <term-comp-no-ID> <term-AND-tail>
+<term-comp-no-ID> ::= <term-no-ID> <term-comp-tail>
+<term-no-ID> ::= <factor-no-ID> <term-tail>
+<factor-no-ID> ::= <const>
+<factor-no-ID> ::= LPAREN <expr> RPAREN
+
+<expr-lvalue-only> ::= <term—or-lvalue-only> <expr-tail>
+<term-OR-lvalue-only> ::= <term-AND-lvalue-only> <term—OR-tail>
+<term-AND-lvalue-only> ::= <term-comp-lvalue-only> <term-AND-tail>
+<term-comp-lvalue-only> ::= <term-lvalue-only> <term-comp-tail>
+<term-lvalue-only> ::= <lvalue-tail> <term-tail>
 
 <const> ::= INTLIT
 <const> ::= FLOATLIT
-
-<binary-operator> ::= PLUS | MINUS | MULT | DIV | EQUALS | NEQ | LESSER | GREATER | LESSEREQ | GREATEREQ | AND | OR
 
 <expr-list> ::= NULL
 <expr-list> ::= <expr> <expr-list-tail>
