@@ -1,7 +1,5 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * Created by Raghav K on 9/26/15.
@@ -9,22 +7,15 @@ import java.util.Scanner;
 public class ParseTable {
     private Map<NontermTokenWrapper, Rule> ruleTable;
 
-    public ParseTable(File rulesFile) {
-        Scanner rulesFileScanner = null;
-
-        try {
-            rulesFileScanner = new Scanner(rulesFile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        while (rulesFileScanner != null && rulesFileScanner.hasNextLine()) {
-
-        }
-
+    public ParseTable() {
+        ruleTable = new HashMap<NontermTokenWrapper, Rule>();
     }
 
-    public Rule matchRule(Nonterminal nonterminal, Token token) {
+    public void addRule(Nonterminal nonterminal, TokenType token, Rule rule) {
+        ruleTable.put(new NontermTokenWrapper(nonterminal, token), rule);
+    }
+
+    public Rule matchRule(Nonterminal nonterminal, TokenType token) {
         return ruleTable.get(new NontermTokenWrapper(nonterminal, token));
     }
 }

@@ -3,9 +3,9 @@
  */
 public class NontermTokenWrapper {
     private Nonterminal rule;
-    private Token token;
+    private TokenType token;
 
-    public NontermTokenWrapper(Nonterminal rule, Token token) {
+    public NontermTokenWrapper(Nonterminal rule, TokenType token) {
         this.rule = rule;
         this.token = token;
     }
@@ -18,11 +18,11 @@ public class NontermTokenWrapper {
         this.rule = rule;
     }
 
-    public Token getToken() {
+    public TokenType getToken() {
         return token;
     }
 
-    public void setToken(Token token) {
+    public void setToken(TokenType token) {
         this.token = token;
     }
 }

@@ -15,8 +15,12 @@ public class Nonterminal implements Lexeme {
         return name;
     }
 
-    public Rule getExpansion(int expansionNo) {
+    public Rule getExpansionAtIndex(int expansionNo) {
         return expansions.get(expansionNo);
+    }
+
+    public List<Rule> getDerivations() {
+        return expansions;
     }
 
     public void addExpansion(Rule expansion) {

@@ -3,8 +3,6 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by Inseok on 9/29/15.
  * JUnit tests for making sure proper tokens are generated

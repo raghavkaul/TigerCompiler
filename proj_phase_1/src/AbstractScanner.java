@@ -6,13 +6,13 @@ public interface AbstractScanner {
      * Reads current token without advancing scanner to next token
      * @return current token
      */
-    Token peekToken();
+    TokenType peekToken();
 
     /**
      * Reads current token and advances scanner to next token
      * @return current token
      */
-    Token nextToken();
+    TokenType nextToken();
 
 
 }

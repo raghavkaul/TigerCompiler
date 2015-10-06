@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Scanner;
 
 /**
  * Created by Raghav K on 9/17/15
@@ -15,7 +14,7 @@ public class TigerScanner implements  AbstractScanner {
     private boolean done;
 
     private boolean peeked;
-    private Token peekedToken;
+    private TokenType peekedToken;
 
     private char invalidChar;
     private boolean invalidated;
@@ -35,7 +34,7 @@ public class TigerScanner implements  AbstractScanner {
     }
 
     @Override
-    public Token peekToken() {
+    public TokenType peekToken() {
         if (peeked == false) {
             peekedToken = nextToken();
             peeked = true;
@@ -44,7 +43,7 @@ public class TigerScanner implements  AbstractScanner {
     }
 
     @Override
-    public Token nextToken() {
+    public TokenType nextToken() {
         if (peeked) {
             peeked = false;
             return peekedToken;
