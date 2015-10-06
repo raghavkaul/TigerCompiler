@@ -1,28 +1,35 @@
 /**
- * Created by Raghav K on 9/26/15.
+ * Wrapper class around non-terminals from the grammar and tokens read from input
+ * Used to index into parse table, with each pair returning some nonterminal expansion
  */
 public class NontermTokenWrapper {
-    private Nonterminal rule;
-    private TokenType token;
+    private Nonterminal nonterminal;
+    private Token token;
 
-    public NontermTokenWrapper(Nonterminal rule, TokenType token) {
-        this.rule = rule;
+    public NontermTokenWrapper(Nonterminal nonterminal, Token token) {
+        this.nonterminal = nonterminal;
         this.token = token;
     }
 
-    public Nonterminal getRule() {
-        return rule;
+    public Nonterminal getNonterminal() {
+        return nonterminal;
     }
 
-    public void setRule(Nonterminal rule) {
-        this.rule = rule;
+    public void setNonterminal(Nonterminal nonterminal) {
+        this.nonterminal = nonterminal;
     }
 
-    public TokenType getToken() {
+    public Token getToken() {
         return token;
     }
 
-    public void setToken(TokenType token) {
+    public void setToken(Token token) {
         this.token = token;
+    }
+
+    public boolean equals(Object o) {
+        return o instanceof NontermTokenWrapper
+                && ((NontermTokenWrapper) o).getNonterminal().equals(this.nonterminal)
+                && ((NontermTokenWrapper) o).getToken().getType().equals(this.token.getType());
     }
 }

@@ -1,7 +1,8 @@
 import java.util.List;
 
 /**
- * Created by Raghav K on 9/26/15.
+ * Class representing a lexeme matched by more than one token in a series
+ * or many possible tokens
  */
 public class Nonterminal implements Lexeme {
     private String name;

@@ -3,40 +3,35 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
- * Created by Raghav K on 10/4/15.
+ * ParseTable factory and first-pass grammar parser class.
  */
 public class TableGenerator {
     private Scanner infileScanner;
-    private List<Rule> rules;
     private Set<Nonterminal> nonterminals;
-    private Map<Rule, HashSet<Terminal>> firstSets, followSets;
 
     public TableGenerator(File infile) {
-        firstSets = new HashMap<Rule, HashSet<Terminal>>();
-        followSets = new HashMap<Rule, HashSet<Terminal>>();
-
         try {
             infileScanner = new Scanner(infile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        rules = new LinkedList<Rule>();
-        nonterminals = new HashSet<Nonterminal>();
+        nonterminals = new HashSet<>();
     }
 
     /**
      * Parses input file with grammar, returning list of rules with expansions
-     * Grammar takes the following format:
+     * Grammar raw format takes the following format:
      * 1. Nonterminals are specified with opening/closing angle brackets '<>'
      * 2. Terminals are all in uppercase
      * 3. A derivation/rule has one nonterminal on the LHS, followed by '::='
      * This is then followed by a sequence of terminals or nonterminals
-     * @return global list of rules
+     * @return list of rules
      */
     public List<Rule> parseGrammar() {
+        List<Rule> rules = new LinkedList<>();
         int ruleNo = 0;
-        Rule currRule = null;
+        Rule currRule;
         Nonterminal currNonterm = null;
 
         while (infileScanner.hasNextLine()) {
@@ -84,22 +79,49 @@ public class TableGenerator {
      * @param rule to generate sets for
      */
     private void generateFirstFollowSet(Rule rule) {
+        HashSet<Terminal> firstSet = new HashSet<>(),
+                followSet = new HashSet<>();
 
+        for (Lexeme lexeme : rule.getExpansion()) {
+            if (lexeme instanceof Terminal) {
+                firstSet.add((Terminal) lexeme);
+                if (((Terminal) lexeme).matches(TokenType.NIL)) {
+                    firstSet.add(new Terminal(TokenType.NIL));
+                }
+            } else if (lexeme instanceof Nonterminal) {
+
+            }
+        }
+
+        firstSet.forEach(rule::addToFirstSet);
+        followSet.forEach(rule::addToFollowSet);
     }
 
 
-    public ParseTable generateParseTable() {
+
+    /**
+     * Generates a parse table from a list of grammar rules
+     * @param rules to populate table with
+     * @return parse table mapping nonterminals and tokens to rules
+     */
+    public ParseTable generateParseTable(List<Rule> rules) {
         ParseTable result = new ParseTable();
+
         for (Rule rule : rules) {
-            for (Terminal terminal : firstSets.get(rule)) {
-                result.addRule(rule.getParent(), terminal.getTokenType(), rule);
-                if (terminal.getTokenType().equals(TokenType.NIL)) {
-                    for (Terminal followTerminal : rule.getFollowSet()) {
-                        result.addRule(rule.getParent(), followTerminal.getTokenType(), rule);
+            for (Terminal firstSetTerminal : rule.getFirstSet()) {
+                result.addRule(rule.getParent(),
+                        new Token(firstSetTerminal.getTokenType()),
+                        rule);
+                if (firstSetTerminal.getTokenType().equals(TokenType.NIL)) {
+                    for (Terminal followSetTerminal : rule.getFollowSet()) {
+                        result.addRule(rule.getParent(),
+                                new Token(followSetTerminal.getTokenType()),
+                                rule);
                     }
                 }
             }
         }
+
         return result;
     }
 }

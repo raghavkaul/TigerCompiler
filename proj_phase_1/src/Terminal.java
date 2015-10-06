@@ -1,11 +1,7 @@
 /**
- * Created by Raghav K on 9/28/15.
+ * Wrapper class around token types that allows us to treat them as lexemes from the grammar
  */
 public class Terminal implements Lexeme {
-    public TokenType getTokenType() {
-        return tokenType;
-    }
-
     private TokenType tokenType;
 
     public Terminal(String termName) {
@@ -16,13 +12,15 @@ public class Terminal implements Lexeme {
         this.tokenType = tokenType;
     }
 
-    public void setTokenType(TokenType tokenType) {
-        this.tokenType = tokenType;
+    public TokenType getTokenType() {
+        return tokenType;
     }
 
-    public boolean matches(TokenType token) {
-        return this.tokenType.equals(token);
+    public boolean matches(Token token) {
+        return this.tokenType.equals(token.getType());
     }
+
+    public boolean matches(TokenType tokenType) { return this.tokenType.equals(tokenType); }
 
     @Override
     public String toString() {

@@ -1,5 +1,6 @@
 /**
- * Created by Raghav K on 9/17/15.
+ * Class representing whitespace-delimited components of some infile
+ * program written in the Tiger language.
  */
 public class Token {
     private TokenType type;
@@ -11,6 +12,10 @@ public class Token {
         this.tokenLiteral = tokenLiteral;
         this.lineNum = lineNum;
         this.columnNum = columnNum;
+    }
+
+    public Token(TokenType type) {
+        this(type, "", 0, 0);
     }
 
     public int getLineNum() {
@@ -47,11 +52,9 @@ public class Token {
 
     @Override
     public boolean equals(Object o) {
-        if (o != null && o instanceof Token) {
-            return ((Token) o).getType() == this.type;
-        } else {
-            return false;
-        }
+        return o != null
+                && o instanceof Token
+                && ((Token) o).getType().equals(this.type);
     }
 
     @Override

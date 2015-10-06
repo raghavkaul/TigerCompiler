@@ -6,7 +6,7 @@ import java.io.IOException;
  * Created by Raghav K on 9/17/15
  * Class representing high-level scanner
  */
-public class TigerScanner implements  AbstractScanner {
+public class TigerScanner {
     private FileReader infileReader;
     private DFA dfa;
     private int lineNum, columnNum;
@@ -14,7 +14,7 @@ public class TigerScanner implements  AbstractScanner {
     private boolean done;
 
     private boolean peeked;
-    private TokenType peekedToken;
+    private Token peekedToken;
 
     private char invalidChar;
     private boolean invalidated;
@@ -33,17 +33,15 @@ public class TigerScanner implements  AbstractScanner {
         done = false;
     }
 
-    @Override
-    public TokenType peekToken() {
-        if (peeked == false) {
+    public Token peekToken() {
+        if (!peeked) {
             peekedToken = nextToken();
             peeked = true;
         }
         return peekedToken;
     }
 
-    @Override
-    public TokenType nextToken() {
+    public Token nextToken() {
         if (peeked) {
             peeked = false;
             return peekedToken;
@@ -106,23 +104,18 @@ public class TigerScanner implements  AbstractScanner {
                         tokenLiteral.toString(),
                         lineNum,
                         columnNum);
-//                try {
-//                    infileReader.reset();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                break;
+
             } else { // If transition is found, keep going
                 currentState = dfa.getNextState(currChar);
                 columnNum++;
             }
         }
-        // should never happen
+        // Returns null when scanner has no more tokens to return
         return null;
     }
 
     /**
-     * Modular-izes calls to the file reader
+     * Modularize-s calls to the file reader
      * Updates line and column numbers
      * @return the next character in the file buffer
      */

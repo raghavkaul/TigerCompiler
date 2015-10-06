@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by Raghav K on 9/28/15.
+ * Class representing a single expansion rule for a nonterminal
  */
 public class Rule {
     private List<Lexeme> expansion;
@@ -13,9 +13,9 @@ public class Rule {
     private int ruleNo;
 
     public Rule(int ruleNo) {
-        expansion = new LinkedList<Lexeme>();
-        firstSet = new HashSet<Terminal>();
-        followSet = new HashSet<Terminal>();
+        expansion = new LinkedList<>();
+        firstSet = new HashSet<>();
+        followSet = new HashSet<>();
         this.ruleNo = ruleNo;
     }
 
@@ -23,16 +23,28 @@ public class Rule {
         return expansion;
     }
 
-    public void setRuleNo(int ruleNo) {
-        this.ruleNo = ruleNo;
-    }
-
     public void addLexeme(Lexeme l) {
         expansion.add(l);
     }
 
+    public int getRuleNo() {
+        return ruleNo;
+    }
+
+    public void setRuleNo(int ruleNo) {
+        this.ruleNo = ruleNo;
+    }
+
+    public Set<Terminal> getFirstSet() {
+        return firstSet;
+    }
+
     public void addToFirstSet(Terminal t) {
         firstSet.add(t);
+    }
+
+    public Set<Terminal> getFollowSet() {
+        return followSet;
     }
 
     public void addToFollowSet(Terminal t) {
@@ -45,18 +57,6 @@ public class Rule {
 
     public void setParent(Nonterminal parent) {
         this.parent = parent;
-    }
-
-    public int getRuleNo() {
-        return ruleNo;
-    }
-
-    public Set<Terminal> getFirstSet() {
-        return firstSet;
-    }
-
-    public Set<Terminal> getFollowSet() {
-        return followSet;
     }
 
     @Override
