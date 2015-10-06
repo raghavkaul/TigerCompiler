@@ -76,7 +76,7 @@ public class TableGenerator {
     /**
      * Generates the first and follow set for rule r
      * Then adds those sets to globals firstSets and followSets
-     * @param rule to generate sets for
+     * @param rule to generate tables for some nonterninals
      */
     private void generateFirstFollowSet(Rule rule) {
         HashSet<Terminal> firstSet = new HashSet<>(),
@@ -97,8 +97,25 @@ public class TableGenerator {
         followSet.forEach(rule::addToFollowSet);
     }
 
+    /**
+     * idk
+     * @param nonterminal
+     * @param result
+     * @return
+     */
+    private FirstFollowTuple firstFollowHelper(Nonterminal nonterminal, FirstFollowTuple result) {
+        // TODO implement
+        return null;
+    }
 
+    private class FirstFollowTuple {
+        public Set<Terminal> firstSet, followSet;
 
+        public FirstFollowTuple(Set<Terminal> firstSet, Set<Terminal> followSet) {
+            this.firstSet = firstSet;
+            this.followSet = followSet;
+        }
+    }
     /**
      * Generates a parse table from a list of grammar rules
      * @param rules to populate table with
