@@ -45,7 +45,7 @@
 <stat-seq-tail> ::= <stat> <stat-seq-tail>
 
 <stat> ::= IF <expr> THEN <stat-seq> <stat—ELSE-tail> ENDIF SEMI
-<stat—ELSEtail> ::= ELSE <stat-seq>
+<stat—ELSE-tail> ::= ELSE <stat-seq>
 <stat—ELSE-tail> ::= NULL
 <stat> ::= WHILE <expr> DO <stat-seq> ENDDO SEMI
 <stat> ::= FOR ID ASSIGN <expr> TO <expr> DO <stat-seq> ENDDO SEMI
