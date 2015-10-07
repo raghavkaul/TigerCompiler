@@ -13,9 +13,9 @@ public class TigerParser {
     private static final String GRAMMAR_FILE_NAME = "./data/grammar.txt";
     private static final Terminal EOF_TERM = new Terminal(TokenType.EOF_TOKEN);
     private static boolean debug, verbose;
-    private final ParseTable parseTable;
-    private final TigerScanner infileScanner;
-    private Stack<Lexeme> stack;
+    protected final ParseTable parseTable;
+    protected final TigerScanner infileScanner;
+    protected Stack<Lexeme> stack;
 
     public static void main(String[] args) {
         String helpStr = "Tiger language Parser options:" +

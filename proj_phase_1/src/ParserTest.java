@@ -85,11 +85,22 @@ public class ParserTest {
     }
 
     @Test
-    public void testReadFile() {
+    public void testParserInit() {
+        for (String s : filenames) {
+            TigerParser tp = new TigerParser(new File(s));
+
+            assertNotNull(tp.infileScanner);
+            assertNotNull(tp.parseTable);
+            assertNotNull(tp.stack);
+
+            assert(tp.stack.size() == 2);
+        }
+    }
+    @Test
+    public void testParse() {
         for (String s : filenames) {
             TigerParser tp = new TigerParser(new File(s));
             tp.parse();
         }
-
     }
 }
