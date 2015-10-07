@@ -4,7 +4,7 @@
 public enum TokenType {
     // Punctuation token type
     COMMA, COLON, SEMI, LPAREN, RPAREN, LBRACK, RBRACK, LBRACE, RBRACE, PERIOD,
-    PLUS, MINUS, MUL, DIV, EQ, NEQ, LESSER, GREATER, LESSEREQ, GREATEREQ, AND,
+    PLUS, MINUS, MULT, DIV, EQ, NEQ, LESSER, GREATER, LESSEREQ, GREATEREQ, AND,
     OR, ASSIGN,
     // Keyword token types
     ARRAY, BREAK, DO, ELSE, FOR, FUNCTION, IF, IN, LET, NIL, OF, THEN, TO, TYPE,
@@ -16,5 +16,5 @@ public enum TokenType {
     // For error handling
     INVALID,
     // For parser
-    EOF_TOKEN
+    TIGER_PROG, EOF_TOKEN
 }

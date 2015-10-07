@@ -64,7 +64,7 @@
 <term-comp-tail> ::= NIL
 <term-comp-tail> ::= <op-add> <term> <term-comp-tail>
 <term> ::= <factor> <term-tail>
-<op-mul> ::= MUL
+<op-mul> ::= MULT
 <op-mul> ::= DIV
 <term-tail> ::= <op-mul> <factor> <term-tail>
 <term-tail> ::= NIL

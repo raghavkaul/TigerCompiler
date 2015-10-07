@@ -12,10 +12,10 @@ public class TigerParser {
     private static final String TRANSITIONS_FILE_NAME = "./data/transitions.csv";
     private static final String GRAMMAR_FILE_NAME = "./data/grammar.txt";
     private static final Terminal EOF_TERM = new Terminal(TokenType.EOF_TOKEN);
-    private static boolean debug, verbose;
-    protected final ParseTable parseTable;
-    protected final TigerScanner infileScanner;
-    protected Stack<Lexeme> stack;
+    public static boolean debug, verbose;
+    public final ParseTable parseTable;
+    public final TigerScanner infileScanner;
+    public Stack<Lexeme> stack;
 
     public static void main(String[] args) {
         String helpStr = "Tiger language Parser options:" +
@@ -60,6 +60,8 @@ public class TigerParser {
 
         // Initialize stack to contain end symbol and Tiger-program non-terminal.
         stack = new Stack<>();
+        stack.push(EOF_TERM);
+        stack.push(new Terminal(TokenType.TIGER_PROG));
     }
 
     /**
@@ -72,11 +74,28 @@ public class TigerParser {
         Token lookahead;
         Lexeme topOfStack;
 
+        int i = 0;
         while (true) {
             topOfStack = stack.peek();
             lookahead = infileScanner.nextToken();
+            if (verbose) {
+                System.out.println("Iteration : " + i++
+                        + "\tTop of Stack: " + topOfStack
+                        + "\tToken: " + lookahead.getToken());
+            }
 
+            if (lookahead.getType().equals(TokenType.EOF_TOKEN)) {
+                if (!topOfStack.equals(EOF_TERM)) {
+                    hasErrors = true;
+                    System.out.println("Unexpectedly reached end of file while parsing.");
+                }
+                break;
+            }
             if (topOfStack.equals(EOF_TERM)) {
+                if (!lookahead.equals(new Token(TokenType.EOF_TOKEN))) {
+                    hasErrors = true;
+                    System.out.println("Unexpected input past end of file.");
+                }
                 // Can't match more tokens -> implies parse completed.
                 break;
             } else if (topOfStack instanceof Terminal) {

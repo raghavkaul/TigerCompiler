@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 public class TestParser {
     private static final String GRAMMAR_FILE = "./data/grammar.txt";
     private static List<String> filenames;
-    private static final String PREFIX = "./data/test_prog";
+    private static final String PREFIX = "./data/test_prog/test";
     private TableGenerator tg;
 
     @Before
@@ -93,13 +93,14 @@ public class TestParser {
             assertNotNull(tp.parseTable);
             assertNotNull(tp.stack);
 
-            assert(tp.stack.size() == 2);
+            assertEquals(tp.stack.size(), 2);
         }
     }
-    @Test
+    @Test(timeout = 200)
     public void testParse() {
         for (String s : filenames) {
             TigerParser tp = new TigerParser(new File(s));
+            TigerParser.verbose = true;
             tp.parse();
         }
     }
