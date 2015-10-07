@@ -11,7 +11,7 @@ public class TigerParser {
     private static final String STATES_FILE_NAME = "./data/states.csv";
     private static final String TRANSITIONS_FILE_NAME = "./data/transitions.csv";
     private static final String GRAMMAR_FILE_NAME = "./data/grammar.txt";
-    private static final Terminal EOFTerminal = new Terminal(TokenType.EOF_TOKEN);
+    private static final Terminal EOF_TERM = new Terminal(TokenType.EOF_TOKEN);
     private static boolean debug, verbose;
     private final ParseTable parseTable;
     private final TigerScanner infileScanner;
@@ -49,7 +49,13 @@ public class TigerParser {
         // Initialize parse table
         TableGenerator tg = new TableGenerator(new File(GRAMMAR_FILE_NAME));
         List<Rule> rules = tg.parseGrammar();
-        parseTable = tg.generateParseTable(rules);
+
+        for (int i = 0; i < rules.size(); i++) {
+            //Set<>
+            //rules.add(i, tg.updateFirstSet(rules.get(i), 0));
+        }
+
+        this.parseTable = tg.generateParseTable(rules);
 
         // Initialize scanner
         this.infileScanner = new TigerScanner(infile,
@@ -73,7 +79,7 @@ public class TigerParser {
             topOfStack = stack.peek();
             lookahead = infileScanner.nextToken();
 
-            if (topOfStack.equals(EOFTerminal)) {
+            if (topOfStack.equals(EOF_TERM)) {
                 // Can't match more tokens -> implies parse completed.
                 break;
             } else if (topOfStack instanceof Terminal) {

@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,6 +11,7 @@ public class Nonterminal implements Lexeme {
 
     public Nonterminal(String name) {
         this.name = name;
+        this.expansions = new ArrayList<>();
     }
 
     public String getName() {
@@ -32,5 +34,10 @@ public class Nonterminal implements Lexeme {
         return (o != null
                 && o instanceof Nonterminal
                 && ((Nonterminal) o).getName().equals(this.getName()));
+    }
+
+    @Override
+    public String toString() {
+        return expansions.toString();
     }
 }

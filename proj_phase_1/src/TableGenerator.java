@@ -1,13 +1,16 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  * ParseTable factory and first-pass grammar parser class.
  */
 public class TableGenerator {
     private Scanner infileScanner;
-    private Set<Nonterminal> nonterminals;
+    protected Map<String, Nonterminal> nonterminals;
+
+    private List<Rule> rules;
 
     public TableGenerator(File infile) {
         try {
@@ -16,7 +19,7 @@ public class TableGenerator {
             e.printStackTrace();
         }
 
-        nonterminals = new HashSet<>();
+        nonterminals = new HashMap<String, Nonterminal>();
     }
 
     /**
@@ -32,44 +35,60 @@ public class TableGenerator {
         List<Rule> rules = new LinkedList<>();
         int ruleNo = 0;
         Rule currRule;
-        Nonterminal currNonterm = null;
+        Nonterminal currNonterm = new Nonterminal("<tiger-program>");
 
         while (infileScanner.hasNextLine()) {
             String[] ruleLiteralStr = infileScanner.nextLine().split(" ");
 
             // Eliminate blank lines
-            if (ruleLiteralStr.length == 0) { continue; }
+            if (ruleLiteralStr.length < 3) { continue; }
 
-            String nontermName = ruleLiteralStr[0]
-                    .substring(1, ruleLiteralStr[1].length() - 1); // Efficiency
+            String nontermName = ruleLiteralStr[0];
+            if (nonterminals.get(nontermName) != null)
+                currNonterm = nonterminals.get(nontermName);
+            else{
+                currNonterm = new Nonterminal(nontermName);
+                nonterminals.put(nontermName, currNonterm);
+            }
             currRule = new Rule(ruleNo++);
+            currRule.setParent(currNonterm);
 
             // Populate fields of rule
             for (int i = 2; i < ruleLiteralStr.length; i++) {
-                Lexeme temp;
+                Lexeme temp = new Nonterminal("fuck");
                 // Checking syntax of grammar.txt
-                temp = ruleLiteralStr[i].charAt(0) == '<' ?
-                        new Nonterminal(ruleLiteralStr[i]
-                                .substring(1, ruleLiteralStr[i].length() - 1)) :
-                        new Terminal(ruleLiteralStr[i]);
+                if (ruleLiteralStr[i].startsWith("<")) {
+                    if (nonterminals.containsKey(ruleLiteralStr[i]))
+                        temp = nonterminals.get(ruleLiteralStr[i]);
+                    else {
+                        temp = new Nonterminal(ruleLiteralStr[i]);
+                        nonterminals.put(ruleLiteralStr[i], (Nonterminal) temp);
+                    }
+                } else {
+                    temp = new Terminal(ruleLiteralStr[i]);
+                }
                 currRule.addLexeme(temp);
             }
 
             // Add to list of rules
             rules.add(currRule);
 
-            // Group rules by the nonterminal they belong to
-            if (currNonterm != null && nontermName.equals(currNonterm.getName())) {
-                // We've seen this nonterminal before, so add the rule to its' possible expansions
-                currNonterm.addExpansion(currRule);
-            } else {
-                // Create a new nonterminal to add rules to
-                currNonterm = new Nonterminal(nontermName);
-                nonterminals.add(currNonterm);
-                ruleNo = 0;
-            }
+            currNonterm.addExpansion(currRule);
+
+//            // Group rules by the nonterminal they belong to
+//            if (nontermName.equals(currNonterm.getName())) {
+//                // We've seen this nonterminal before, so add the rule to its' possible expansions
+//                currNonterm.addExpansion(currRule);
+//            } else {
+//                // Create a new nonterminal to add rules to
+//                currNonterm = new Nonterminal(nontermName);
+//                nonterminals.add(currNonterm);
+//                ruleNo = 0;
+//            }
+
         }
 
+        this.rules = rules;
         return rules;
     }
 
@@ -78,47 +97,36 @@ public class TableGenerator {
      * Then adds those sets to globals firstSets and followSets
      * @param rule to generate tables for some nonterninals
      */
-    private void generateFirstFollowSet(Rule rule) {
-        HashSet<Terminal> firstSet = new HashSet<>(),
-                followSet = new HashSet<>();
+    public Rule updateFirstSet(Rule rule, int i, Set<Nonterminal> visitedNT) {
+        HashSet<Terminal> firstSet = new HashSet<>();
 
-        for (Lexeme lexeme : rule.getExpansion()) {
-            if (lexeme instanceof Terminal) {
+        boolean isNullable = false;
+        if (i > rule.getExpansion().size() - 1) {
+            return rule;
+        }
+        Lexeme lexeme = rule.getExpansion().get(i);
+
+        if (lexeme instanceof Terminal) {
+            if (((Terminal) lexeme).matches(TokenType.NIL)) {
+                firstSet.addAll(updateFirstSet(rule, i + 1, visitedNT).getFirstSet());
+            }else {
                 firstSet.add((Terminal) lexeme);
-                if (((Terminal) lexeme).matches(TokenType.NIL)) {
-                    firstSet.add(new Terminal(TokenType.NIL));
-                }
-            } else if (lexeme instanceof Nonterminal) {
-
             }
+        } else {
+            Nonterminal nt = (Nonterminal) lexeme;
+            if (!visitedNT.contains(nt))
+                for (Rule r : nt.getDerivations())
+                    firstSet.addAll(updateFirstSet(r, 0, visitedNT).getFirstSet());
         }
 
         firstSet.forEach(rule::addToFirstSet);
-        followSet.forEach(rule::addToFollowSet);
+
+        return rule;
     }
 
-    /**
-     * idk
-     * @param nonterminal
-     * @param result
-     * @return
-     */
-    private FirstFollowTuple firstFollowHelper(Nonterminal nonterminal, FirstFollowTuple result) {
-        // TODO implement
-        return null;
-    }
-
-    private class FirstFollowTuple {
-        public Set<Terminal> firstSet, followSet;
-
-        public FirstFollowTuple(Set<Terminal> firstSet, Set<Terminal> followSet) {
-            this.firstSet = firstSet;
-            this.followSet = followSet;
-        }
-    }
     /**
      * Generates a parse table from a list of grammar rules
-     * @param rules to populate table with
+     * @param rules to populate table with, each knowing its' own set
      * @return parse table mapping nonterminals and tokens to rules
      */
     public ParseTable generateParseTable(List<Rule> rules) {

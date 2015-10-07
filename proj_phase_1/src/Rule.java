@@ -5,6 +5,7 @@ import java.util.Set;
 
 /**
  * Class representing a single expansion rule for a nonterminal
+ * First and follow sets must belong to a rule
  */
 public class Rule {
     private List<Lexeme> expansion;
@@ -35,6 +36,10 @@ public class Rule {
         this.ruleNo = ruleNo;
     }
 
+    /**
+     * First and follow sets mus
+     * @return
+     */
     public Set<Terminal> getFirstSet() {
         return firstSet;
     }
@@ -62,7 +67,7 @@ public class Rule {
     @Override
     public String toString() {
         String result = "";
-        result += "Rule " + ruleNo;
+        result += "--- Rule ---";
         result += "\nExpansion:";
         for (Lexeme l : expansion) {
             if (l instanceof Nonterminal) {

@@ -1,120 +1,93 @@
 <tiger-program> ::= LET <declaration-segment> IN <stat-seq> END
-
 <declaration-segment> ::= <type-declaration-list> <var-declaration-list> <funct-declaration-list>
-
-<type-declaration-list> ::= NULL
+<type-declaration-list> ::= NIL
 <type-declaration-list> ::= <type-declaration> <type-declaration-list>
-
-<var-declaration-list> ::= NULL
+<var-declaration-list> ::= NIL
 <var-declaration-list> ::= <var-declaration> <var-declaration-list>
-
-<funct-declaration-list> ::= NULL
+<funct-declaration-list> ::= NIL
 <funct-declaration-list> ::= <funct-declaration> <funct-declaration-list>
-
 <type-declaration> ::= TYPE ID EQ <type> SEMI
-
 <type> ::= <type-id>
 <type> ::= ARRAY LBRACK INTLIT RBRACK OF <type-id>
 <type-id> ::= ID
 <type-id> ::= INT_TYPE
 <type-id> ::= FLOAT_TYPE
-
 <var-declaration> ::= VAR <id-list> COLON <type> <optional-init> SEMI
-
 <id-list> ::= ID <id-list-tail>
-<id-list-tail> ::= NULL
-<id-list-tail> ::= COMMA <id-list-tail>
-
-<optional-init> ::= NULL
+<id-list-tail> ::= NIL
+<id-list-tail> ::= COMMA ID <id-list-tail>
+<optional-init> ::= NIL
 <optional-init> ::= ASSIGN <const>
-
 <funct-declaration> ::= FUNCTION ID LPAREN <param-list> RPAREN <ret-type> BEGIN <stat-seq> END SEMI
-
-<param-list> ::= NULL
+<param-list> ::= NIL
 <param-list> ::= <param> <param-list-tail>
-<param-list-tail> ::= NULL
+<param-list-tail> ::= NIL
 <param-list-tail> ::= COMMA <param> <param-list-tail>
-
-<ret-type> ::= NULL
+<ret-type> ::= NIL
 <ret-type> ::= COLON <type>
-
 <param> ::= ID COLON <type>
-
 <stat-seq> ::= <stat> <stat-seq-tail>
-<stat-seq-tail> ::= NULL
+<stat-seq-tail> ::= NIL
 <stat-seq-tail> ::= <stat> <stat-seq-tail>
-
-<stat> ::= IF <expr> THEN <stat-seq> <stat—ELSE-tail> ENDIF SEMI
-<stat—ELSE-tail> ::= ELSE <stat-seq>
-<stat—ELSE-tail> ::= NULL
+<stat> ::= IF <expr> THEN <stat-seq> <stat-ELSE-tail> ENDIF SEMI
 <stat> ::= WHILE <expr> DO <stat-seq> ENDDO SEMI
 <stat> ::= FOR ID ASSIGN <expr> TO <expr> DO <stat-seq> ENDDO SEMI
 <stat> ::= BREAK SEMI
 <stat> ::= RETURN <expr> SEMI
-
 <stat> ::= ID <stat-ID-tail>
 <stat-ID-tail> ::= LPAREN <expr-list> RPAREN SEMI
 <stat-ID-tail> ::= <lvalue-tail> ASSIGN <stat-ID-expr-tail> SEMI
-<state-ID-expr-tail> ::= <expr-no-ID>
-<state-ID-expr-tail> ::= ID <expr-func-tail>
+<stat-ELSE-tail> ::= ELSE <stat-seq>
+<stat-ELSE-tail> ::= NIL
+<stat-ID-expr-tail> ::= <expr-no-ID>
+<stat-ID-expr-tail> ::= ID <expr-func-tail>
 <expr-func-tail> ::= LPAREN <expr-list> RPAREN
 <expr-func-tail> ::= <expr-lvalue-only>
-
 <expr> ::= <term-OR> <expr-tail>
-<expr-tail> ::= NULL
+<expr-tail> ::= NIL
 <expr-tail> ::= OR <term-OR> <expr-tail>
-
 <term-OR> ::= <term-AND> <term-OR-tail>
-<term-OR-tail> ::= NULL
+<term-OR-tail> ::= NIL
 <term-OR-tail> ::= AND <term-AND> <term-OR-tail>
-
-<term-AND> ::= <term-comp> <term—AND-tail>
+<term-AND> ::= <term-comp> <term-AND-tail>
 <op-comp> ::= EQ
 <op-comp> ::= NEQ
 <op-comp> ::= LESSER
 <op-comp> ::= GREATER
 <op-comp> ::= LESSEREQ
 <op-comp> ::= GREATEREQ
-<term—AND-tail> ::= <op-comp> <term-comp> <term-AND-tail>
-<term-AND-tail> ::= NULL
-
+<term-AND-tail> ::= <op-comp> <term-comp> <term-AND-tail>
+<term-AND-tail> ::= NIL
 <term-comp> ::= <term> <term-comp-tail>
 <op-add> ::= PLUS
 <op-add> ::= MINUS
-<term-comp-tail> ::= NULL
+<term-comp-tail> ::= NIL
 <term-comp-tail> ::= <op-add> <term> <term-comp-tail>
-
 <term> ::= <factor> <term-tail>
 <op-mul> ::= MUL
 <op-mul> ::= DIV
 <term-tail> ::= <op-mul> <factor> <term-tail>
-<term-tail> ::= NULL
-
+<term-tail> ::= NIL
 <factor> ::= <factor-no-ID>
 <factor> ::= <lvalue>
-
-<expr-no-ID> ::= <term—OR-no-ID> <expr-tail>
-<term-OR-no-ID> ::= <term-AND-no-ID> <term—OR-tail>
+<expr-no-ID> ::= <term-OR-no-ID> <expr-tail>
+<term-OR-no-ID> ::= <term-AND-no-ID> <term-OR-tail>
 <term-AND-no-ID> ::= <term-comp-no-ID> <term-AND-tail>
 <term-comp-no-ID> ::= <term-no-ID> <term-comp-tail>
 <term-no-ID> ::= <factor-no-ID> <term-tail>
 <factor-no-ID> ::= <const>
 <factor-no-ID> ::= LPAREN <expr> RPAREN
-
-<expr-lvalue-only> ::= <term—or-lvalue-only> <expr-tail>
-<term-OR-lvalue-only> ::= <term-AND-lvalue-only> <term—OR-tail>
+<expr-lvalue-only> ::= <term-OR-lvalue-only> <expr-tail>
+<term-OR-lvalue-only> ::= <term-AND-lvalue-only> <term-OR-tail>
 <term-AND-lvalue-only> ::= <term-comp-lvalue-only> <term-AND-tail>
 <term-comp-lvalue-only> ::= <term-lvalue-only> <term-comp-tail>
 <term-lvalue-only> ::= <lvalue-tail> <term-tail>
-
 <const> ::= INTLIT
 <const> ::= FLOATLIT
-
-<expr-list> ::= NULL
+<expr-list> ::= NIL
 <expr-list> ::= <expr> <expr-list-tail>
 <expr-list-tail> ::= COMMA <expr> <expr-list-tail>
-<expr-list-tail> ::= NULL
-
+<expr-list-tail> ::= NIL
 <lvalue> ::= ID <lvalue-tail>
 <lvalue-tail> ::= LBRACK <expr> RBRACK
-<lvalue-tail> ::= NULL
+<lvalue-tail> ::= NIL
