@@ -23,7 +23,7 @@
 
 <id-list> ::= ID <id-list-tail>
 <id-list-tail> ::= NULL
-<id-list-tail> ::= COMMA <id-list-tail>
+<id-list-tail> ::= COMMA ID <id-list-tail>
 
 <optional-init> ::= NULL
 <optional-init> ::= ASSIGN <const>
