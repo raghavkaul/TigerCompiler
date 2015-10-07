@@ -16,20 +16,24 @@ public class TigerScannerTest {
             transitionsFilename = "./data/transitions.csv";
 
 
-    @Before
-    public void setup() throws Exception {
+    public void setup(String programFilename) throws Exception {
         ts = new TigerScanner(new File(programFilename), new File(statesFilename), new File(transitionsFilename));
     }
 
     @Test
     public void testPeekToken() throws Exception {
+        ts = new TigerScanner(new File(programFilename), new File(statesFilename), new File(transitionsFilename));
         System.out.println(ts.nextToken().toString());
     }
 
     @Test
-    public void testExample1() throws Exception {
-        while (ts.peekToken().getType() != TokenType.EOF_TOKEN)
-            System.out.print(ts.nextToken().getType() + " ");
-        System.out.println(ts.peekToken().getType());
+    public void testExamples() throws Exception {
+        for (int i = 1; i <= 7; i++ ) {
+            setup("./data/test" + i + ".tiger");
+            while (ts.peekToken().getType() != TokenType.EOF_TOKEN)
+                System.out.print(ts.nextToken().getType() + " ");
+            System.out.println(ts.peekToken().getType());
+        }
     }
+
 }

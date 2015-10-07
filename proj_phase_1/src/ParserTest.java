@@ -21,23 +21,23 @@ public class ParserTest {
         }
     }
 
-    @Test
-    public void dumpParseGrammarOut() {
-        List<Rule> rules = tg.parseGrammar();
-
-        for (Rule rule : rules) {
-            System.out.println(rule.getParent().getName());
-        }
-    }
-
-    @Test
-    public void dumpRules() {
-        List<Rule> rules = tg.parseGrammar();
-
-        for(Rule rule : rules) {
-            System.out.println(rule.getParent().getName() + " ::= " + rule.getExpansion());
-        }
-    }
+//    @Test
+//    public void dumpParseGrammarOut() {
+//        List<Rule> rules = tg.parseGrammar();
+//
+//        for (Rule rule : rules) {
+//            System.out.println(rule.getParent().getName());
+//        }
+//    }
+//
+//    @Test
+//    public void dumpRules() {
+//        List<Rule> rules = tg.parseGrammar();
+//
+//        for(Rule rule : rules) {
+//            System.out.println(rule.getParent().getName() + " ::= " + rule.getExpansion());
+//        }
+//    }
     @Test
     public void dumpFirstFollowSets() {
         for (Nonterminal nt : tg.nonterminals.values()) {
@@ -56,6 +56,7 @@ public class ParserTest {
         }
     }
 
+<<<<<<< HEAD
     @Test
     public void dumpParseTable() {
         List<Rule> updatedRules = new ArrayList<>();
@@ -69,6 +70,29 @@ public class ParserTest {
                 assertEquals(nt.getDerivations().indexOf(temp), i);
                 updatedRules.add(nt.getDerivations().indexOf(rule), temp);
             }
+=======
+//    @Test
+//    public void dumpParseTable() {
+//        List<Rule> rules = tg.parseGrammar();
+//
+//        for (Nonterminal nt : tg.nonterminals.values()) {
+//            Set<Terminal> firstOfNt = new LinkedHashSet<>();
+//            for (Rule rule : nt.getDerivations()) {
+//                Set<Nonterminal> first = new LinkedHashSet<>();
+//                tg.updateFirstSet(rule, 0, first);
+//                firstOfNt.addAll(rule.getFirstSet());
+//            }
+//        }
+//        ParseTable pt = new ParseTable();
+//
+//    }
+
+    @Test
+    public void testTerminalEquality() {
+        Terminal t = new Terminal("NIL");
+        Terminal t2 = new Terminal("NIL");
+        assertEquals(t, t2);
+>>>>>>> c1933884381ef4de5b655ef7a6507681829d0190
 
             nt.replaceDerivations(updatedRules);
 

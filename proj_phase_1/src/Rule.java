@@ -36,6 +36,8 @@ public class Rule {
         firstSet.add(t);
     }
 
+    public void addToFirstSet(Set<Terminal> set) {firstSet.addAll(set);}
+
     public Set<Terminal> getFollowSet() {
         return followSet;
     }
