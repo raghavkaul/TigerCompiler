@@ -22,9 +22,6 @@ public class Nonterminal implements Lexeme {
         return expansions;
     }
 
-    protected void replaceDerivations(List<Rule> expansions) {
-        this.expansions = expansions;
-    }
     public void addExpansion(Rule expansion) {
         expansions.add(expansion);
     }

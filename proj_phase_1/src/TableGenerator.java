@@ -96,15 +96,12 @@ public class TableGenerator {
         Lexeme lexeme = rule.getExpansion().get(i);
 
         if (lexeme instanceof Terminal) {
-<<<<<<< HEAD
             if (((Terminal) lexeme).matches(TokenType.NIL)) {
                 firstSet.addAll(updateFirstSet(rule, i + 1, visitedNT).getFirstSet());
             } else {
                 firstSet.add((Terminal) lexeme);
             }
-=======
-            firstSet.add((Terminal) lexeme);
->>>>>>> c1933884381ef4de5b655ef7a6507681829d0190
+
         } else {
             Nonterminal nt = (Nonterminal) lexeme;
             if (!visitedNT.contains(nt)) {

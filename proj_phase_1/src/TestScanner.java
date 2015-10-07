@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
  * Created by Inseok on 9/29/15.
  * JUnit tests for making sure proper tokens are generated
  */
-public class TigerScannerTest {
+public class TestScanner {
     TigerScanner ts;
     private static final String programFilename = "./data/example1.tiger",
             statesFilename = "./data/states.csv",

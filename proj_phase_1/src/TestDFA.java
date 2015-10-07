@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * Created by Raghav K on 9/25/15.
  */
-public class DFATest {
+public class TestDFA {
     public DFA dfa;
     private static final String statesFilename = "./data/states.csv",
             transitionsFilename = "./data/transitions.csv";
