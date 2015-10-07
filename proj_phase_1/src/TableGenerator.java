@@ -118,8 +118,7 @@ public class TableGenerator {
                 for (Rule r : nt.getDerivations())
                     firstSet.addAll(updateFirstSet(r, 0, visitedNT).getFirstSet());
         }
-
-        firstSet.forEach(rule::addToFirstSet);
+        rule.addToFirstSet(firstSet);
 
         return rule;
     }

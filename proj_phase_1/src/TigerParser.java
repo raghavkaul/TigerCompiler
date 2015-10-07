@@ -110,7 +110,7 @@ public class TigerParser {
                     stack.pop();
 
                     // Yay FP
-                    matchedRule.getExpansion().forEach(stack::push);
+                    stack.addAll(matchedRule.getExpansion());
                 } else {
                     hasErrors = true;
                     errors.add(lookahead);
