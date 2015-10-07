@@ -4,8 +4,8 @@
  */
 public class Token {
     private TokenType type;
-    private String tokenLiteral;
-    private int lineNum, columnNum;
+    public String tokenLiteral;
+    public int lineNum, columnNum;
 
     public Token(TokenType type, String tokenLiteral, int lineNum, int columnNum) {
         this.type = type;
@@ -16,22 +16,6 @@ public class Token {
 
     public Token(TokenType type) {
         this(type, "", 0, 0);
-    }
-
-    public int getLineNum() {
-        return lineNum;
-    }
-
-    public void setLineNum(int lineNum) {
-        this.lineNum = lineNum;
-    }
-
-    public int getColumnNum() {
-        return columnNum;
-    }
-
-    public void setColumnNum(int columnNum) {
-        this.columnNum = columnNum;
     }
 
     public String getToken() {

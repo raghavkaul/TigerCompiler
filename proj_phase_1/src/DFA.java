@@ -3,7 +3,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
- * Created by Raghav K on 9/17/15.
+ * High-level class representing discrete finite automaton
  */
 public class DFA {
     public Map<StateInputWrapper, State> transitions;
@@ -11,14 +11,13 @@ public class DFA {
     private State startState;
     private State currState;
     private State errorState;
-    private Set<Token> punctuationTokens = new HashSet<Token>();
 
     /**
      * @param statesFile a tsv with relations state -> token type associated with state
      * @param transitionsFile a tsv with relations state -> inputChar -> nextState
      */
     public DFA(File statesFile, File transitionsFile) {
-        transitions = new HashMap<StateInputWrapper, State>();
+        transitions = new HashMap<>();
         populateTransitions(statesFile, transitionsFile);
         startState = states.get("START_STATE");
         currState = startState;
@@ -49,10 +48,6 @@ public class DFA {
         return currState;
     }
 
-    public void setState(State state) {
-        currState = state;
-    }
-
     public void returnToStart() {
         currState = startState;
     }
@@ -70,9 +65,9 @@ public class DFA {
         // Tables are denormalized
         // We have to read on table of State -> TokenType
         // And another of State -> Input character -> Next State
-        states = new HashMap<String, State>();
+        states = new HashMap<>();
 
-        while (scan.hasNextLine()) {
+        while (scan != null && scan.hasNextLine()) {
             String[] row = scan.nextLine().split(infileDelimiter);
             states.put(row[0], new State(row[0], TokenType.valueOf(row[1])));
         }
@@ -85,8 +80,7 @@ public class DFA {
 
         // Each line in transitions.csv is a tuple (state, inChar, outState)
         // Sequentially read lines, populating transitions table
-        int i = 0;
-        while(scan.hasNextLine()) {
+        while(scan != null && scan.hasNextLine()) {
             String[] row = scan.nextLine().split(infileDelimiter);
 
             // What follows is a fix of the worst <hack>
@@ -114,8 +108,8 @@ public class DFA {
      * @return a set of characters matching that primitive regex
      */
     protected Set<Character> regexHelper(String regexString) {
-        Set<Character> validChars = new HashSet<Character>();
-        Set<Character> exceptedChars = new HashSet<Character>();
+        Set<Character> validChars = new HashSet<>();
+        Set<Character> exceptedChars = new HashSet<>();
         char[] symbols = new char[]
                 {',',':',';','(',')','[',']','{','}','+','-','*','/','=','<','>','&','|', '.', '_'};
 
@@ -128,17 +122,17 @@ public class DFA {
                 for (char alpha = 'a'; alpha <= 'z'; alpha++){
                     validChars.add(alpha);
                 }
-                for (int i = 0; i < symbols.length; i++) {
-                    if (symbols[i] != '*' && symbols[i] != '/') {
-                        validChars.add(symbols[i]);
+                for (char symbol : symbols) {
+                    if (symbol != '*' && symbol != '/') {
+                        validChars.add(symbol);
                     }
                 }
                 for (char alpha = '0'; alpha <= '9'; alpha++) {
                     validChars.add(alpha);
                 }
-                for (int i = 0; i < symbols.length; i++) {
-                    if (!exceptedChars.contains(symbols[i])) {
-                        validChars.add(symbols[i]);
+                for (char symbol : symbols) {
+                    if (!exceptedChars.contains(symbol)) {
+                        validChars.add(symbol);
                     }
                 }
                 break;
@@ -182,9 +176,9 @@ public class DFA {
                 for (int i = 1; i < regexString.length(); i++) {
                     exceptedChars.add(regexString.charAt(i));
                 }
-                for (int i = 0; i < symbols.length; i++) {
-                    if (!exceptedChars.contains(symbols[i])) {
-                        validChars.add(symbols[i]);
+                for (char symbol : symbols) {
+                    if (!exceptedChars.contains(symbol)) {
+                        validChars.add(symbol);
                     }
                 }
                 break;

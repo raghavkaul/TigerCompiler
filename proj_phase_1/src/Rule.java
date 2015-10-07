@@ -28,18 +28,6 @@ public class Rule {
         expansion.add(l);
     }
 
-    public int getRuleNo() {
-        return ruleNo;
-    }
-
-    public void setRuleNo(int ruleNo) {
-        this.ruleNo = ruleNo;
-    }
-
-    /**
-     * First and follow sets mus
-     * @return
-     */
     public Set<Terminal> getFirstSet() {
         return firstSet;
     }
@@ -52,10 +40,6 @@ public class Rule {
         return followSet;
     }
 
-    public void addToFollowSet(Terminal t) {
-        followSet.add(t);
-    }
-
     public Nonterminal getParent() {
         return parent;
     }
@@ -66,16 +50,6 @@ public class Rule {
 
     @Override
     public String toString() {
-        String result = "";
-        result += "--- Rule ---";
-        result += "\nExpansion:";
-        for (Lexeme l : expansion) {
-            if (l instanceof Nonterminal) {
-                result += "\t" + ((Nonterminal) l).getName();
-            } else {
-                result += "\t" + l.toString();
-            }
-        }
-        return result;
+        return "Rule num : " + ruleNo;
     }
 }

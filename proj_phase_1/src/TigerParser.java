@@ -48,12 +48,9 @@ public class TigerParser {
     public TigerParser(File infile) {
         // Initialize parse table
         TableGenerator tg = new TableGenerator(new File(GRAMMAR_FILE_NAME));
-        List<Rule> rules = tg.parseGrammar();
 
-        for (int i = 0; i < rules.size(); i++) {
-            //Set<>
-            //rules.add(i, tg.updateFirstSet(rules.get(i), 0));
-        }
+        List<Rule> rules = tg.parseGrammar();
+        rules = tg.updateRuleFirstFollowSets(rules);
 
         this.parseTable = tg.generateParseTable(rules);
 

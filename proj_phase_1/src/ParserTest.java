@@ -4,18 +4,21 @@ import org.junit.Test;
 import java.io.File;
 import java.util.*;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ParserTest {
     private static final String GRAMMAR_FILE = "./data/grammar.txt";
-    private static final String FILE_TO_PARSE = "./data/";
+    private static List<String> filenames;
+    private static final String PREFIX = "./test_io/test";
     private TableGenerator tg;
 
     @Before
     public void setUp() {
         tg = new TableGenerator(new File(GRAMMAR_FILE));
+        filenames = new ArrayList<>();
+        for (int i = 1; i <= 7; i++) {
+            filenames.add(PREFIX + i + ".tiger");
+        }
     }
 
     @Test
@@ -37,8 +40,6 @@ public class ParserTest {
     }
     @Test
     public void dumpFirstFollowSets() {
-        List<Rule> rules = tg.parseGrammar();
-
         for (Nonterminal nt : tg.nonterminals.values()) {
             Set<Terminal> firstOfNt = new LinkedHashSet<>();
             for (Rule rule : nt.getDerivations()) {
@@ -57,18 +58,38 @@ public class ParserTest {
 
     @Test
     public void dumpParseTable() {
-        List<Rule> rules = tg.parseGrammar();
+        List<Rule> updatedRules = new ArrayList<>();
+        ParseTable pt;
 
         for (Nonterminal nt : tg.nonterminals.values()) {
-            Set<Terminal> firstOfNt = new LinkedHashSet<>();
-            for (Rule rule : nt.getDerivations()) {
+            for (int i = 0; i < nt.getDerivations().size(); i++) {
+                Rule rule = nt.getDerivations().get(i);
                 Set<Nonterminal> first = new LinkedHashSet<>();
-                tg.updateFirstSet(rule, 0, first);
-                firstOfNt.addAll(rule.getFirstSet());
+                Rule temp = tg.updateFirstSet(rule, 0, first);
+                assertEquals(nt.getDerivations().indexOf(temp), i);
+                updatedRules.add(nt.getDerivations().indexOf(rule), temp);
+            }
+
+            nt.replaceDerivations(updatedRules);
+
+            pt = tg.generateParseTable(nt.getDerivations());
+            System.out.println("=== Parse Table === ");
+            int i = 0;
+            for (Map.Entry<NontermTokenWrapper, Rule> me: pt.ruleTable.entrySet()) {
+                System.out.println("Table entry " + i++);
+                System.out.println("Nonterm: " + me.getKey().getNonterminal() + "\t"
+                        + "and token: " + me.getKey().getToken().getType() + "\t"
+                        + "are matched by : " + me.getValue().getParent());
             }
         }
-        ParseTable pt = new ParseTable();
-
     }
 
+    @Test
+    public void testReadFile() {
+        for (String s : filenames) {
+            TigerParser tp = new TigerParser(new File(s));
+            tp.parse();
+        }
+
+    }
 }

@@ -1,5 +1,6 @@
 /**
- * Created by user1316 on 9/17/15.
+ * Class representing a tuple of a state and given input
+ * Used to map/translate to a next-state in for some DFA
  */
 public class StateInputWrapper {
     private State state;

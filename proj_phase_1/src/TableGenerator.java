@@ -75,17 +75,6 @@ public class TableGenerator {
 
             currNonterm.addExpansion(currRule);
 
-//            // Group rules by the nonterminal they belong to
-//            if (nontermName.equals(currNonterm.getName())) {
-//                // We've seen this nonterminal before, so add the rule to its' possible expansions
-//                currNonterm.addExpansion(currRule);
-//            } else {
-//                // Create a new nonterminal to add rules to
-//                currNonterm = new Nonterminal(nontermName);
-//                nonterminals.add(currNonterm);
-//                ruleNo = 0;
-//            }
-
         }
 
         this.rules = rules;
@@ -109,7 +98,7 @@ public class TableGenerator {
         if (lexeme instanceof Terminal) {
             if (((Terminal) lexeme).matches(TokenType.NIL)) {
                 firstSet.addAll(updateFirstSet(rule, i + 1, visitedNT).getFirstSet());
-            }else {
+            } else {
                 firstSet.add((Terminal) lexeme);
             }
         } else {
@@ -122,6 +111,16 @@ public class TableGenerator {
         firstSet.forEach(rule::addToFirstSet);
 
         return rule;
+    }
+
+    public List<Rule> updateRuleFirstFollowSets(List<Rule> rules) {
+        List<Rule> updatedRules = new LinkedList<>();
+        for (int i = 0; i < rules.size(); i++) {
+            Set<Nonterminal> dummy = new HashSet<>();
+            Rule temp = updateFirstSet(rules.get(i), 0, dummy);
+            updatedRules.add(temp);
+        }
+        return updatedRules;
     }
 
     /**

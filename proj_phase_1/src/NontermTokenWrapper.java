@@ -15,10 +15,6 @@ public class NontermTokenWrapper {
         return nonterminal;
     }
 
-    public void setNonterminal(Nonterminal nonterminal) {
-        this.nonterminal = nonterminal;
-    }
-
     public Token getToken() {
         return token;
     }

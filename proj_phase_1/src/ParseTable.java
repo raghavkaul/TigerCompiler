@@ -8,7 +8,7 @@ import java.util.Map;
  * the application of which would match the token read from input
  */
 public class ParseTable {
-    private Map<NontermTokenWrapper, Rule> ruleTable;
+    protected Map<NontermTokenWrapper, Rule> ruleTable;
 
     public ParseTable() {
         ruleTable = new HashMap<>();
