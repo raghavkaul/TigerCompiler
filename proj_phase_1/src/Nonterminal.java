@@ -30,6 +30,12 @@ public class Nonterminal implements Lexeme {
         expansions.add(expansion);
     }
 
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
     public boolean equals(Object o) {
         return (o != null
                 && o instanceof Nonterminal

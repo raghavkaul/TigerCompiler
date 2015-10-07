@@ -26,4 +26,19 @@ public class Terminal implements Lexeme {
     public String toString() {
         return tokenType.toString();
     }
+
+    @Override
+    public int hashCode() {
+        return tokenType.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof  Terminal) {
+            Terminal temp = (Terminal) o;
+            if (temp.matches(this.tokenType))
+                return true;
+        }
+        return false;
+    }
 }

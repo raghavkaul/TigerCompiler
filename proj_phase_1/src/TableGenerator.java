@@ -44,8 +44,9 @@ public class TableGenerator {
             if (ruleLiteralStr.length < 3) { continue; }
 
             String nontermName = ruleLiteralStr[0];
-            if (nonterminals.get(nontermName) != null)
+            if (nonterminals.get(nontermName) != null) {
                 currNonterm = nonterminals.get(nontermName);
+            }
             else{
                 currNonterm = new Nonterminal(nontermName);
                 nonterminals.put(nontermName, currNonterm);
@@ -95,30 +96,39 @@ public class TableGenerator {
     /**
      * Generates the first and follow set for rule r
      * Then adds those sets to globals firstSets and followSets
-     * @param rule to generate tables for some nonterninals
+     * @param rule to generate tables for some nonterminals
      */
     public Rule updateFirstSet(Rule rule, int i, Set<Nonterminal> visitedNT) {
-        HashSet<Terminal> firstSet = new HashSet<>();
+        HashSet<Terminal> firstSet = new HashSet<Terminal>();
 
-        boolean isNullable = false;
         if (i > rule.getExpansion().size() - 1) {
             return rule;
         }
         Lexeme lexeme = rule.getExpansion().get(i);
 
         if (lexeme instanceof Terminal) {
-            if (((Terminal) lexeme).matches(TokenType.NIL)) {
-                firstSet.addAll(updateFirstSet(rule, i + 1, visitedNT).getFirstSet());
-            }else {
-                firstSet.add((Terminal) lexeme);
-            }
+            firstSet.add((Terminal) lexeme);
         } else {
             Nonterminal nt = (Nonterminal) lexeme;
-            if (!visitedNT.contains(nt))
-                for (Rule r : nt.getDerivations())
+            if (!visitedNT.contains(nt)) {
+                visitedNT.add(nt);
+                for (Rule r : nt.getDerivations()) {
                     firstSet.addAll(updateFirstSet(r, 0, visitedNT).getFirstSet());
+                }
+                if (firstSet.contains(new Terminal("NIL"))) {
+                    if (i != rule.getExpansion().size() - 1)
+                        firstSet.remove(new Terminal("NIL"));
+                    firstSet.addAll(updateFirstSet(rule, i + 1, visitedNT).getFirstSet());
+                }
+            }
         }
+
         rule.addToFirstSet(firstSet);
+
+//        if (((Terminal) lexeme).matches(TokenType.NIL)) {
+//            System.out.println("hello");
+//            firstSet.addAll(updateFirstSet(rule, i+1, visitedNT).getFirstSet());
+//        }
 
         return rule;
     }
