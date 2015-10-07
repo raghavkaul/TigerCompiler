@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
  */
 public class TestScanner {
     TigerScanner ts;
-    private static final String programFilename = "./data/example1.tiger",
+    private static final String programFilename = "./data/test_prog/example1.tiger",
             statesFilename = "./data/states.csv",
             transitionsFilename = "./data/transitions.csv";
 
@@ -29,7 +29,7 @@ public class TestScanner {
     @Test
     public void testExamples() throws Exception {
         for (int i = 1; i <= 7; i++ ) {
-            setup("./data/test" + i + ".tiger");
+            setup("./data/test_prog/test" + i + ".tiger");
             while (ts.peekToken().getType() != TokenType.EOF_TOKEN)
                 System.out.print(ts.nextToken().getType() + " ");
             System.out.println(ts.peekToken().getType());
