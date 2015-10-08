@@ -23,6 +23,10 @@ public class NontermTokenWrapper {
         this.token = token;
     }
 
+    public int hashCode() {
+        return nonterminal.hashCode();
+    }
+
     public boolean equals(Object o) {
         return o instanceof NontermTokenWrapper
                 && ((NontermTokenWrapper) o).getNonterminal().equals(this.nonterminal)

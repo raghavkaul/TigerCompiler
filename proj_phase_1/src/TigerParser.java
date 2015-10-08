@@ -1,3 +1,5 @@
+import org.omg.CORBA.CODESET_INCOMPATIBLE;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
@@ -50,9 +52,11 @@ public class TigerParser {
         TableGenerator tg = new TableGenerator(new File(GRAMMAR_FILE_NAME));
 
         List<Rule> rules = tg.parseGrammar();
-        rules = tg.updateRuleFirstFollowSets(rules);
+        tg.updateRuleFirstFollowSets(rules);
 
-        this.parseTable = tg.generateParseTable(rules);
+        this.parseTable= tg.generateParseTable(rules);
+
+//        this.parseTable = tg.generateParseTable();
 
         // Initialize scanner
         this.infileScanner = new TigerScanner(infile,
@@ -61,7 +65,14 @@ public class TigerParser {
         // Initialize stack to contain end symbol and Tiger-program non-terminal.
         stack = new Stack<>();
         stack.push(EOF_TERM);
-        stack.push(new Terminal(TokenType.TIGER_PROG));
+        stack.push(tg.nonterminals.get("<tiger-program>"));
+//        // Terrible hack
+//        Rule begrul = new Rule(1);
+//        begrul.setParent(new Nonterminal("<tiger-program>"));
+//        List<Lexeme> start = tg.rules.get(tg.rules.indexOf(begrul)).getExpansion();
+//        for (Lexeme l : start) {
+//            stack.push(l);
+//        }
     }
 
     /**
@@ -77,7 +88,12 @@ public class TigerParser {
         int i = 0;
         while (true) {
             topOfStack = stack.peek();
-            lookahead = infileScanner.nextToken();
+            lookahead = infileScanner.peekToken();
+            if (lookahead.equals(new Token(TokenType.COMMENT_END))) {
+                infileScanner.nextToken();
+                continue;
+            }
+
             if (verbose) {
                 System.out.println("Iteration : " + i++
                         + "\tTop of Stack: " + topOfStack
@@ -106,6 +122,7 @@ public class TigerParser {
                         System.out.println(topOfStack.toString());
                     }
                     stack.pop();
+                    infileScanner.nextToken();
                 } else {
                     hasErrors = true;
                     errors.add(lookahead);
@@ -126,7 +143,9 @@ public class TigerParser {
                     stack.pop();
 
                     // Yay FP
-                    stack.addAll(matchedRule.getExpansion());
+                    for (int x = matchedRule.getExpansion().size() - 1; x >= 0; x--) {
+                        stack.push(matchedRule.getExpansion().get(x));
+                    }
                 } else {
                     hasErrors = true;
                     errors.add(lookahead);

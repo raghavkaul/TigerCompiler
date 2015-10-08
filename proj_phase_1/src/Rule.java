@@ -1,7 +1,4 @@
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Class representing a single expansion rule for a nonterminal
@@ -56,5 +53,16 @@ public class Rule {
     public String toString() {
         return "Rule num : " + ruleNo + " of type " + this.getParent();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Rule) {
+            Rule rule = (Rule) o;
+            if (rule.parent.equals(this.parent))
+                return true;
+        }
+        return false;
+    }
+
 
 }

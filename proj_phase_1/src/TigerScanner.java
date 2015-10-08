@@ -68,6 +68,8 @@ public class TigerScanner {
 
         // Checks for invalid characters, unicode, UTF-16, etc.
         if (currentState.tokenType() == TokenType.INVALID) {
+            System.out.println("No token matching " + tokenLiteral
+                    + " + \'" + currChar + "\'");
             return new Token(TokenType.INVALID,
                     currChar.toString(),
                     lineNum,
@@ -100,8 +102,6 @@ public class TigerScanner {
             if (dfa.getNextState(currChar).tokenType() == TokenType.INVALID) {
                 invalidated = true;
                 invalidChar = currChar;
-                System.out.println("No token matching " + tokenLiteral
-                        + " + \'" + currChar + "\'");
                 return new Token(currentState.tokenType(),
                         tokenLiteral.toString(),
                         lineNum,

@@ -44,8 +44,8 @@ public class TestParser {
             Set<Terminal> firstOfNt = new LinkedHashSet<>();
             for (Rule rule : nt.getDerivations()) {
                 Set<Nonterminal> first = new LinkedHashSet<>();
-                tg.updateFirstSet(rule, 0, first);
-                firstOfNt.addAll(rule.getFirstSet());
+                //tg.updateFirstSet(rule, 0, first);
+                // firstOfNt.addAll(rule.getFirstSet());
             }
             System.out.print("First set of " + nt.getName() + "\n{");
             assertFalse(firstOfNt.size() == 0);
@@ -60,10 +60,8 @@ public class TestParser {
 
     @Test
     public void dumpParseTable() {
-        List<Rule> rules = tg.parseGrammar();
-        rules = tg.updateRuleFirstFollowSets(rules);
-
-        ParseTable pt = tg.generateParseTable(rules);
+        tg.parseGrammar();
+        ParseTable pt = tg.generateParseTable();
 
         System.out.println("=== Parse Table === ");
         int i = 0;
@@ -71,7 +69,7 @@ public class TestParser {
             System.out.println("Table entry " + i++);
             System.out.println("Nonterm: " + me.getKey().getNonterminal() + "\t"
                     + "and token: " + me.getKey().getToken().getType() + "\t"
-                    + "are matched by : " + me.getValue().getParent());
+                    + "are matched by : " + me.getValue());
         }
     }
 
@@ -96,7 +94,7 @@ public class TestParser {
             assertEquals(tp.stack.size(), 2);
         }
     }
-    @Test(timeout = 200)
+    @Test
     public void testParse() {
         for (String s : filenames) {
             TigerParser tp = new TigerParser(new File(s));
