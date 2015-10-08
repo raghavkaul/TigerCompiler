@@ -10,7 +10,7 @@ import java.util.Set;
 public class Rule {
     private List<Lexeme> expansion;
     private Nonterminal parent;
-    private Set<Terminal> firstSet, followSet;
+    private Set<TerminalRuleWrapper> firstSet, followSet;
     private int ruleNo;
 
     public Rule(int ruleNo) {
@@ -28,17 +28,15 @@ public class Rule {
         expansion.add(l);
     }
 
-    public Set<Terminal> getFirstSet() {
+    public Set<TerminalRuleWrapper> getFirstSet() {
         return firstSet;
     }
 
-    public void addToFirstSet(Terminal t) {
-        firstSet.add(t);
-    }
+    public void addToFirstSet(Set<TerminalRuleWrapper> set) {firstSet.addAll(set);}
 
-    public void addToFirstSet(Set<Terminal> set) {firstSet.addAll(set);}
+    public void addToFollowSet(Set<TerminalRuleWrapper> set) {followSet.addAll(set);}
 
-    public Set<Terminal> getFollowSet() {
+    public Set<TerminalRuleWrapper> getFollowSet() {
         return followSet;
     }
 
@@ -50,8 +48,13 @@ public class Rule {
         this.parent = parent;
     }
 
+    public int getRuleNo() {
+        return ruleNo;
+    }
+
     @Override
     public String toString() {
-        return "Rule num : " + ruleNo;
+        return "Rule num : " + ruleNo + " of type " + this.getParent();
     }
+
 }
