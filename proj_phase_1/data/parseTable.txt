@@ -1,0 +1,258 @@
+/usr/lib/jvm/java-1.7.0-openjdk-amd64/bin/java -ea -Didea.launcher.port=7554 -Didea.launcher.bin.path=/home/inseok/idea-IC-141.2735.5/bin -Dfile.encoding=UTF-8 -classpath /home/inseok/idea-IC-141.2735.5/lib/idea_rt.jar:/home/inseok/idea-IC-141.2735.5/plugins/junit/lib/junit-rt.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/jce.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/rt.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/rhino.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/charsets.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/management-agent.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/javazic.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/resources.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/compilefontconfig.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/jsse.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/localedata.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/zipfs.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/sunpkcs11.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/dnsns.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/java-atk-wrapper.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/icedtea-sound.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/sunjce_provider.jar:/home/inseok/Dropbox/CS4240/TigerCompiler/proj_phase_1/out/production/proj_phase_1:/home/inseok/idea-IC-141.2735.5/lib/junit-4.11.jar:/home/inseok/idea-IC-141.2735.5/lib/hamcrest-core-1.3.jar:/home/inseok/idea-IC-141.2735.5/lib/hamcrest-library-1.3.jar com.intellij.rt.execution.application.AppMain com.intellij.rt.execution.junit.JUnitStarter -ideVersion5 TestParser,dumpParseTable
+=== Parse Table === 
+Table entry 0
+Nonterm: <term-OR-no-ID>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 1
+Nonterm: <op-add>	and token: MINUS	are matched by : Rule num : 62 of type <op-add>
+Table entry 2
+Nonterm: <declaration-segment>	and token: TYPE	are matched by : Rule num : 8 of type <type-declaration>
+Table entry 3
+Nonterm: <factor>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 4
+Nonterm: <type-id>	and token: FLOAT_TYPE	are matched by : Rule num : 13 of type <type-id>
+Table entry 5
+Nonterm: <expr-func-tail>	and token: LPAREN	are matched by : Rule num : 43 of type <expr-func-tail>
+Table entry 6
+Nonterm: <stat-seq-tail>	and token: FOR	are matched by : Rule num : 33 of type <stat>
+Table entry 7
+Nonterm: <op-comp>	and token: LESSER	are matched by : Rule num : 54 of type <op-comp>
+Table entry 8
+Nonterm: <expr>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 9
+Nonterm: <factor>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 10
+Nonterm: <term-AND-no-ID>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 11
+Nonterm: <term-AND-tail>	and token: EQ	are matched by : Rule num : 52 of type <op-comp>
+Table entry 12
+Nonterm: <term-AND-tail>	and token: LESSER	are matched by : Rule num : 54 of type <op-comp>
+Table entry 13
+Nonterm: <stat-ID-expr-tail>	and token: ID	are matched by : Rule num : 42 of type <stat-ID-expr-tail>
+Table entry 14
+Nonterm: <expr-no-ID>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 15
+Nonterm: <term-OR-tail>	and token: AND	are matched by : Rule num : 50 of type <term-OR-tail>
+Table entry 16
+Nonterm: <stat>	and token: BREAK	are matched by : Rule num : 34 of type <stat>
+Table entry 17
+Nonterm: <type-id>	and token: INT_TYPE	are matched by : Rule num : 12 of type <type-id>
+Table entry 18
+Nonterm: <stat-seq>	and token: FOR	are matched by : Rule num : 33 of type <stat>
+Table entry 19
+Nonterm: <term-AND-tail>	and token: LESSEREQ	are matched by : Rule num : 56 of type <op-comp>
+Table entry 20
+Nonterm: <type-declaration>	and token: TYPE	are matched by : Rule num : 8 of type <type-declaration>
+Table entry 21
+Nonterm: <param>	and token: ID	are matched by : Rule num : 27 of type <param>
+Table entry 22
+Nonterm: <const>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 23
+Nonterm: <stat-ID-expr-tail>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 24
+Nonterm: <stat-ELSE-tail>	and token: ELSE	are matched by : Rule num : 39 of type <stat-ELSE-tail>
+Table entry 25
+Nonterm: <stat-seq>	and token: ID	are matched by : Rule num : 36 of type <stat>
+Table entry 26
+Nonterm: <term-comp-no-ID>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 27
+Nonterm: <term-AND>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 28
+Nonterm: <type>	and token: ID	are matched by : Rule num : 11 of type <type-id>
+Table entry 29
+Nonterm: <stat-seq-tail>	and token: IF	are matched by : Rule num : 31 of type <stat>
+Table entry 30
+Nonterm: <expr>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 31
+Nonterm: <term-tail>	and token: DIV	are matched by : Rule num : 67 of type <op-mul>
+Table entry 32
+Nonterm: <term-OR-lvalue-only>	and token: LBRACK	are matched by : Rule num : 91 of type <lvalue-tail>
+Table entry 33
+Nonterm: <op-comp>	and token: GREATEREQ	are matched by : Rule num : 57 of type <op-comp>
+Table entry 34
+Nonterm: <stat-seq>	and token: RETURN	are matched by : Rule num : 35 of type <stat>
+Table entry 35
+Nonterm: <term-comp>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 36
+Nonterm: <factor-no-ID>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 37
+Nonterm: <expr-no-ID>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 38
+Nonterm: <lvalue>	and token: ID	are matched by : Rule num : 90 of type <lvalue>
+Table entry 39
+Nonterm: <term-AND-lvalue-only>	and token: LBRACK	are matched by : Rule num : 91 of type <lvalue-tail>
+Table entry 40
+Nonterm: <term-AND>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 41
+Nonterm: <factor-no-ID>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 42
+Nonterm: <expr-func-tail>	and token: LBRACK	are matched by : Rule num : 91 of type <lvalue-tail>
+Table entry 43
+Nonterm: <const>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 44
+Nonterm: <expr-list>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 45
+Nonterm: <term-OR-no-ID>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 46
+Nonterm: <op-comp>	and token: LESSEREQ	are matched by : Rule num : 56 of type <op-comp>
+Table entry 47
+Nonterm: <term-comp>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 48
+Nonterm: <term>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 49
+Nonterm: <term-AND-no-ID>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 50
+Nonterm: <term-AND-tail>	and token: GREATEREQ	are matched by : Rule num : 57 of type <op-comp>
+Table entry 51
+Nonterm: <param-list-tail>	and token: COMMA	are matched by : Rule num : 24 of type <param-list-tail>
+Table entry 52
+Nonterm: <term-lvalue-only>	and token: LBRACK	are matched by : Rule num : 91 of type <lvalue-tail>
+Table entry 53
+Nonterm: <stat>	and token: RETURN	are matched by : Rule num : 35 of type <stat>
+Table entry 54
+Nonterm: <expr-list-tail>	and token: COMMA	are matched by : Rule num : 88 of type <expr-list-tail>
+Table entry 55
+Nonterm: <stat-ID-expr-tail>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 56
+Nonterm: <expr>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 57
+Nonterm: <op-mul>	and token: MULT	are matched by : Rule num : 66 of type <op-mul>
+Table entry 58
+Nonterm: <stat-ID-tail>	and token: LPAREN	are matched by : Rule num : 37 of type <stat-ID-tail>
+Table entry 59
+Nonterm: <stat-seq>	and token: BREAK	are matched by : Rule num : 34 of type <stat>
+Table entry 60
+Nonterm: <stat-ID-expr-tail>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 61
+Nonterm: <stat>	and token: ID	are matched by : Rule num : 36 of type <stat>
+Table entry 62
+Nonterm: <tiger-program>	and token: LET	are matched by : Rule num : 0 of type <tiger-program>
+Table entry 63
+Nonterm: <term-AND-no-ID>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 64
+Nonterm: <term>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 65
+Nonterm: <lvalue-tail>	and token: LBRACK	are matched by : Rule num : 91 of type <lvalue-tail>
+Table entry 66
+Nonterm: <term-OR-no-ID>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 67
+Nonterm: <expr-lvalue-only>	and token: LBRACK	are matched by : Rule num : 91 of type <lvalue-tail>
+Table entry 68
+Nonterm: <op-comp>	and token: GREATER	are matched by : Rule num : 55 of type <op-comp>
+Table entry 69
+Nonterm: <stat-seq-tail>	and token: BREAK	are matched by : Rule num : 34 of type <stat>
+Table entry 70
+Nonterm: <param-list>	and token: ID	are matched by : Rule num : 27 of type <param>
+Table entry 71
+Nonterm: <expr-list>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 72
+Nonterm: <stat>	and token: WHILE	are matched by : Rule num : 32 of type <stat>
+Table entry 73
+Nonterm: <term-OR>	and token: ID	are matched by : Rule num : 90 of type <lvalue>
+Table entry 74
+Nonterm: <term-AND-tail>	and token: NEQ	are matched by : Rule num : 53 of type <op-comp>
+Table entry 75
+Nonterm: <term-no-ID>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 76
+Nonterm: <term-AND-tail>	and token: GREATER	are matched by : Rule num : 55 of type <op-comp>
+Table entry 77
+Nonterm: <term-no-ID>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 78
+Nonterm: <factor>	and token: ID	are matched by : Rule num : 90 of type <lvalue>
+Table entry 79
+Nonterm: <term-tail>	and token: MULT	are matched by : Rule num : 66 of type <op-mul>
+Table entry 80
+Nonterm: <term-OR>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 81
+Nonterm: <op-comp>	and token: NEQ	are matched by : Rule num : 53 of type <op-comp>
+Table entry 82
+Nonterm: <factor-no-ID>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 83
+Nonterm: <term>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 84
+Nonterm: <stat>	and token: FOR	are matched by : Rule num : 33 of type <stat>
+Table entry 85
+Nonterm: <term-comp>	and token: ID	are matched by : Rule num : 90 of type <lvalue>
+Table entry 86
+Nonterm: <factor>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 87
+Nonterm: <expr-list>	and token: ID	are matched by : Rule num : 90 of type <lvalue>
+Table entry 88
+Nonterm: <type>	and token: INT_TYPE	are matched by : Rule num : 12 of type <type-id>
+Table entry 89
+Nonterm: <type-declaration-list>	and token: TYPE	are matched by : Rule num : 8 of type <type-declaration>
+Table entry 90
+Nonterm: <var-declaration>	and token: VAR	are matched by : Rule num : 14 of type <var-declaration>
+Table entry 91
+Nonterm: <ret-type>	and token: COLON	are matched by : Rule num : 26 of type <ret-type>
+Table entry 92
+Nonterm: <term-OR>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 93
+Nonterm: <term-comp-no-ID>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 94
+Nonterm: <term-comp-lvalue-only>	and token: LBRACK	are matched by : Rule num : 91 of type <lvalue-tail>
+Table entry 95
+Nonterm: <term-AND>	and token: ID	are matched by : Rule num : 90 of type <lvalue>
+Table entry 96
+Nonterm: <op-mul>	and token: DIV	are matched by : Rule num : 67 of type <op-mul>
+Table entry 97
+Nonterm: <term-no-ID>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 98
+Nonterm: <stat-ID-tail>	and token: LBRACK	are matched by : Rule num : 91 of type <lvalue-tail>
+Table entry 99
+Nonterm: <expr-tail>	and token: OR	are matched by : Rule num : 47 of type <expr-tail>
+Table entry 100
+Nonterm: <term-comp-no-ID>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 101
+Nonterm: <var-declaration-list>	and token: VAR	are matched by : Rule num : 14 of type <var-declaration>
+Table entry 102
+Nonterm: <stat-seq>	and token: WHILE	are matched by : Rule num : 32 of type <stat>
+Table entry 103
+Nonterm: <term>	and token: ID	are matched by : Rule num : 90 of type <lvalue>
+Table entry 104
+Nonterm: <id-list>	and token: ID	are matched by : Rule num : 15 of type <id-list>
+Table entry 105
+Nonterm: <stat>	and token: IF	are matched by : Rule num : 31 of type <stat>
+Table entry 106
+Nonterm: <term-comp-tail>	and token: PLUS	are matched by : Rule num : 61 of type <op-add>
+Table entry 107
+Nonterm: <expr>	and token: ID	are matched by : Rule num : 90 of type <lvalue>
+Table entry 108
+Nonterm: <term-AND>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 109
+Nonterm: <term-comp>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 110
+Nonterm: <stat-seq-tail>	and token: ID	are matched by : Rule num : 36 of type <stat>
+Table entry 111
+Nonterm: <stat-seq>	and token: IF	are matched by : Rule num : 31 of type <stat>
+Table entry 112
+Nonterm: <op-comp>	and token: EQ	are matched by : Rule num : 52 of type <op-comp>
+Table entry 113
+Nonterm: <id-list-tail>	and token: COMMA	are matched by : Rule num : 17 of type <id-list-tail>
+Table entry 114
+Nonterm: <term-OR>	and token: LPAREN	are matched by : Rule num : 78 of type <factor-no-ID>
+Table entry 115
+Nonterm: <op-add>	and token: PLUS	are matched by : Rule num : 61 of type <op-add>
+Table entry 116
+Nonterm: <type>	and token: FLOAT_TYPE	are matched by : Rule num : 13 of type <type-id>
+Table entry 117
+Nonterm: <funct-declaration-list>	and token: FUNCTION	are matched by : Rule num : 20 of type <funct-declaration>
+Table entry 118
+Nonterm: <type-id>	and token: ID	are matched by : Rule num : 11 of type <type-id>
+Table entry 119
+Nonterm: <optional-init>	and token: ASSIGN	are matched by : Rule num : 19 of type <optional-init>
+Table entry 120
+Nonterm: <term-comp-tail>	and token: MINUS	are matched by : Rule num : 62 of type <op-add>
+Table entry 121
+Nonterm: <stat-seq-tail>	and token: WHILE	are matched by : Rule num : 32 of type <stat>
+Table entry 122
+Nonterm: <type>	and token: ARRAY	are matched by : Rule num : 10 of type <type>
+Table entry 123
+Nonterm: <expr-no-ID>	and token: FLOATLIT	are matched by : Rule num : 85 of type <const>
+Table entry 124
+Nonterm: <stat-seq-tail>	and token: RETURN	are matched by : Rule num : 35 of type <stat>
+Table entry 125
+Nonterm: <expr-list>	and token: INTLIT	are matched by : Rule num : 84 of type <const>
+Table entry 126
+Nonterm: <funct-declaration>	and token: FUNCTION	are matched by : Rule num : 20 of type <funct-declaration>
+
+Process finished with exit code 0
