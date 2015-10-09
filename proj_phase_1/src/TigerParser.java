@@ -7,9 +7,9 @@ import java.util.*;
  * Class representing high-level parser
  */
 public class TigerParser {
-    private static final String STATES_FILE_NAME = "./data/states.csv";
-    private static final String TRANSITIONS_FILE_NAME = "./data/transitions.csv";
-    private static final String GRAMMAR_FILE_NAME = "./data/grammar.txt";
+    private static final String STATES_FILE_NAME = "../data/states.csv";
+    private static final String TRANSITIONS_FILE_NAME = "../data/transitions.csv";
+    private static final String GRAMMAR_FILE_NAME = "../data/grammar.txt";
     private static final String EOF_TERM = TokenType.EOF_TOKEN.toString();
     public static boolean debug, verbose;
     public final Map<String, Rule> parseTable;
