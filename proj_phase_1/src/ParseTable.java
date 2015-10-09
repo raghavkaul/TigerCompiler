@@ -1,6 +1,4 @@
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Class representing the parse table
@@ -15,11 +13,25 @@ public class ParseTable {
         ruleTable = new HashMap<>();
     }
 
-    public void addRule(Nonterminal nonterminal, Token token, Rule rule) {
-        ruleTable.put(new NontermTokenWrapper(nonterminal, token), rule);
+    public Rule matchRule(Nonterminal nonterminal, Token token) {
+        return row.get(nonterminal).get(new Terminal(token.getType()));
     }
 
-    public Rule matchRule(Nonterminal nonterminal, Token token) {
-        return ruleTable.get(new NontermTokenWrapper(nonterminal, token));
+    protected HashMap<Nonterminal, HashMap<Terminal, Rule>> row;
+
+    public ParseTable(Collection<Nonterminal> ntlist) {
+        row = new HashMap<Nonterminal, HashMap<Terminal, Rule>>();
+        for (Nonterminal nt : ntlist) {
+            row.put(nt, new HashMap<Terminal, Rule>());
+            HashMap<Terminal, Rule> col = row.get(nt);
+            for (TerminalRuleWrapper trw : nt.getFirstSet()){
+                col.put(trw.getTerminal(),trw.getRule());
+            }
+        }
+    }
+
+    public ParseTable(List<Rule> rules) {
+
     }
 }
+

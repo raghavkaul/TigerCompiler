@@ -10,12 +10,13 @@ import java.util.Set;
 public class Nonterminal implements Lexeme {
     private String name;
     private List<Rule> expansions;
-    private Set<TerminalRuleWrapper> firstSet;
+    private Set<TerminalRuleWrapper> firstSet, followSet;
 
     public Nonterminal(String name) {
         this.name = name;
         this.expansions = new ArrayList<>();
         this.firstSet = new HashSet<TerminalRuleWrapper>();
+        this.followSet = new HashSet<TerminalRuleWrapper>();
     }
 
     public String getName() {
@@ -32,7 +33,10 @@ public class Nonterminal implements Lexeme {
 
     public void addFirstSet(Set<TerminalRuleWrapper> set) {firstSet.addAll(set);}
 
+    public void addFollowSet(Set<TerminalRuleWrapper> set) {followSet.addAll(set);}
+
     public Set<TerminalRuleWrapper> getFirstSet () {return firstSet;}
+    public Set<TerminalRuleWrapper> getFollowSet () {return followSet;}
 
     @Override
     public int hashCode() {

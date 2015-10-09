@@ -12,6 +12,14 @@ public class TerminalRuleWrapper {
         this.r = r;
     }
 
+    public Terminal getTerminal() {
+        return t;
+    }
+
+    public Rule getRule() {
+        return r;
+    }
+
     @Override
     public boolean equals(Object o) {
         return o instanceof TerminalRuleWrapper
@@ -26,6 +34,6 @@ public class TerminalRuleWrapper {
 
     @Override
     public String toString() {
-        return t.toString() + r.getRuleNo();
+        return t.toString();
     }
 }

@@ -1,10 +1,7 @@
 import org.omg.CORBA.CODESET_INCOMPATIBLE;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Class representing high-level parser
@@ -13,11 +10,11 @@ public class TigerParser {
     private static final String STATES_FILE_NAME = "./data/states.csv";
     private static final String TRANSITIONS_FILE_NAME = "./data/transitions.csv";
     private static final String GRAMMAR_FILE_NAME = "./data/grammar.txt";
-    private static final Terminal EOF_TERM = new Terminal(TokenType.EOF_TOKEN);
+    private static final String EOF_TERM = TokenType.EOF_TOKEN.toString();
     public static boolean debug, verbose;
-    public final ParseTable parseTable;
+    public final Map<String, Rule> parseTable;
     public final TigerScanner infileScanner;
-    public Stack<Lexeme> stack;
+    public Stack<String> stack;
 
     public static void main(String[] args) {
         String helpStr = "Tiger language Parser options:" +
@@ -49,14 +46,11 @@ public class TigerParser {
 
     public TigerParser(File infile) {
         // Initialize parse table
-        TableGenerator tg = new TableGenerator(new File(GRAMMAR_FILE_NAME));
+        TableGen tg = new TableGen(new File(GRAMMAR_FILE_NAME));
 
-        List<Rule> rules = tg.parseGrammar();
-        tg.updateRuleFirstFollowSets(rules);
-
-        this.parseTable= tg.generateParseTable(rules);
-
-//        this.parseTable = tg.generateParseTable();
+        List<Rule> rules = tg.getRules();
+        tg.generateParsertable();
+        this.parseTable= tg.getParserTable();
 
         // Initialize scanner
         this.infileScanner = new TigerScanner(infile,
@@ -65,14 +59,7 @@ public class TigerParser {
         // Initialize stack to contain end symbol and Tiger-program non-terminal.
         stack = new Stack<>();
         stack.push(EOF_TERM);
-        stack.push(tg.nonterminals.get("<tiger-program>"));
-//        // Terrible hack
-//        Rule begrul = new Rule(1);
-//        begrul.setParent(new Nonterminal("<tiger-program>"));
-//        List<Lexeme> start = tg.rules.get(tg.rules.indexOf(begrul)).getExpansion();
-//        for (Lexeme l : start) {
-//            stack.push(l);
-//        }
+        stack.push("<tiger-program>");
     }
 
     /**
@@ -81,26 +68,30 @@ public class TigerParser {
      */
     public boolean parse() {
         boolean hasErrors = false;
-        Set<Token> errors = new HashSet<>();
-        Token lookahead;
-        Lexeme topOfStack;
+        Set<String> errors = new HashSet<>();
+        String lookahead;
+        String topOfStack;
 
         int i = 0;
         while (true) {
             topOfStack = stack.peek();
-            lookahead = infileScanner.peekToken();
-            if (lookahead.equals(new Token(TokenType.COMMENT_END))) {
+            lookahead = infileScanner.peekToken().toString();
+            if (lookahead.equals(new Token(TokenType.COMMENT_END).toString())) {
                 infileScanner.nextToken();
                 continue;
+            }
+            if (lookahead.equals(TokenType.INVALID.toString())) {
+                System.out.println("Scanner Error (line )");
+                infileScanner.nextToken();
             }
 
             if (verbose) {
                 System.out.println("Iteration : " + i++
                         + "\tTop of Stack: " + topOfStack
-                        + "\tToken: " + lookahead.getToken());
+                        + "\tToken: " + lookahead);
             }
 
-            if (lookahead.getType().equals(TokenType.EOF_TOKEN)) {
+            if (lookahead.equals(EOF_TERM)) {
                 if (!topOfStack.equals(EOF_TERM)) {
                     hasErrors = true;
                     System.out.println("Unexpectedly reached end of file while parsing.");
@@ -114,8 +105,13 @@ public class TigerParser {
                 }
                 // Can't match more tokens -> implies parse completed.
                 break;
-            } else if (topOfStack instanceof Terminal) {
-                if (((Terminal) topOfStack).matches(lookahead)) {
+            } else if (isTerminal(topOfStack)) {
+                if (topOfStack.equals(TokenType.NIL.toString())) {
+                    stack.pop();
+                    continue;
+                }
+
+                if ((topOfStack).equals(lookahead)) {
                     // We've read a token matching our expected terminal
                     // Move the stack and stream forward
                     if (verbose) {
@@ -126,18 +122,22 @@ public class TigerParser {
                 } else {
                     hasErrors = true;
                     errors.add(lookahead);
-                    if (debug) {
-                        System.out.println("Failed to match the following token " +
-                                "to a nonterminal: " + infileScanner.peekToken());
+                    if (lookahead.equals("SEMI")) {
+                        stack.pop();
+                    } else {
+                        infileScanner.nextToken();
+                        if (debug) {
+                            System.out.println("Failed to match the following token " +
+                                    "to a nonterminal: " + infileScanner.peekToken());
+                        }
                     }
                 }
             } else { // The lexeme is a non-terminal that needs to be expanded
-                Rule matchedRule = parseTable.matchRule((Nonterminal) topOfStack,
-                        lookahead);
+                Rule matchedRule = parseTable.get(topOfStack + ", " + lookahead);
 
                 if (matchedRule != null) {
                     if (verbose) {
-                        System.out.println(matchedRule.getParent().getName());
+                        System.out.println(matchedRule.getName());
                     }
                     // We've found a matching rule, need to push its' entire expansion to the stack
                     stack.pop();
@@ -147,6 +147,10 @@ public class TigerParser {
                         stack.push(matchedRule.getExpansion().get(x));
                     }
                 } else {
+                    if (!lookahead.equals("SEMI"))
+                        infileScanner.nextToken();
+                    else
+                        stack.pop();
                     hasErrors = true;
                     errors.add(lookahead);
                     if (debug) {
@@ -157,8 +161,14 @@ public class TigerParser {
             }
         }
 
-        System.out.println("Parse completed with " + errors.size() + " errors.");
+        hasErrors = hasErrors || infileScanner.hasErrors();
+        System.out.println("Parse completed with " + (errors.size() + infileScanner.getNumErrors()) + " errors.");
+
 
         return hasErrors;
+    }
+
+    private boolean isTerminal(String str) {
+        return !str.contains("<");
     }
 }

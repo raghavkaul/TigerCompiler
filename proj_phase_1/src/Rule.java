@@ -1,68 +1,33 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-/**
- * Class representing a single expansion rule for a nonterminal
- * First and follow sets must belong to a rule
- */
 public class Rule {
-    private List<Lexeme> expansion;
-    private Nonterminal parent;
-    private Set<TerminalRuleWrapper> firstSet, followSet;
-    private int ruleNo;
+    private String name;
+    private List<String> expansion;
+    private int lineno;
 
-    public Rule(int ruleNo) {
-        expansion = new LinkedList<>();
-        firstSet = new HashSet<>();
-        followSet = new HashSet<>();
-        this.ruleNo = ruleNo;
+    public Rule(String production,int lineno){
+        String[] productionList = production.split(" ::= ");
+        if(productionList.length < 2){
+            return;
+        }
+        else{
+            this.name = productionList[0];
+            this.name.trim();
+            this.expansion = new ArrayList<String>(Arrays.asList(productionList[1].trim().split(" ")));
+            this.lineno  = lineno;
+        }
     }
 
-    public List<Lexeme> getExpansion() {
+    public String getName(){
+        return name;
+    }
+    public List<String> getExpansion(){
         return expansion;
     }
-
-    public void addLexeme(Lexeme l) {
-        expansion.add(l);
+    public String toString(){
+        return "No: " + lineno + " = " + name;
     }
-
-    public Set<TerminalRuleWrapper> getFirstSet() {
-        return firstSet;
-    }
-
-    public void addToFirstSet(Set<TerminalRuleWrapper> set) {firstSet.addAll(set);}
-
-    public void addToFollowSet(Set<TerminalRuleWrapper> set) {followSet.addAll(set);}
-
-    public Set<TerminalRuleWrapper> getFollowSet() {
-        return followSet;
-    }
-
-    public Nonterminal getParent() {
-        return parent;
-    }
-
-    public void setParent(Nonterminal parent) {
-        this.parent = parent;
-    }
-
-    public int getRuleNo() {
-        return ruleNo;
-    }
-
-    @Override
-    public String toString() {
-        return "Rule num : " + ruleNo + " of type " + this.getParent();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof Rule) {
-            Rule rule = (Rule) o;
-            if (rule.parent.equals(this.parent))
-                return true;
-        }
-        return false;
-    }
-
 
 }

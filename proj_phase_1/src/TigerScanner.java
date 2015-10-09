@@ -18,6 +18,7 @@ public class TigerScanner {
 
     private char invalidChar;
     private boolean invalidated;
+    private int numErrors;
 
     public TigerScanner(File infile, File stateFile, File transitionFile) {
         try {
@@ -26,7 +27,7 @@ public class TigerScanner {
             i.printStackTrace();
         }
 
-        lineNum = 0;
+        lineNum = 1;
         columnNum = 0;
 
         dfa = new DFA(stateFile, transitionFile);
@@ -68,12 +69,10 @@ public class TigerScanner {
 
         // Checks for invalid characters, unicode, UTF-16, etc.
         if (currentState.tokenType() == TokenType.INVALID) {
-            System.out.println("No token matching " + tokenLiteral
-                    + " + \'" + currChar + "\'");
-            return new Token(TokenType.INVALID,
-                    currChar.toString(),
-                    lineNum,
-                    columnNum);
+            System.out.println("No token matching at line " + getLineNum() + ":" + getColumnNum() + ": "  + tokenLiteral
+                    + "\'" + currChar + "\'");
+            numErrors++;
+            return nextToken();
         }
 
         while (!done) {
@@ -82,6 +81,12 @@ public class TigerScanner {
 
             try {
                 currChar = Character.toChars(infileReader.read())[0];
+                if (currChar == '\n') {
+                    lineNum++;
+                    columnNum = 1;
+                } else {
+                    columnNum++;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
@@ -105,8 +110,7 @@ public class TigerScanner {
                 return new Token(currentState.tokenType(),
                         tokenLiteral.toString(),
                         lineNum,
-                        columnNum);
-
+                        columnNum - 1);
             } else { // If transition is found, keep going
                 currentState = dfa.getNextState(currChar);
                 columnNum++;
@@ -140,10 +144,30 @@ public class TigerScanner {
 
         columnNum++;
 
-        if (currChar != null && currChar == '\n') {
+        if (currChar == '\n') {
             lineNum++;
+            columnNum = 1;
         }
-
         return currChar;
+    }
+
+    public boolean hasErrors() {
+        return numErrors != 0;
+    }
+
+    public int getNumErrors() {
+        return numErrors;
+    }
+
+    public int getLineNum() {
+        return lineNum;
+    }
+
+    public int getColumnNum() {
+        return columnNum;
+    }
+
+    public String getCurrentIndex() {
+        return "line: " + lineNum + ":" + columnNum;
     }
 }
