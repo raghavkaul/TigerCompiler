@@ -85,7 +85,7 @@ public class TigerParser {
 
         while (symbolTableScanner != null && symbolTableScanner.hasNext()) {
             lookahead = symbolTableScanner.next();
-            
+
             if (lookahead.equalsIgnoreCase("var") || lookahead.equalsIgnoreCase("type")) {
                 symbolRecord = lookahead.equalsIgnoreCase("var") ? new VarRecord() : new TypeRecord();
                 sfs = SymbolFoundState.FOUND_DECLARATION;
@@ -105,11 +105,13 @@ public class TigerParser {
         }
         return symbolTable;
     }
+
     /**
      * Parses file passed in as infile
      * @return true for successful parse, else false
      */
     public boolean parse() {
+        ParseTree parseTree = new ParseTree();
         boolean hasErrors = false;
         Set<String> errors = new HashSet<>();
         String lookahead;
