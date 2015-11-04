@@ -79,4 +79,21 @@ public class TestParser {
             tp.parse();
         }
     }
+
+    @Test
+    public void testSymbolTableGeneration() {
+        SymbolTable st;
+        for (String s : filenames) {
+            TigerParser tp = new TigerParser(new File(s));
+            TigerParser.verbose = false;
+            TigerParser.debug = true;
+            st = tp.generateSymbolTable();
+            System.out.println("=================" + s + "=============");
+            for (Map.Entry<String, SymbolRecord> me : st.getTable().entrySet()) {
+                System.out.println("Symbol: " + me.getKey() + "Symbol record:" + me.getValue());
+            }
+        }
+
+
+    }
 }

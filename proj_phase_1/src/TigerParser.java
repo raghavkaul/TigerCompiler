@@ -62,6 +62,41 @@ public class TigerParser {
         stack.push("<tiger-program>");
     }
 
+    public SymbolTable generateSymbolTable() {
+        Scanner symbolTableScanner = null;
+        try {
+            symbolTableScanner = new Scanner(infile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        SymbolTable symbolTable = new SymbolTable();
+        SymbolRecord symbolRecord = null;
+        SymbolFoundState sfs = SymbolFoundState.NONE;
+        String currSymbolName = "UNINITIALIZED";
+
+        while (symbolTableScanner != null && symbolTableScanner.hasNext()) {
+            String lookahead = symbolTableScanner.next();
+
+            if (lookahead.equalsIgnoreCase("var") || lookahead.equalsIgnoreCase("type")) {
+                symbolRecord = lookahead.equalsIgnoreCase("var") ? new VarRecord() : new TypeRecord();
+                sfs = SymbolFoundState.FOUND_DECLARATION;
+            } else if (sfs == SymbolFoundState.FOUND_DECLARATION) {
+                currSymbolName = lookahead;
+                sfs = SymbolFoundState.FOUND_NAME;
+            } else if (sfs == SymbolFoundState.FOUND_NAME && lookahead.equals(":")) {
+                if (symbolTable.lookUp(lookahead) != null) {
+                    // Type has been previously defined,
+                    symbolTable.insert(currSymbolName, symbolRecord);
+                } else {
+                    // Parse error
+                    System.out.println("Semantic error at token " + lookahead + ": no such type exists");
+                }
+                sfs = SymbolFoundState.NONE;
+            }
+        }
+        return symbolTable;
+    }
     /**
      * Parses file passed in as infile
      * @return true for successful parse, else false
