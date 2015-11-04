@@ -7,3 +7,6 @@ proj_phase_1/proj_phase_1.iml
 .project
 grammar.txt~
 states.csv~
+.idea/
+out/
+TigerCompiler.iml
