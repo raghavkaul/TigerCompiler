@@ -1,6 +1,7 @@
 import org.omg.CORBA.CODESET_INCOMPATIBLE;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
@@ -11,6 +12,7 @@ public class TigerParser {
     private static final String TRANSITIONS_FILE_NAME = "./data/transitions.csv";
     private static final String GRAMMAR_FILE_NAME = "./data/grammar.txt";
     private static final String EOF_TERM = TokenType.EOF_TOKEN.toString();
+    private final File infile;
     public static boolean debug, verbose;
     public final Map<String, Rule> parseTable;
     public final TigerScanner infileScanner;
@@ -53,6 +55,7 @@ public class TigerParser {
         this.parseTable= tg.getParserTable();
 
         // Initialize scanner
+        this.infile = infile;
         this.infileScanner = new TigerScanner(infile,
                 new File(STATES_FILE_NAME), new File(TRANSITIONS_FILE_NAME));
 
@@ -60,6 +63,11 @@ public class TigerParser {
         stack = new Stack<>();
         stack.push(EOF_TERM);
         stack.push("<tiger-program>");
+    }
+
+
+    private enum SymbolFoundState {
+        NONE, FOUND_DECLARATION, FOUND_NAME;
     }
 
     public SymbolTable generateSymbolTable() {
@@ -73,11 +81,11 @@ public class TigerParser {
         SymbolTable symbolTable = new SymbolTable();
         SymbolRecord symbolRecord = null;
         SymbolFoundState sfs = SymbolFoundState.NONE;
-        String currSymbolName = "UNINITIALIZED";
+        String lookahead, currSymbolName = "UNINITIALIZED";
 
         while (symbolTableScanner != null && symbolTableScanner.hasNext()) {
-            String lookahead = symbolTableScanner.next();
-
+            lookahead = symbolTableScanner.next();
+            
             if (lookahead.equalsIgnoreCase("var") || lookahead.equalsIgnoreCase("type")) {
                 symbolRecord = lookahead.equalsIgnoreCase("var") ? new VarRecord() : new TypeRecord();
                 sfs = SymbolFoundState.FOUND_DECLARATION;
@@ -150,7 +158,7 @@ public class TigerParser {
                     // We've read a token matching our expected terminal
                     // Move the stack and stream forward
                     if (verbose) {
-                        System.out.println(topOfStack.toString());
+                        System.out.println(topOfStack);
                     }
                     stack.pop();
                     infileScanner.nextToken();
