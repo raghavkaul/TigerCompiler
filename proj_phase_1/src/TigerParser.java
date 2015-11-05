@@ -1,8 +1,4 @@
-import org.omg.CORBA.CODESET_INCOMPATIBLE;
-import org.omg.CORBA.SystemException;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
@@ -51,7 +47,6 @@ public class TigerParser {
         // Initialize parse table
         TableGen tg = new TableGen(new File(GRAMMAR_FILE_NAME));
 
-        List<Rule> rules = tg.getRules();
         tg.generateParsertable();
         this.parseTable= tg.getParserTable();
 
@@ -67,11 +62,11 @@ public class TigerParser {
 
 
     private enum SymbolFoundState {
-        NONE, EXPECTING_NAME, FOUND_NAME, EXPECTING_VARLIST, EXPECTING_TYPE_DECL
+        NONE, EXPECTING_NAME, FOUND_NAME, EXPECTING_VARLIST, EXPECTING_TYPE_DECL,
+        EXPECTING_PARAMLIST, EXPECTING_PARAMTYPE, FOUND_PARAMTYPE, EXPECTING_RETURNTYPE
     }
 
     public SymbolTable getSymbolTable() {
-        System.out.println("symbol table exists " + (symbolTable.getTable() != null));
         return symbolTable;
     }
 
@@ -83,7 +78,7 @@ public class TigerParser {
         ParseTree parseTree = new ParseTree();
         boolean hasErrors = false;
         Set<String> errors = new HashSet<>();
-        String lookahead, topOfStack, tokenLiteral;
+        String lookahead, topOfStack, tokenLiteral, currParamName = "";
         symbolTable = new SymbolTable();
         SymbolRecord symbolRecord = null;
         SymbolFoundState sfs = SymbolFoundState.NONE;
@@ -100,7 +95,7 @@ public class TigerParser {
                 continue;
             }
             if (lookahead.equals(TokenType.INVALID.toString())) {
-                System.out.println("Scanner Error (line )");
+                System.out.println("Scanner Error");
                 infileScanner.nextToken();
             }
 
@@ -136,7 +131,8 @@ public class TigerParser {
                     if (verbose) {
                         System.out.println(topOfStack);
                     }
-                    
+
+                    // Symbol table population DFA
                     switch(sfs) {
                         case NONE:
                             boolean foundDeclaration = false;
@@ -146,7 +142,11 @@ public class TigerParser {
                             } else if (lookahead.equalsIgnoreCase("type")) {
                                 symbolRecord = new TypeRecord();
                                 foundDeclaration = true;
+                            } else if (lookahead.equalsIgnoreCase("function")) {
+                                symbolRecord = new FunctionRecord();
+                                foundDeclaration = true;
                             }
+
                             sfs = foundDeclaration ? SymbolFoundState.EXPECTING_NAME : sfs;
                             break;
                         case EXPECTING_NAME:
@@ -154,7 +154,7 @@ public class TigerParser {
                             sfs = SymbolFoundState.FOUND_NAME;
                             break;
                         case FOUND_NAME:
-                            if (lookahead.equalsIgnoreCase("eq")) {
+                            if (lookahead.equalsIgnoreCase("eq") || lookahead.equalsIgnoreCase("assign")) {
                                 for (String symbolName : symbolNames) {
                                     symbolTable.insert(symbolName, symbolRecord);
                                 }
@@ -163,11 +163,11 @@ public class TigerParser {
                                 symbolNames.clear();
                                 sfs = SymbolFoundState.NONE;
                             } else if (lookahead.equalsIgnoreCase("colon")) {
-
                                 sfs = SymbolFoundState.EXPECTING_TYPE_DECL;
                             } else if (lookahead.equalsIgnoreCase("comma")) {
-
                                 sfs = SymbolFoundState.EXPECTING_VARLIST;
+                            } else if (lookahead.equalsIgnoreCase("lparen")) {
+                                sfs = SymbolFoundState.EXPECTING_PARAMLIST;
                             }
                             break;
                         case EXPECTING_VARLIST: // e.g. var a, b : int;
@@ -181,6 +181,53 @@ public class TigerParser {
                                 System.out.println("Type " + tokenLiteral + "is undefined.");
                             }
                             sfs = SymbolFoundState.FOUND_NAME;
+                            break;
+                        case EXPECTING_PARAMLIST:
+                            if (lookahead.equalsIgnoreCase("id")) {
+                                currParamName = tokenLiteral;
+                                sfs = SymbolFoundState.EXPECTING_PARAMTYPE;
+                            }
+                            break;
+                        case EXPECTING_PARAMTYPE:
+                            if (lookahead.equalsIgnoreCase("id")) {
+                                if (symbolTable.contains(tokenLiteral)) {
+                                    ((FunctionRecord) symbolRecord).addParam(currParamName, tokenLiteral);
+                                } else {
+                                    System.out.println("Type " + tokenLiteral + " is undefined.");
+                                }
+                                sfs = SymbolFoundState.FOUND_PARAMTYPE;
+                            } else if (lookahead.equalsIgnoreCase("int_type")) {
+                                ((FunctionRecord) symbolRecord).addParam(currParamName, "int");
+                                sfs = SymbolFoundState.FOUND_PARAMTYPE;
+                            } else if (lookahead.equalsIgnoreCase("float_type")) {
+                                ((FunctionRecord) symbolRecord).addParam(currParamName, "float");
+                                sfs = SymbolFoundState.FOUND_PARAMTYPE;
+                            } else if (lookahead.equalsIgnoreCase("array")) {
+                                ((FunctionRecord) symbolRecord).addParam(currParamName, "array");
+                                sfs = SymbolFoundState.FOUND_PARAMTYPE;
+                            }
+                            break;
+                        case FOUND_PARAMTYPE:
+                            if (lookahead.equalsIgnoreCase("rparen")) {
+                                sfs = SymbolFoundState.EXPECTING_RETURNTYPE;
+                            } else if (lookahead.equalsIgnoreCase("comma")) {
+                                sfs = SymbolFoundState.EXPECTING_PARAMLIST;
+                            }
+                            break;
+                        case EXPECTING_RETURNTYPE:
+                            if (lookahead.equalsIgnoreCase("begin")) {
+                                for (String symbolName : symbolNames) {
+                                    symbolTable.insert(symbolName, symbolRecord);
+                                }
+
+                                symbolRecord = null;
+                                symbolNames.clear();
+                                sfs = SymbolFoundState.NONE;
+                            } else if (!lookahead.equalsIgnoreCase("colon")) {
+                                if (symbolTable.contains(tokenLiteral)) {
+                                    ((FunctionRecord) symbolRecord).setReturnType(tokenLiteral);
+                                }
+                            }
                             break;
                         default:
                             System.out.println("You broke the symbol table state machine :(");
