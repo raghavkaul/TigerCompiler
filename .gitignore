@@ -10,3 +10,4 @@ states.csv~
 .idea/
 out/
 TigerCompiler.iml
+*.swp

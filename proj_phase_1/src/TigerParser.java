@@ -1,4 +1,5 @@
 import org.omg.CORBA.CODESET_INCOMPATIBLE;
+import org.omg.CORBA.SystemException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,8 +13,8 @@ public class TigerParser {
     private static final String TRANSITIONS_FILE_NAME = "./data/transitions.csv";
     private static final String GRAMMAR_FILE_NAME = "./data/grammar.txt";
     private static final String EOF_TERM = TokenType.EOF_TOKEN.toString();
-    private final File infile;
     public static boolean debug, verbose;
+    public SymbolTable symbolTable;
     public final Map<String, Rule> parseTable;
     public final TigerScanner infileScanner;
     public Stack<String> stack;
@@ -55,7 +56,6 @@ public class TigerParser {
         this.parseTable= tg.getParserTable();
 
         // Initialize scanner
-        this.infile = infile;
         this.infileScanner = new TigerScanner(infile,
                 new File(STATES_FILE_NAME), new File(TRANSITIONS_FILE_NAME));
 
@@ -67,42 +67,11 @@ public class TigerParser {
 
 
     private enum SymbolFoundState {
-        NONE, FOUND_DECLARATION, FOUND_NAME;
+        NONE, EXPECTING_NAME, FOUND_NAME, EXPECTING_VARLIST, EXPECTING_TYPE_DECL
     }
 
-    public SymbolTable generateSymbolTable() {
-        Scanner symbolTableScanner = null;
-        try {
-            symbolTableScanner = new Scanner(infile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        SymbolTable symbolTable = new SymbolTable();
-        SymbolRecord symbolRecord = null;
-        SymbolFoundState sfs = SymbolFoundState.NONE;
-        String lookahead, currSymbolName = "UNINITIALIZED";
-
-        while (symbolTableScanner != null && symbolTableScanner.hasNext()) {
-            lookahead = symbolTableScanner.next();
-
-            if (lookahead.equalsIgnoreCase("var") || lookahead.equalsIgnoreCase("type")) {
-                symbolRecord = lookahead.equalsIgnoreCase("var") ? new VarRecord() : new TypeRecord();
-                sfs = SymbolFoundState.FOUND_DECLARATION;
-            } else if (sfs == SymbolFoundState.FOUND_DECLARATION) {
-                currSymbolName = lookahead;
-                sfs = SymbolFoundState.FOUND_NAME;
-            } else if (sfs == SymbolFoundState.FOUND_NAME && lookahead.equals(":")) {
-                if (symbolTable.lookUp(lookahead) != null) {
-                    // Type has been previously defined,
-                    symbolTable.insert(currSymbolName, symbolRecord);
-                } else {
-                    // Parse error
-                    System.out.println("Semantic error at token " + lookahead + ": no such type exists");
-                }
-                sfs = SymbolFoundState.NONE;
-            }
-        }
+    public SymbolTable getSymbolTable() {
+        System.out.println("symbol table exists " + (symbolTable.getTable() != null));
         return symbolTable;
     }
 
@@ -114,13 +83,18 @@ public class TigerParser {
         ParseTree parseTree = new ParseTree();
         boolean hasErrors = false;
         Set<String> errors = new HashSet<>();
-        String lookahead;
-        String topOfStack;
+        String lookahead, topOfStack, tokenLiteral;
+        symbolTable = new SymbolTable();
+        SymbolRecord symbolRecord = null;
+        SymbolFoundState sfs = SymbolFoundState.NONE;
+        List<String> symbolNames = new ArrayList<>();
 
         int i = 0;
         while (true) {
             topOfStack = stack.peek();
             lookahead = infileScanner.peekToken().toString();
+            tokenLiteral = infileScanner.peekToken().tokenLiteral;
+
             if (lookahead.equals(new Token(TokenType.COMMENT_END).toString())) {
                 infileScanner.nextToken();
                 continue;
@@ -162,8 +136,60 @@ public class TigerParser {
                     if (verbose) {
                         System.out.println(topOfStack);
                     }
+                    
+                    switch(sfs) {
+                        case NONE:
+                            boolean foundDeclaration = false;
+                            if (lookahead.equalsIgnoreCase("var")) {
+                                symbolRecord = new VarRecord();
+                                foundDeclaration = true;
+                            } else if (lookahead.equalsIgnoreCase("type")) {
+                                symbolRecord = new TypeRecord();
+                                foundDeclaration = true;
+                            }
+                            sfs = foundDeclaration ? SymbolFoundState.EXPECTING_NAME : sfs;
+                            break;
+                        case EXPECTING_NAME:
+                            symbolNames.add(infileScanner.peekToken().getToken());
+                            sfs = SymbolFoundState.FOUND_NAME;
+                            break;
+                        case FOUND_NAME:
+                            if (lookahead.equalsIgnoreCase("eq")) {
+                                for (String symbolName : symbolNames) {
+                                    symbolTable.insert(symbolName, symbolRecord);
+                                }
+
+                                symbolRecord = null;
+                                symbolNames.clear();
+                                sfs = SymbolFoundState.NONE;
+                            } else if (lookahead.equalsIgnoreCase("colon")) {
+
+                                sfs = SymbolFoundState.EXPECTING_TYPE_DECL;
+                            } else if (lookahead.equalsIgnoreCase("comma")) {
+
+                                sfs = SymbolFoundState.EXPECTING_VARLIST;
+                            }
+                            break;
+                        case EXPECTING_VARLIST: // e.g. var a, b : int;
+                            symbolNames.add(tokenLiteral);
+                            sfs = SymbolFoundState.FOUND_NAME;
+                            break;
+                        case EXPECTING_TYPE_DECL:
+                            if (symbolTable.contains(tokenLiteral)) {
+                                ((VarRecord) symbolRecord).setTypeName(tokenLiteral);
+                            } else {
+                                System.out.println("Type " + tokenLiteral + "is undefined.");
+                            }
+                            sfs = SymbolFoundState.FOUND_NAME;
+                            break;
+                        default:
+                            System.out.println("You broke the symbol table state machine :(");
+                            break;
+                    }
+
                     stack.pop();
                     infileScanner.nextToken();
+
                 } else {
                     hasErrors = true;
                     errors.add(lookahead);

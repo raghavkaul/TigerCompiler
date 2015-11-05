@@ -87,8 +87,14 @@ public class TestParser {
             TigerParser tp = new TigerParser(new File(s));
             TigerParser.verbose = false;
             TigerParser.debug = true;
-            st = tp.generateSymbolTable();
+            tp.parse();
+            st = tp.getSymbolTable();
+            System.out.println(st.getTable());
             System.out.println("=================" + s + "=============");
+            assertNotNull(st);
+            assertNotNull(st.getTable());
+            assertNotEquals(st.getTable().size(), 0);
+            assertNotNull(st.getTable().entrySet());
             for (Map.Entry<String, SymbolRecord> me : st.getTable().entrySet()) {
                 System.out.println("Symbol: " + me.getKey() + "Symbol record:" + me.getValue());
             }
