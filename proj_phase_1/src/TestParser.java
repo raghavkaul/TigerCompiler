@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 public class TestParser {
     private static final String GRAMMAR_FILE = "./data/grammar.txt";
     private static List<String> filenames;
-    private static List<Set<String>> expectedSymbolsByFile;
+    private static List<Set<String>> expectedFunctionsByFile, expectedVarsByFile, expectedTypesByFile;
     private static final String PREFIX = "./data/test_prog/test";
     private TableGen tg;
 
@@ -27,28 +27,38 @@ public class TestParser {
     }
 
     public void initExpectedSymbols() {
-        expectedSymbolsByFile = new ArrayList<>();
-        String[] expected1 = {"ArrayInt", "X", "Y", "i", "sum"},
-                expected2 = {"print"},
-                expected3 = {"return_it"},
-                expected4 = {"a"},
-                expected5 = {"a", "b"},
-                expected6 = {"a", "b"},
-                expected7 = {"int_arr"};
+        final int numFiles = 7;
 
-        expectedSymbolsByFile.add(new HashSet<String>(Arrays.asList(expected1)));
-        expectedSymbolsByFile.add(new HashSet<String>(Arrays.asList(expected2)));
-        expectedSymbolsByFile.add(new HashSet<String>(Arrays.asList(expected3)));
-        expectedSymbolsByFile.add(new HashSet<String>(Arrays.asList(expected4)));
-        expectedSymbolsByFile.add(new HashSet<String>(Arrays.asList(expected5)));
-        expectedSymbolsByFile.add(new HashSet<String>(Arrays.asList(expected6)));
-        expectedSymbolsByFile.add(new HashSet<String>(Arrays.asList(expected7)));
+        String[][] functions = new String[numFiles][];
+        String[][] types = new String[numFiles][];
+        String[][] vars = new String[numFiles][];
 
-        String[] builtins = {"float", "int", "array"};
-
-        for (Set<String> s : expectedSymbolsByFile) {
-            s.addAll(Arrays.asList(builtins));
+        for (int i = 0; i < numFiles; i++) {
+            functions[i] = new String[]{};
+            types[i] = new String[]{};
+            vars[i] = new String[]{};
         }
+
+        vars[0] = new String[]{"X", "Y", "i", "sum"};
+        vars[3] = new String[]{"a"};
+        vars[4] = new String[]{"a", "b"};
+        vars[5] = new String[]{"a", "b"};
+        vars[6] = new String[]{"a"};
+        types[0] = new String[]{"ArrayInt"};
+        types[6] = new String[]{"int_arr"};
+        functions[1] = new String[]{"print"};
+        functions[2] = new String[]{"return_it"};
+
+        expectedFunctionsByFile = new ArrayList<>();
+        expectedVarsByFile = new ArrayList<>();
+        expectedTypesByFile = new ArrayList<>();
+
+        for (int i = 0; i < numFiles; i++) {
+            expectedFunctionsByFile.add(new HashSet<>(Arrays.asList(functions[i])));
+            expectedVarsByFile.add(new HashSet<>(Arrays.asList(vars[i])));
+            expectedTypesByFile.add(new HashSet<>(Arrays.asList(types[i])));
+        }
+        
     }
 
     @Test
@@ -101,7 +111,7 @@ public class TestParser {
     @Test
     public void testParse() {
         for (String s : filenames) {
-            System.out.println("=================" + s + "=============");
+            System.out.println("============Filename: " + s + "============");
             TigerParser tp = new TigerParser(new File(s));
             TigerParser.verbose = false;
             TigerParser.debug = true;
@@ -111,38 +121,64 @@ public class TestParser {
 
     @Test
     public void testSymbolTableGeneration() {
-        SymbolTable st;
         int i = 0;
         for (String s : filenames) {
+            // Initialization
             System.out.println("============Filename: " + s + "============");
             TigerParser tp = new TigerParser(new File(s));
             TigerParser.verbose = false;
             TigerParser.debug = true;
             tp.parse();
-            st = tp.getSymbolTable();
-            int numBuiltInTypes = tp.getSymbolTable().getBuiltins().size();
+            TypeTable tt = tp.getTypeTable();
+            VarTable vt = tp.getVarTable();
+            FunctionTable ft = tp.getFunctionTable();
 
             // Sanity checks
-            assertNotNull(st);
-            assertNotNull(st.getTable());
-            assertNotEquals(st.getTable().size(), 0);
-            assertNotNull(st.getTable().entrySet());
-
+            assertNotNull(tt);
+            assertNotNull(vt);
+            assertNotNull(ft);
+            assertNotNull(tt.getTable());
+            assertNotNull(vt.getTable());
+            assertNotNull(ft.getTable());
 
             // Dumps
-            System.out.println("Expected symbols: " + expectedSymbolsByFile.get(i));
-            System.out.println("Actual symbols: ");
-            for (Map.Entry<String, SymbolRecord> me : st.getTable().entrySet()) {
+            System.out.println("-------- Types --------");
+            System.out.println("Expected types: " + expectedTypesByFile.get(i));
+            for (Map.Entry<String, TypeRecord> me : tt.getTable().entrySet()) {
+                System.out.println("Symbol: " + me.getKey() + "\tSymbol record:" + me.getValue());
+            }
+
+            System.out.println("-------- Vars --------");
+            System.out.println("Expected vars: " + expectedVarsByFile.get(i));
+            for (Map.Entry<String, VarRecord> me : vt.getTable().entrySet()) {
+                System.out.println("Symbol: " + me.getKey() + "\tSymbol record:" + me.getValue());
+            }
+
+            System.out.println("-------- Functions --------");
+            System.out.println("Expected functions: " + expectedFunctionsByFile.get(i));
+            for (Map.Entry<String, FunctionRecord> me : ft.getTable().entrySet()) {
                 System.out.println("Symbol: " + me.getKey() + "\tSymbol record:" + me.getValue());
             }
 
             // Unit tests
 
-            assertEquals(expectedSymbolsByFile.get(i).size(), st.getTable().size());
-
             i++;
         }
+    }
 
+    @Test
+    public void dumpParseTree() {
+        for (String filename : filenames) {
+            System.out.println("============Filename: " + filename + "============");
+            TigerParser tp = new TigerParser(new File(filename));
+            TigerParser.verbose = false;
+            TigerParser.debug = false;
+            tp.parse();
+            ParseTree pt = tp.getParseTree();
 
+            System.out.println(pt);
+            //pt.levelOrderPrint();
+
+        }
     }
 }

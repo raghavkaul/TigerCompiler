@@ -1,4 +1,5 @@
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -10,7 +11,11 @@ public class TigerParser {
     private static final String GRAMMAR_FILE_NAME = "./data/grammar.txt";
     private static final String EOF_TERM = TokenType.EOF_TOKEN.toString();
     public static boolean debug, verbose;
-    public SymbolTable symbolTable;
+    private boolean parseCompleted = false, hasErrors = false;
+    private VarTable varTable = new VarTable();
+    private TypeTable typeTable = new TypeTable();
+    private FunctionTable functionTable = new FunctionTable();
+    private ParseTree parseTree;
     public final Map<String, Rule> parseTable;
     public final TigerScanner infileScanner;
     public Stack<String> stack;
@@ -60,14 +65,41 @@ public class TigerParser {
         stack.push("<tiger-program>");
     }
 
-
     private enum SymbolFoundState {
-        NONE, EXPECTING_NAME, FOUND_NAME, EXPECTING_VARLIST, EXPECTING_TYPE_DECL,
-        EXPECTING_PARAMLIST, EXPECTING_PARAMTYPE, FOUND_PARAMTYPE, EXPECTING_RETURNTYPE
+        NONE, EXPECTING_FUNCNAME, EXPECTING_VARNAME, EXPECTING_TYPENAME,
+        EXPECTING_PARAMLIST, EXPECTING_PARAMTYPE, FOUND_PARAMTYPE,
+        EXPECTING_RETURNTYPE, FOUND_VARNAME, EXPECTING_VARTYPE,
+        FOUND_TYPENAME, EXPECTING_ARRAYSIZE, EXPECTING_ARRAYTYPE, POPULATE, FOUND_VARTYPE
     }
 
-    public SymbolTable getSymbolTable() {
-        return symbolTable;
+    public VarTable getVarTable() {
+        if (!parseCompleted) {
+            parse();
+        }
+        return varTable;
+
+    }
+
+    public TypeTable getTypeTable() {
+        if (!parseCompleted) {
+            parse();
+        }
+        return typeTable;
+
+    }
+
+    public FunctionTable getFunctionTable() {
+        if (!parseCompleted) {
+            parse();
+        }
+        return functionTable;
+    }
+
+    public ParseTree getParseTree() {
+        if (!parseCompleted) {
+            parse();
+        }
+        return parseTree;
     }
 
     /**
@@ -75,14 +107,17 @@ public class TigerParser {
      * @return true for successful parse, else false
      */
     public boolean parse() {
-        ParseTree parseTree = new ParseTree();
-        boolean hasErrors = false;
+        if (parseCompleted) {
+            return hasErrors;
+        }
+        parseTree = new ParseTree();
+        hasErrors = false;
         Set<String> errors = new HashSet<>();
         String lookahead, topOfStack, tokenLiteral, currParamName = "";
-        symbolTable = new SymbolTable();
         SymbolRecord symbolRecord = null;
         SymbolFoundState sfs = SymbolFoundState.NONE;
         List<String> symbolNames = new ArrayList<>();
+        parseTree.addChildren("tiger-prog");
 
         int i = 0;
         while (true) {
@@ -113,7 +148,7 @@ public class TigerParser {
                 break;
             }
             if (topOfStack.equals(EOF_TERM)) {
-                if (!lookahead.equals(new Token(TokenType.EOF_TOKEN))) {
+                if (!lookahead.equals(new Token(TokenType.EOF_TOKEN).tokenLiteral)) {
                     hasErrors = true;
                     System.out.println("Unexpected input past end of file.");
                 }
@@ -135,75 +170,32 @@ public class TigerParser {
                     // Symbol table population DFA
                     switch(sfs) {
                         case NONE:
-                            boolean foundDeclaration = false;
-                            if (lookahead.equalsIgnoreCase("var")) {
+                            if (lookahead.equalsIgnoreCase("function")) {
+                                symbolRecord = new FunctionRecord();
+                                sfs = SymbolFoundState.EXPECTING_FUNCNAME;
+                            } else if (lookahead.equalsIgnoreCase("var")) {
                                 symbolRecord = new VarRecord();
-                                foundDeclaration = true;
+                                sfs = SymbolFoundState.EXPECTING_VARNAME;
                             } else if (lookahead.equalsIgnoreCase("type")) {
                                 symbolRecord = new TypeRecord();
-                                foundDeclaration = true;
-                            } else if (lookahead.equalsIgnoreCase("function")) {
-                                symbolRecord = new FunctionRecord();
-                                foundDeclaration = true;
+                                sfs = SymbolFoundState.EXPECTING_TYPENAME;
                             }
-
-                            sfs = foundDeclaration ? SymbolFoundState.EXPECTING_NAME : sfs;
                             break;
-                        case EXPECTING_NAME:
-                            symbolNames.add(infileScanner.peekToken().getToken());
-                            sfs = SymbolFoundState.FOUND_NAME;
-                            break;
-                        case FOUND_NAME:
-                            if (lookahead.equalsIgnoreCase("eq") || lookahead.equalsIgnoreCase("assign")) {
-                                for (String symbolName : symbolNames) {
-                                    symbolTable.insert(symbolName, symbolRecord);
-                                }
-
-                                symbolRecord = null;
-                                symbolNames.clear();
-                                sfs = SymbolFoundState.NONE;
-                            } else if (lookahead.equalsIgnoreCase("colon")) {
-                                sfs = SymbolFoundState.EXPECTING_TYPE_DECL;
-                            } else if (lookahead.equalsIgnoreCase("comma")) {
-                                sfs = SymbolFoundState.EXPECTING_VARLIST;
-                            } else if (lookahead.equalsIgnoreCase("lparen")) {
+                        case EXPECTING_FUNCNAME:
+                            if (lookahead.equalsIgnoreCase("id")) {
+                                symbolNames.add(symbolNames.size(), tokenLiteral);
                                 sfs = SymbolFoundState.EXPECTING_PARAMLIST;
                             }
                             break;
-                        case EXPECTING_VARLIST: // e.g. var a, b : int;
-                            symbolNames.add(tokenLiteral);
-                            sfs = SymbolFoundState.FOUND_NAME;
-                            break;
-                        case EXPECTING_TYPE_DECL:
-                            if (symbolTable.contains(tokenLiteral)) {
-                                ((VarRecord) symbolRecord).setTypeName(tokenLiteral);
-                            } else {
-                                System.out.println("Type " + tokenLiteral + "is undefined.");
-                            }
-                            sfs = SymbolFoundState.FOUND_NAME;
-                            break;
-                        case EXPECTING_PARAMLIST:
+                        case  EXPECTING_PARAMLIST:
                             if (lookahead.equalsIgnoreCase("id")) {
-                                currParamName = tokenLiteral;
+                                currParamName = lookahead;
                                 sfs = SymbolFoundState.EXPECTING_PARAMTYPE;
                             }
                             break;
                         case EXPECTING_PARAMTYPE:
                             if (lookahead.equalsIgnoreCase("id")) {
-                                if (symbolTable.contains(tokenLiteral)) {
-                                    ((FunctionRecord) symbolRecord).addParam(currParamName, tokenLiteral);
-                                } else {
-                                    System.out.println("Type " + tokenLiteral + " is undefined.");
-                                }
-                                sfs = SymbolFoundState.FOUND_PARAMTYPE;
-                            } else if (lookahead.equalsIgnoreCase("int_type")) {
-                                ((FunctionRecord) symbolRecord).addParam(currParamName, "int");
-                                sfs = SymbolFoundState.FOUND_PARAMTYPE;
-                            } else if (lookahead.equalsIgnoreCase("float_type")) {
-                                ((FunctionRecord) symbolRecord).addParam(currParamName, "float");
-                                sfs = SymbolFoundState.FOUND_PARAMTYPE;
-                            } else if (lookahead.equalsIgnoreCase("array")) {
-                                ((FunctionRecord) symbolRecord).addParam(currParamName, "array");
+                                ((FunctionRecord) symbolRecord).addParam(currParamName, tokenLiteral);
                                 sfs = SymbolFoundState.FOUND_PARAMTYPE;
                             }
                             break;
@@ -215,23 +207,98 @@ public class TigerParser {
                             }
                             break;
                         case EXPECTING_RETURNTYPE:
-                            if (lookahead.equalsIgnoreCase("begin")) {
+                            if (lookahead.equalsIgnoreCase("id")) {
+                                ((FunctionRecord) symbolRecord).setReturnType(lookahead);
+                                sfs = SymbolFoundState.POPULATE;
+                            }
+                            break;
+                        case POPULATE:
+                            for (String symbolName : symbolNames) {
+                                if (symbolRecord instanceof FunctionRecord) {
+                                    functionTable.insert(symbolName, ((FunctionRecord) symbolRecord));
+                                } else if (symbolRecord instanceof VarRecord) {
+                                    varTable.insert(symbolName, ((VarRecord) symbolRecord));
+                                } else if (symbolRecord instanceof TypeRecord) {
+                                    typeTable.insert(symbolName, ((TypeRecord) symbolRecord));
+                                }
+                            }
+
+                            symbolNames.clear();
+                            sfs = SymbolFoundState.NONE;
+
+                            break;
+                        case EXPECTING_VARNAME:
+                            if (lookahead.equalsIgnoreCase("id")) {
+                                symbolNames.add(symbolNames.size(), tokenLiteral);
+                                sfs = SymbolFoundState.FOUND_VARNAME;
+                            }
+                            break;
+                        case FOUND_VARNAME:
+                            if (lookahead.equalsIgnoreCase("comma")) {
+                                sfs = SymbolFoundState.EXPECTING_VARNAME;
+                            } else if (lookahead.equalsIgnoreCase("colon")) {
+                                sfs = SymbolFoundState.EXPECTING_VARTYPE;
+                            }
+                            break;
+                        case EXPECTING_VARTYPE:
+                            if (lookahead.equalsIgnoreCase("id")) {
+                                ((VarRecord) symbolRecord).setTypeName(tokenLiteral);
+
                                 for (String symbolName : symbolNames) {
-                                    symbolTable.insert(symbolName, symbolRecord);
+                                    varTable.insert(symbolName, ((VarRecord) symbolRecord));
+                                }
+                                sfs = SymbolFoundState.NONE;
+                            }
+
+                            break;
+                        case EXPECTING_TYPENAME:
+                            if (lookahead.equalsIgnoreCase("id")) {
+                                symbolNames.add(symbolNames.size(), tokenLiteral);
+                                sfs = SymbolFoundState.FOUND_TYPENAME;
+                            }
+                            break;
+                        case FOUND_TYPENAME:
+                            if (lookahead.equalsIgnoreCase("array")) {
+                                sfs = SymbolFoundState.EXPECTING_ARRAYSIZE;
+                            } else if (lookahead.equalsIgnoreCase("int_type")
+                                    || lookahead.equalsIgnoreCase("float_type")
+                                    || lookahead.equalsIgnoreCase("id")) {
+                                TypeRecord superTypeRecord = typeTable.lookUp(tokenLiteral);
+                                if (superTypeRecord != null) {
+                                    ((TypeRecord) symbolRecord).setSuperType(superTypeRecord.getSuperType());
+                                    ((TypeRecord) symbolRecord).setNumElements(superTypeRecord.getNumElements());
+                                } else {
+                                    System.out.println("No type found named " + tokenLiteral);
+                                }
+                                sfs = SymbolFoundState.POPULATE;
+                            }
+                            break;
+                        case EXPECTING_ARRAYSIZE:
+                            if (lookahead.equalsIgnoreCase("intlit")) {
+                                ((TypeRecord) symbolRecord).setNumElements(Integer.parseInt(tokenLiteral));
+                                sfs = SymbolFoundState.EXPECTING_ARRAYTYPE;
+                            }
+                            break;
+                        case EXPECTING_ARRAYTYPE:
+                            if (lookahead.equalsIgnoreCase("id") || lookahead.equalsIgnoreCase("int_type")
+                                    || lookahead.equalsIgnoreCase("float_type") || lookahead.equalsIgnoreCase("array")) {
+                                TypeRecord arrayTypeRecord = typeTable.lookUp(tokenLiteral);
+                                if (arrayTypeRecord != null) {
+                                    ((TypeRecord) symbolRecord).setSuperType("_array_" + arrayTypeRecord.getSuperType());
+                                } else {
+                                    System.out.println("No type found named " + tokenLiteral);
                                 }
 
-                                symbolRecord = null;
-                                symbolNames.clear();
-                                sfs = SymbolFoundState.NONE;
-                            } else if (!lookahead.equalsIgnoreCase("colon")) {
-                                if (symbolTable.contains(tokenLiteral)) {
-                                    ((FunctionRecord) symbolRecord).setReturnType(tokenLiteral);
+                                for (String symbolName : symbolNames) {
+                                    typeTable.insert(symbolName, (TypeRecord) symbolRecord);
                                 }
+                                sfs = SymbolFoundState.NONE;
                             }
                             break;
                         default:
                             System.out.println("You broke the symbol table state machine :(");
                             break;
+
                     }
 
                     stack.pop();
@@ -262,8 +329,10 @@ public class TigerParser {
 
                     // Yay FP
                     for (int x = matchedRule.getExpansion().size() - 1; x >= 0; x--) {
+                        parseTree.addChildren(matchedRule.getExpansion().get(x));
                         stack.push(matchedRule.getExpansion().get(x));
                     }
+                    parseTree = parseTree.getChildren().get(0);
                 } else {
                     if (!lookahead.equals("SEMI"))
                         infileScanner.nextToken();
@@ -282,7 +351,7 @@ public class TigerParser {
         hasErrors = hasErrors || infileScanner.hasErrors();
         System.out.println("Parse completed with " + (errors.size() + infileScanner.getNumErrors()) + " errors.");
 
-
+        parseCompleted = true;
         return hasErrors;
     }
 
