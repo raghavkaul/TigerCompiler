@@ -99,6 +99,10 @@ public class TigerParser {
         if (!parseCompleted) {
             parse();
         }
+        while (parseTree.getParent() != null) {
+            parseTree = parseTree.getParent();
+        }
+
         return parseTree;
     }
 
@@ -110,14 +114,13 @@ public class TigerParser {
         if (parseCompleted) {
             return hasErrors;
         }
-        parseTree = new ParseTree();
+        parseTree = new ParseTree("tiger-prog");
         hasErrors = false;
         Set<String> errors = new HashSet<>();
         String lookahead, topOfStack, tokenLiteral, currParamName = "";
         SymbolRecord symbolRecord = null;
         SymbolFoundState sfs = SymbolFoundState.NONE;
         List<String> symbolNames = new ArrayList<>();
-        parseTree.addChildren("tiger-prog");
 
         int i = 0;
         while (true) {
@@ -129,6 +132,7 @@ public class TigerParser {
                 infileScanner.nextToken();
                 continue;
             }
+
             if (lookahead.equals(TokenType.INVALID.toString())) {
                 System.out.println("Scanner Error");
                 infileScanner.nextToken();
@@ -299,6 +303,12 @@ public class TigerParser {
                             System.out.println("You broke the symbol table state machine :(");
                             break;
 
+                    }
+
+                    if (parseTree.getChildNo() < parseTree.getParent().getChildren().size() - 1) {
+                        parseTree = parseTree.getParent();
+                    } else {
+                        parseTree = parseTree.getParent().getChildren().get(parseTree.getChildNo());
                     }
 
                     stack.pop();

@@ -49,11 +49,26 @@ public class TestParser {
         functions[1] = new String[]{"print"};
         functions[2] = new String[]{"return_it"};
 
+
+
         expectedFunctionsByFile = new ArrayList<>();
         expectedVarsByFile = new ArrayList<>();
         expectedTypesByFile = new ArrayList<>();
 
+        TypeRecord intTr = new TypeRecord(),
+                floatTr = new TypeRecord(),
+                _floatArrTr = new TypeRecord(),
+                _intArrTr = new TypeRecord();
+
+
+        String[] stdTypes = {"int", "float", "_array_float", "array_int"};
+        String[] stdLib = {"print", "printi", "flush", "getchar",
+                "ord", "chr", "size", "substring", "concat", "not", "exit"};
+
         for (int i = 0; i < numFiles; i++) {
+            expectedTypesByFile.add(new HashSet<>(Arrays.asList(stdTypes)));
+            expectedFunctionsByFile.add(new HashSet<String>(Arrays.asList(stdLib)));
+
             expectedFunctionsByFile.add(new HashSet<>(Arrays.asList(functions[i])));
             expectedVarsByFile.add(new HashSet<>(Arrays.asList(vars[i])));
             expectedTypesByFile.add(new HashSet<>(Arrays.asList(types[i])));
@@ -159,9 +174,6 @@ public class TestParser {
             for (Map.Entry<String, FunctionRecord> me : ft.getTable().entrySet()) {
                 System.out.println("Symbol: " + me.getKey() + "\tSymbol record:" + me.getValue());
             }
-
-            // Unit tests
-
             i++;
         }
     }
@@ -176,7 +188,9 @@ public class TestParser {
             tp.parse();
             ParseTree pt = tp.getParseTree();
 
-            System.out.println(pt);
+            assertNull(pt.getParent());
+            assertNotNull(pt.getChildren());
+            break;
             //pt.levelOrderPrint();
 
         }
