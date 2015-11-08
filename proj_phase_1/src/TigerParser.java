@@ -1,5 +1,4 @@
 import java.io.File;
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -160,6 +159,14 @@ public class TigerParser {
                 break;
             } else if (isTerminal(topOfStack)) {
                 if (topOfStack.equals(TokenType.NIL.toString())) {
+                    List<ParseTree> children = parseTree.getParent().getChildren();
+                    int currIndex = children.indexOf(parseTree);
+
+                    if (currIndex >= children.size() - 1) {
+                        parseTree = parseTree.getParent();
+                    } else {
+                        parseTree = children.get(currIndex + 1);
+                    }
                     stack.pop();
                     continue;
                 }
@@ -305,10 +312,14 @@ public class TigerParser {
 
                     }
 
-                    if (parseTree.getChildNo() < parseTree.getParent().getChildren().size() - 1) {
+                    // If we have no more siblings, advance
+                    List<ParseTree> children = parseTree.getParent().getChildren();
+                    int currIndex = children.indexOf(parseTree);
+
+                    if (currIndex >= children.size() - 1) {
                         parseTree = parseTree.getParent();
                     } else {
-                        parseTree = parseTree.getParent().getChildren().get(parseTree.getChildNo());
+                        parseTree = children.get(currIndex + 1);
                     }
 
                     stack.pop();
@@ -318,6 +329,14 @@ public class TigerParser {
                     hasErrors = true;
                     errors.add(lookahead);
                     if (lookahead.equals("SEMI")) {
+                        List<ParseTree> children = parseTree.getParent().getChildren();
+                        int currIndex = children.indexOf(parseTree);
+
+                        if (currIndex >= children.size() - 1) {
+                            parseTree = parseTree.getParent();
+                        } else {
+                            parseTree = children.get(currIndex + 1);
+                        }
                         stack.pop();
                     } else {
                         infileScanner.nextToken();
@@ -334,20 +353,38 @@ public class TigerParser {
                     if (verbose) {
                         System.out.println(matchedRule.getName());
                     }
+//                    List<ParseTree> children = parseTree.getParent().getChildren();
+//                    int currIndex = children.indexOf(parseTree);
+//
+//                    if (currIndex >= children.size() - 1) {
+//                        parseTree = parseTree.getParent();
+//                    } else {
+//                        parseTree = children.get(currIndex + 1);
+//                    }
                     // We've found a matching rule, need to push its' entire expansion to the stack
                     stack.pop();
 
-                    // Yay FP
-                    for (int x = matchedRule.getExpansion().size() - 1; x >= 0; x--) {
-                        parseTree.addChildren(matchedRule.getExpansion().get(x));
-                        stack.push(matchedRule.getExpansion().get(x));
-                    }
-                    parseTree = parseTree.getChildren().get(0);
+                        for (int x = matchedRule.getExpansion().size() - 1; x >= 0; x--) {
+                            parseTree.addChildren(matchedRule.getExpansion().get(x));
+                            stack.push(matchedRule.getExpansion().get(x));
+                        }
+                        parseTree = parseTree.getChildren().get(0);
+
                 } else {
                     if (!lookahead.equals("SEMI"))
                         infileScanner.nextToken();
-                    else
+                    else {
+                        List<ParseTree> children = parseTree.getParent().getChildren();
+                        int currIndex = children.indexOf(parseTree);
+
+                        if (currIndex >= children.size() - 1) {
+                            parseTree = parseTree.getParent();
+                        } else {
+                            parseTree = children.get(currIndex + 1);
+                        }
                         stack.pop();
+                    }
+
                     hasErrors = true;
                     errors.add(lookahead);
                     if (debug) {
@@ -363,6 +400,28 @@ public class TigerParser {
 
         parseCompleted = true;
         return hasErrors;
+    }
+
+    // TODO under construction
+    private void leftmostParse() {
+        parseTree = new ParseTree("tiger-prog");
+        hasErrors = false;
+        Set<String> errors = new HashSet<>();
+        String lookahead, topOfStack;
+        List<String> symbolNames = new ArrayList<>();
+
+        while (true) {
+            topOfStack = stack.peek();
+            lookahead = infileScanner.peekToken().toString();
+
+            if (!isTerminal(parseTree.getSymbolName())) {
+                Rule matchedRule = parseTable.get(topOfStack + ", "  + lookahead);
+                for (int i = 0; i < matchedRule.getExpansion().size(); i++) {
+//                    parseTree.addChildren(matchedRule.);
+                }
+            }
+        }
+
     }
 
     private boolean isTerminal(String str) {

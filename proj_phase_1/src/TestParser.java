@@ -55,6 +55,14 @@ public class TestParser {
         expectedVarsByFile = new ArrayList<>();
         expectedTypesByFile = new ArrayList<>();
 
+<<<<<<< HEAD
+=======
+//        TypeRecord intTr = new TypeRecord(),
+//                floatTr = new TypeRecord(),
+//                _floatArrTr = new TypeRecord(),
+//                _intArrTr = new TypeRecord();
+
+>>>>>>> aeb264a9e2967343cae4ec2a61253949ba7f1afd
         String[] stdTypes = {"int", "float", "_array_float", "array_int"};
         String[] stdLib = {"print", "printi", "flush", "getchar",
                 "ord", "chr", "size", "substring", "concat", "not", "exit"};
@@ -190,7 +198,6 @@ public class TestParser {
             assertNotNull(pt.getChildren());
 
             pt.print();
-            break;
         }
     }
 }
