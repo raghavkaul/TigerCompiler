@@ -1,50 +1,40 @@
 import java.util.*;
 
-/**
- * Created by Raghav K on 10/31/15.
- */
 public class ParseTree {
     private ParseTree parent;
-    private String name;
+    private String symbolName;
+    private SymbolRecord symbolRecord;
     private List<ParseTree> children;
     private int childNo;
 
-    public int getChildNo() {
-        return childNo;
-    }
-
-    public ParseTree() {
-        children = new ArrayList<>();
-    }
-
     public ParseTree(String name) {
         children = new ArrayList<>();
-        this.name = name;
+        this.symbolName = name;
     }
 
-    public void addChildren(Collection<String> names) {
-        int i = 0;
-        for (String t : names) {
-            ParseTree child = new ParseTree(t);
-            child.setParent(this);
-            child.childNo = i++;
-            children.add(child);
-        }
-    }
-
+    // Utility acessors/mutators
     public boolean updateChild(int childNo, ParseTree newChild) {
         if (childNo < children.size()) {
             children.add(childNo, newChild);
             children.remove(childNo + 1);
+            return true;
         }
         return false;
     }
+
     public void addChildren(String name)  {
         ParseTree child = new ParseTree(name);
         child.setParent(this);
-//        System.out.println(children);
         child.childNo = children.size();
         children.add(0, child);
+    }
+
+    public String getSymbolName() {
+        return symbolName;
+    }
+
+    public int getChildNo() {
+        return childNo;
     }
 
     public List<ParseTree> getChildren() {
@@ -59,27 +49,12 @@ public class ParseTree {
         this.parent = parent;
     }
 
-    public void levelOrderPrint() {
-        Queue<ParseTree> q = new LinkedList<>();
-        q.add(this);
-        while(!q.isEmpty()) {
-            ParseTree temp = q.poll();
-            System.out.println(temp.name);
-            for (ParseTree child : children) {
-                if (child != null) {
-                    q.add(child);
-                }
-            }
-        }
-    }
-
+    // Type checking
     public static ParseTree populateIntermediates(ParseTree pt) {
         List<ParseTree> children = pt.getChildren();
 
         for (int i = 0; i < children.size(); i++) {
             ParseTree child = children.get(i);
-
-
 
             pt.updateChild(i, populateIntermediates(child));
         }
@@ -87,18 +62,55 @@ public class ParseTree {
         return pt;
     }
 
-    public static boolean checkSemantics(ParseTree pt) {
-        boolean isCorrect = true;
+//    public static boolean checkSemantics(ParseTree pt) {
+//        boolean isCorrect = true;
+//
+//        if (pt.getChildren() == null) {
+//            // Terminals are semantically correct on their own
+//            return true;
+//        } else {
+//            int binopLocation = -1;
+//            for (int i = 0; i < pt.getChildren().size(); i++) {
+//                if (isBinaryOp(pt.getChildren().get(i).tokenType)) {
+//                    binopLocation = i;
+//                }
+//            }
+//
+//            if (!pt.getChildren().get(binopLocation - 1).reducibleType.equalsIgnoreCase(
+//                    pt.getChildren().get(binopLocation + 1).reducibleType
+//            )) {
+//                isCorrect = false;
+//            }
+//            for (ParseTree child : pt.getChildren()) {
+//                isCorrect = checkSemantics(child) && isCorrect;
+//            }
+//            return isCorrect;
+//        }
+//
+//
+//    }
 
-return false; //TODO
-    }
-
-    public boolean isBinaryOp(String token) {
+    // Utility methods
+    private static boolean isBinaryOp(String token) {
         String[] binaryOpsArr = {"PLUS", "MINUS", "AND", "OR",
                 "EQ", "NEQ", "LESSER", "GREATER", "LESSEREQ", "GREATEREQ"};
+
         Set<String> binaryOps = new HashSet<>(Arrays.asList(binaryOpsArr));
 
         return binaryOps.contains(token);
     }
 
+    public void print() {
+        print("", true);
+    }
+
+    private void print(String prefix, boolean isTail) {
+        System.out.println(prefix + (isTail ? "└── " : "├── ") + symbolName);
+        for (int i = 0; i < children.size() - 1; i++) {
+            children.get(i).print(prefix + (isTail ? "    " : "│   "), false);
+        }
+        if (children.size() > 0) {
+            children.get(children.size() - 1).print(prefix + (isTail ?"    " : "│   "), true);
+        }
+    }
 }

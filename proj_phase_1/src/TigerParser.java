@@ -1,5 +1,4 @@
 import java.io.File;
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -69,7 +68,7 @@ public class TigerParser {
         NONE, EXPECTING_FUNCNAME, EXPECTING_VARNAME, EXPECTING_TYPENAME,
         EXPECTING_PARAMLIST, EXPECTING_PARAMTYPE, FOUND_PARAMTYPE,
         EXPECTING_RETURNTYPE, FOUND_VARNAME, EXPECTING_VARTYPE,
-        FOUND_TYPENAME, EXPECTING_ARRAYSIZE, EXPECTING_ARRAYTYPE, POPULATE, FOUND_VARTYPE
+        FOUND_TYPENAME, EXPECTING_ARRAYSIZE, EXPECTING_ARRAYTYPE, POPULATE
     }
 
     public VarTable getVarTable() {
@@ -114,10 +113,13 @@ public class TigerParser {
         if (parseCompleted) {
             return hasErrors;
         }
+
         parseTree = new ParseTree("tiger-prog");
         hasErrors = false;
+
         Set<String> errors = new HashSet<>();
         String lookahead, topOfStack, tokenLiteral, currParamName = "";
+
         SymbolRecord symbolRecord = null;
         SymbolFoundState sfs = SymbolFoundState.NONE;
         List<String> symbolNames = new ArrayList<>();
@@ -304,6 +306,9 @@ public class TigerParser {
                             break;
 
                     }
+
+                    // Add token to parseTree
+
 
                     if (parseTree.getChildNo() < parseTree.getParent().getChildren().size() - 1) {
                         parseTree = parseTree.getParent();

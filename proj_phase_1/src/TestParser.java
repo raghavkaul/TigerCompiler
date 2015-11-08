@@ -1,6 +1,5 @@
 import org.junit.Before;
 import org.junit.Test;
-import org.omg.CORBA.SystemException;
 
 import java.io.File;
 import java.util.*;
@@ -55,11 +54,10 @@ public class TestParser {
         expectedVarsByFile = new ArrayList<>();
         expectedTypesByFile = new ArrayList<>();
 
-        TypeRecord intTr = new TypeRecord(),
-                floatTr = new TypeRecord(),
-                _floatArrTr = new TypeRecord(),
-                _intArrTr = new TypeRecord();
-
+//        TypeRecord intTr = new TypeRecord(),
+//                floatTr = new TypeRecord(),
+//                _floatArrTr = new TypeRecord(),
+//                _intArrTr = new TypeRecord();
 
         String[] stdTypes = {"int", "float", "_array_float", "array_int"};
         String[] stdLib = {"print", "printi", "flush", "getchar",
@@ -67,7 +65,7 @@ public class TestParser {
 
         for (int i = 0; i < numFiles; i++) {
             expectedTypesByFile.add(new HashSet<>(Arrays.asList(stdTypes)));
-            expectedFunctionsByFile.add(new HashSet<String>(Arrays.asList(stdLib)));
+            expectedFunctionsByFile.add(new HashSet<>(Arrays.asList(stdLib)));
 
             expectedFunctionsByFile.add(new HashSet<>(Arrays.asList(functions[i])));
             expectedVarsByFile.add(new HashSet<>(Arrays.asList(vars[i])));
@@ -190,9 +188,10 @@ public class TestParser {
 
             assertNull(pt.getParent());
             assertNotNull(pt.getChildren());
-            break;
-            //pt.levelOrderPrint();
 
+            pt.print();
+
+//            break;
         }
     }
 }
