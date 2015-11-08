@@ -1,6 +1,5 @@
 import org.junit.Before;
 import org.junit.Test;
-import org.omg.CORBA.SystemException;
 
 import java.io.File;
 import java.util.*;
@@ -26,6 +25,7 @@ public class TestParser {
 
     }
 
+    @Before
     public void initExpectedSymbols() {
         final int numFiles = 7;
 
@@ -55,29 +55,19 @@ public class TestParser {
         expectedVarsByFile = new ArrayList<>();
         expectedTypesByFile = new ArrayList<>();
 
-        TypeRecord intTr = new TypeRecord(),
-                floatTr = new TypeRecord(),
-                _floatArrTr = new TypeRecord(),
-                _intArrTr = new TypeRecord();
-
-
         String[] stdTypes = {"int", "float", "_array_float", "array_int"};
         String[] stdLib = {"print", "printi", "flush", "getchar",
                 "ord", "chr", "size", "substring", "concat", "not", "exit"};
 
         for (int i = 0; i < numFiles; i++) {
             expectedTypesByFile.add(new HashSet<>(Arrays.asList(stdTypes)));
-            expectedFunctionsByFile.add(new HashSet<String>(Arrays.asList(stdLib)));
+            expectedFunctionsByFile.add(new HashSet<>(Arrays.asList(stdLib)));
 
             expectedFunctionsByFile.add(new HashSet<>(Arrays.asList(functions[i])));
             expectedVarsByFile.add(new HashSet<>(Arrays.asList(vars[i])));
             expectedTypesByFile.add(new HashSet<>(Arrays.asList(types[i])));
         }
         
-    }
-
-    @Test
-    public void dumpParseGrammarOut() {
     }
 
     @Test
@@ -94,8 +84,6 @@ public class TestParser {
     public void dumpFollowSets() {
         tg.printAllFollowsets();
     }
-
-
 
     @Test
     public void dumpParseTable() {
@@ -135,8 +123,11 @@ public class TestParser {
     }
 
     @Test
-    public void testSymbolTableGeneration() {
+    public void testDumpSymbolTable() {
+        initExpectedSymbols();
         int i = 0;
+        Set<String> ttEntries = new HashSet<>(),
+                vtEntries = new HashSet<>(), ftEntries = new HashSet<>();
         for (String s : filenames) {
             // Initialization
             System.out.println("============Filename: " + s + "============");
@@ -156,22 +147,27 @@ public class TestParser {
             assertNotNull(vt.getTable());
             assertNotNull(ft.getTable());
 
+
+
             // Dumps
             System.out.println("-------- Types --------");
             System.out.println("Expected types: " + expectedTypesByFile.get(i));
             for (Map.Entry<String, TypeRecord> me : tt.getTable().entrySet()) {
+                ttEntries.add(me.getKey());
                 System.out.println("Symbol: " + me.getKey() + "\tSymbol record:" + me.getValue());
             }
 
             System.out.println("-------- Vars --------");
             System.out.println("Expected vars: " + expectedVarsByFile.get(i));
             for (Map.Entry<String, VarRecord> me : vt.getTable().entrySet()) {
+                vtEntries.add(me.getKey());
                 System.out.println("Symbol: " + me.getKey() + "\tSymbol record:" + me.getValue());
             }
 
             System.out.println("-------- Functions --------");
             System.out.println("Expected functions: " + expectedFunctionsByFile.get(i));
             for (Map.Entry<String, FunctionRecord> me : ft.getTable().entrySet()) {
+                ftEntries.add(me.getKey());
                 System.out.println("Symbol: " + me.getKey() + "\tSymbol record:" + me.getValue());
             }
             i++;
@@ -180,6 +176,8 @@ public class TestParser {
 
     @Test
     public void dumpParseTree() {
+        filenames = Collections.singletonList(filenames.get(0));
+
         for (String filename : filenames) {
             System.out.println("============Filename: " + filename + "============");
             TigerParser tp = new TigerParser(new File(filename));
@@ -190,9 +188,9 @@ public class TestParser {
 
             assertNull(pt.getParent());
             assertNotNull(pt.getChildren());
-            break;
-            //pt.levelOrderPrint();
 
+            pt.print();
+            break;
         }
     }
 }

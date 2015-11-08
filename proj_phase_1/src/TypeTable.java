@@ -8,10 +8,10 @@ import java.util.Map;
 public class TypeTable {
 
     private Map<String, TypeRecord> table;
-    private static Map<String, TypeRecord> builtins = null;
+
+    private Map<String, TypeRecord> builtins = null;
 
     public TypeTable() {
-//        System.out.println("typetable constructor invoked.");
         table = new HashMap<>();
 
         if (builtins == null) {
@@ -29,6 +29,10 @@ public class TypeTable {
 
 
         table.putAll(builtins);
+    }
+
+    public Map<String, TypeRecord> getBuiltins() {
+        return builtins;
     }
 
     public void insert(String name, TypeRecord typeRecord) {
