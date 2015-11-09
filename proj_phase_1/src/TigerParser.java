@@ -2,6 +2,8 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 
+import static org.junit.Assert.assertNotNull;
+
 /**
  * Class representing high-level parser
  */
@@ -95,11 +97,70 @@ public class TigerParser {
         return functionTable;
     }
 
-    public ParseTree getParseTree() {
-        if (!parseCompleted) {
-            parse();
+    public ParseTree getParseTreeOld() {
+        while (parseTree.getParent() != null) {
+            parseTree = parseTree.getParent();
         }
         return parseTree;
+    }
+
+    public ParseTree getParseTree() {
+        if (parseCompleted) throw new IllegalStateException();
+
+        // root ← node for the start symbol, S ;
+        ParseTree root = new ParseTree("<tiger-program>");
+
+        // focus ← root;
+        ParseTree focus = root;
+
+        // push(null);
+        Stack<ParseTree> parseTreeStack = new Stack<>();
+        parseTreeStack.push(root);
+
+        // word ← NextWord( );
+        Token word = infileScanner.nextToken();
+
+        while(true) {
+            ParseTree topOfStack = parseTreeStack.peek();
+
+            if (focus != null && !isTerminal(focus.getSymbolName())) {
+                // pick next rule to expand focus (A → β 1 , β 2 , . . . , β n );
+                Rule rule = parseTable.get(topOfStack.getSymbolName() + ", " + word.getToken());
+
+                // build nodes for β 1 , β 2 . . . β n as children of focus;
+                for (String s : rule.getExpansion()) {
+                    focus.addChildren(s);
+                }
+
+                // push(β n , β n − 1 , . . . , β 2 );
+                for (int i = focus.getChildren().size(); i > 0; i--) {
+                    parseTreeStack.push(focus.getChildren().get(i));
+                }
+
+                // focus ← β 1 ;
+                focus = focus.getChildren().get(0);
+
+            } else if (word.getType().toString().equals(focus.getSymbolName())) {
+                // word ← NextWord( );
+                word = infileScanner.nextToken();
+
+                // focus ← pop( )
+                focus = parseTreeStack.isEmpty() ? null : parseTreeStack.pop();
+
+            } else if (word.getToken().equals(EOF_TERM) && (focus == null)) {
+                // accept the input and return root
+                return root;
+            } else {
+                focus = focus.getParent();
+
+                // TODO optimize these function calls
+                if (focus.getParent() != null &&
+                        focus.getParent().getChildren().indexOf(focus) < focus.getParent().getChildren().size() - 1) {
+                    focus = focus.getParent().getChildren().get(focus.getParent().getChildren().indexOf(focus) - 1);
+                }
+                // backtrack
+            }
+        }
     }
 
     /**
@@ -110,14 +171,13 @@ public class TigerParser {
         if (parseCompleted) {
             return hasErrors;
         }
-        parseTree = new ParseTree();
+        parseTree = new ParseTree("<tiger-program>");
         hasErrors = false;
         Set<String> errors = new HashSet<>();
         String lookahead, topOfStack, tokenLiteral, currParamName = "";
         SymbolRecord symbolRecord = null;
         SymbolFoundState sfs = SymbolFoundState.NONE;
         List<String> symbolNames = new ArrayList<>();
-        parseTree.addChildren("tiger-prog");
 
         int i = 0;
         while (true) {
@@ -156,7 +216,19 @@ public class TigerParser {
                 break;
             } else if (isTerminal(topOfStack)) {
                 if (topOfStack.equals(TokenType.NIL.toString())) {
+                    int mostRecentChildNo = parseTree.childNo;
+                    while(parseTree.childNo >= parseTree.getParent().getChildren().size() - 1) {
+
+                        parseTree = parseTree.getParent();
+                        mostRecentChildNo = parseTree.childNo;
+                        if (parseTree.getParent() == null) {
+                            break;
+                        }
+                    }
+                    parseTree = parseTree.getParent().getChildren().get(mostRecentChildNo + 1);
+
                     stack.pop();
+                    // find most recent ancestor with a expansion remaining
                     continue;
                 }
 
@@ -301,6 +373,26 @@ public class TigerParser {
 
                     }
 
+                    List<ParseTree> siblings = parseTree.getParent().getChildren();
+                    int currLoc = siblings.indexOf(parseTree);
+
+                    if (currLoc < siblings.size() - 1) {
+                        parseTree = siblings.get(currLoc + 1);
+                    } else {
+                        int mostRecentChildNo = parseTree.childNo;
+                        while(parseTree.childNo >= parseTree.getParent().getChildren().size() - 1) {
+
+                            parseTree = parseTree.getParent();
+                            mostRecentChildNo = parseTree.childNo;
+                            if (parseTree.getParent() == null) {
+                                break;
+                            }
+                        }
+                        if (parseTree.getParent() != null) {
+                            parseTree = parseTree.getParent().getChildren().get(mostRecentChildNo + 1);
+                        }
+                    }
+
                     stack.pop();
                     infileScanner.nextToken();
 
@@ -327,12 +419,13 @@ public class TigerParser {
                     // We've found a matching rule, need to push its' entire expansion to the stack
                     stack.pop();
 
-                    // Yay FP
                     for (int x = matchedRule.getExpansion().size() - 1; x >= 0; x--) {
                         parseTree.addChildren(matchedRule.getExpansion().get(x));
                         stack.push(matchedRule.getExpansion().get(x));
                     }
+
                     parseTree = parseTree.getChildren().get(0);
+
                 } else {
                     if (!lookahead.equals("SEMI"))
                         infileScanner.nextToken();
@@ -354,6 +447,7 @@ public class TigerParser {
         parseCompleted = true;
         return hasErrors;
     }
+
 
     private boolean isTerminal(String str) {
         return !str.contains("<");

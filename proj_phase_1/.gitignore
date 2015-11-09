@@ -9,3 +9,4 @@
 ./src/ResolveRule.java
 *.tiger
 *.pascal
+*(2)
