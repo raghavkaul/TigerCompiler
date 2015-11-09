@@ -1,9 +1,6 @@
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Raghav K on 11/6/15.
- */
 public class FunctionTable {
     private Map<String, FunctionRecord> table, builtins;
 

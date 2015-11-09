@@ -4,7 +4,7 @@
  */
 public class Token {
     private TokenType type;
-    public String tokenLiteral;
+    private String tokenLiteral;
     public int lineNum, columnNum;
 
     public Token(TokenType type, String tokenLiteral, int lineNum, int columnNum) {
@@ -18,7 +18,7 @@ public class Token {
         this(type, "", 0, 0);
     }
 
-    public String getToken() {
+    public String getTokenLiteral() {
         return tokenLiteral;
     }
 
