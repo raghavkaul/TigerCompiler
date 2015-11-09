@@ -34,7 +34,7 @@ public class ParseTree {
         return children;
     }
 
-    public void addChildren(String symbolName, String tokenLiteral)  {
+    public void addChildren(String symbolName)  {
         ParseTree child = new ParseTree(symbolName);
         child.setParent(this);
         child.tokenLiteral = tokenLiteral;
