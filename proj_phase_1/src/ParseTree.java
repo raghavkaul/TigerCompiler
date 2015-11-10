@@ -11,6 +11,9 @@ public class ParseTree {
     public int childNo;
 
     private List<ParseTree> children;
+
+    private boolean visited = false;
+
     public ParseTree(String name) {
         children = new ArrayList<>();
         this.symbolName = name;
@@ -46,6 +49,10 @@ public class ParseTree {
         }
     }
 
+    public void addChildren(int location, ParseTree newChild) {
+        children.add(location, newChild);
+    }
+
     public ParseTree getParent() {
         return parent;
     }
@@ -58,8 +65,6 @@ public class ParseTree {
     public String getSymbolName() {
         return symbolName;
     }
-
-    public String getTokenLiteral() { return tokenLiteral; }
 
     @Override
     public String toString() {
@@ -96,10 +101,53 @@ public class ParseTree {
                 + " :: " + symbolName);
 
         for (int i = 0; i < children.size() - 1; i++) {
-            children.get(i).print(prefix + (isTail ? "    " : "│   "), false);
+            if (children.get(i) != null) {
+                children.get(i).print(prefix + (isTail ? "    " : "│   "), false);
+            }
         }
         if (children.size() > 0) {
-            children.get(children.size() - 1).print(prefix + (isTail ?"    " : "│   "), true);
+            if (children.get(children.size() - 1) != null) {
+                children.get(children.size() - 1).print(prefix + (isTail ?"    " : "│   "), true);
+            }
         }
+    }
+
+    public ParseTree getFunctionDeclarationTree() {
+        ParseTree functionDeclarationTree = null;
+
+        if (functionDeclarationTree == null) {
+
+        }
+
+        return functionDeclarationTree;
+    }
+
+    public ParseTree getVarDeclarationTree() {
+        ParseTree varDeclarationTree = null;
+
+        if (varDeclarationTree == null) {
+            // var declaration not found
+
+        }
+
+        return varDeclarationTree;
+    }
+
+    public ParseTree generateAST() {
+        if (children.size() == 1 && !visited) {
+            if (children.get(0).getSymbolName().equalsIgnoreCase("nil")) {
+                children = new ArrayList<>();
+            } else if (parent != null)  {
+                parent.addChildren(childNo, children.get(0));
+            }
+            visited = true;
+        } else {
+            for (int i = 0; children != null && i < children.size(); i++)  {
+                children.set(i, children.get(i).generateAST());
+            }
+        }
+
+
+        return this;
     }
 }

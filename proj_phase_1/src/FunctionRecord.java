@@ -43,4 +43,15 @@ public class FunctionRecord implements SymbolRecord {
     public List<Map.Entry<String, String>> getParams() {
         return params;
     }
+
+    @Override
+    public String toString() {
+        String result = "(";
+
+        for (Map.Entry param : params) {
+            result += param.getKey() + ":" + param.getValue() + ", ";
+        }
+
+        return result + ") :: returns " + returnType;
+    }
 }

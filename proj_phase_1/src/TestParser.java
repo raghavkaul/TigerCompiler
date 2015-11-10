@@ -135,8 +135,10 @@ public class TestParser {
     }
 
     @Test
-    public void testSymbolTableGeneration() {
+    public void testDumpSymbolTable() {
         int i = 0;
+//        filenames = Arrays.asList(PREFIX+"3.tiger", PREFIX+"5.tiger");
+
         for (String s : filenames) {
             // Initialization
             System.out.println("============Filename: " + s + "============");
@@ -156,35 +158,80 @@ public class TestParser {
             assertNotNull(vt.getTable());
             assertNotNull(ft.getTable());
 
+            // FIXME ArrayInt appears in both Var table and Type table
             // Dumps
             System.out.println("-------- Types --------");
             System.out.println("Expected types: " + expectedTypesByFile.get(i));
             for (Map.Entry<String, TypeRecord> me : tt.getTable().entrySet()) {
-                System.out.println("Symbol: " + me.getKey() + "\tSymbol record:" + me.getValue());
+                System.out.println(me.getKey() + "\t\t" + me.getValue());
             }
 
             System.out.println("-------- Vars --------");
             System.out.println("Expected vars: " + expectedVarsByFile.get(i));
             for (Map.Entry<String, VarRecord> me : vt.getTable().entrySet()) {
-                System.out.println("Symbol: " + me.getKey() + "\tSymbol record:" + me.getValue());
+                System.out.println(me.getKey() + "\t\t" + me.getValue());
             }
 
             System.out.println("-------- Functions --------");
             System.out.println("Expected functions: " + expectedFunctionsByFile.get(i));
             for (Map.Entry<String, FunctionRecord> me : ft.getTable().entrySet()) {
-                System.out.println("Symbol: " + me.getKey() + "\tSymbol record:" + me.getValue());
+                System.out.println(me.getKey() + "\t\t" + me.getValue());
             }
             i++;
         }
     }
 
     @Test
+    public void dumpVars() {
+        for (String s : filenames) {
+            System.out.println("============Filename: " + s + "============");
+            TigerParser tp = new TigerParser(new File(s));
+            TigerParser.verbose = false;
+            TigerParser.debug = true;
+            tp.parse();
+            VarTable vt = tp.getVarTable();
+
+            for (Map.Entry<String, VarRecord> me : vt.getTable().entrySet()) {
+                System.out.println(me.getKey() + "\t\t" + me.getValue());
+            }
+        }
+
+    }
+
+    @Test
+    public void dumpTypes() {
+        for (String s : filenames) {
+            System.out.println("============Filename: " + s + "============");
+            TigerParser tp = new TigerParser(new File(s));
+            TigerParser.verbose = false;
+            TigerParser.debug = true;
+            tp.parse();
+            TypeTable tt = tp.getTypeTable();
+        }
+
+    }
+
+    @Test
+    public void dumpFuncs() {
+        for (String s : filenames) {
+            System.out.println("============Filename: " + s + "============");
+            TigerParser tp = new TigerParser(new File(s));
+            TigerParser.verbose = false;
+            TigerParser.debug = true;
+            tp.parse();
+            FunctionTable ft = tp.getFunctionTable();
+        }
+
+    }
+
+    @Test
     public void dumpParseTree() {
+        filenames = Arrays.asList(PREFIX + "1.tiger");
         for (String filename : filenames) {
             System.out.println("============Filename: " + filename + "============");
             TigerParser tp = new TigerParser(new File(filename));
             TigerParser.verbose = false;
-            TigerParser.debug = false;
+            TigerParser.debug = true;
             tp.parse();
             ParseTree pt = tp.getParseTreeOld();
 

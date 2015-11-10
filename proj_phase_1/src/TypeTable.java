@@ -11,7 +11,6 @@ public class TypeTable {
     private static Map<String, TypeRecord> builtins = null;
 
     public TypeTable() {
-//        System.out.println("typetable constructor invoked.");
         table = new HashMap<>();
 
         if (builtins == null) {
@@ -20,6 +19,15 @@ public class TypeTable {
                     floatTr = new TypeRecord(),
                     _floatArrTr = new TypeRecord(),
                     _intArrTr = new TypeRecord();
+
+            intTr.setSuperType("int");
+            intTr.setParentType("int");
+            floatTr.setSuperType("float");
+            floatTr.setParentType("float");
+            _floatArrTr.setSuperType("_array_float");
+            _floatArrTr.setParentType("_array_float");
+            _intArrTr.setSuperType("_array_int");
+            _intArrTr.setParentType("_array_int");
 
             builtins.put("int", intTr);
             builtins.put("float", floatTr);
@@ -35,7 +43,6 @@ public class TypeTable {
         table.put(name, typeRecord);
     }
 
-
     public Map<String, TypeRecord> getTable() {
         return  table;
     }
@@ -43,14 +50,11 @@ public class TypeTable {
     public TypeRecord lookUp(String symbolName) {
         return table.get(symbolName);
     }
-
+    
     public String getSuperType(String symbolName) {
         TypeRecord temp = table.get(symbolName);
         String str = temp.getSuperType();
-        if (str == null)
-            return symbolName;
-        else
-            return str;
+        return str == null ? symbolName : str;
     }
 
     public boolean contains(String symbol) { return table.containsKey(symbol); }
