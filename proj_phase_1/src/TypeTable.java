@@ -50,6 +50,12 @@ public class TypeTable {
     public TypeRecord lookUp(String symbolName) {
         return table.get(symbolName);
     }
+    
+    public String getSuperType(String symbolName) {
+        TypeRecord temp = table.get(symbolName);
+        String str = temp.getSuperType();
+        return str == null ? symbolName : str;
+    }
 
-    public boolean contains(String symbolName) { return table.containsKey(symbolName); }
+    public boolean contains(String symbol) { return table.containsKey(symbol); }
 }
