@@ -1,3 +1,4 @@
+import javax.lang.model.element.TypeElement;
 import java.io.File;
 import java.util.*;
 
@@ -204,12 +205,15 @@ public class TigerParser {
                             break;
                         case  EXPECTING_PARAMLIST:
                             if (lookahead.equalsIgnoreCase("id")) {
-                                currParamName = lookahead;
+                                currParamName = tokenLiteral;
                                 sfs = SymbolFoundState.EXPECTING_PARAMTYPE;
                             }
                             break;
                         case EXPECTING_PARAMTYPE:
-                            if (lookahead.equalsIgnoreCase("id")) {
+                            if (lookahead.equalsIgnoreCase("id") && typeTable.contains(tokenLiteral)) {
+                                System.out.println("Semantic error: type " + tokenLiteral + " not defined.");
+                            } else if (lookahead.equalsIgnoreCase("id") || lookahead.contains("array")
+                                    || lookahead.equalsIgnoreCase("float_type") || lookahead.equalsIgnoreCase("int_type")){
                                 ((FunctionRecord) symbolRecord).addParam(currParamName, tokenLiteral);
                                 sfs = SymbolFoundState.FOUND_PARAMTYPE;
                             }
@@ -222,8 +226,8 @@ public class TigerParser {
                             }
                             break;
                         case EXPECTING_RETURNTYPE:
-                            if (lookahead.equalsIgnoreCase("id")) {
-                                ((FunctionRecord) symbolRecord).setReturnType(lookahead);
+                            if (lookahead.equalsIgnoreCase("id") || lookahead.equalsIgnoreCase("float_type") || lookahead.equalsIgnoreCase("int_type") || lookahead.contains("array")) {
+                                ((FunctionRecord) symbolRecord).setReturnType(tokenLiteral);
                                 sfs = SymbolFoundState.POPULATE;
                             }
                             break;
@@ -295,18 +299,29 @@ public class TigerParser {
                             }
                             break;
                         case EXPECTING_ARRAYTYPE:
-                            if (lookahead.equalsIgnoreCase("id") || lookahead.equalsIgnoreCase("int_type")
-                                    || lookahead.equalsIgnoreCase("float_type") || lookahead.equalsIgnoreCase("array")) {
+                            if (!lookahead.equalsIgnoreCase("rbrack") && !lookahead.equalsIgnoreCase("of")) { // We've advanced the input stream to the array type
+                                
+                                // Find expected type of array contents
                                 TypeRecord arrayTypeRecord = typeTable.lookUp(tokenLiteral);
-                                if (arrayTypeRecord != null) {
+
+                                // Arrays can't contain arrays
+                                if (tokenLiteral.equalsIgnoreCase("array")
+                                || arrayTypeRecord.getSuperType().contains("array")) {
+                                    System.out.println("Semantic error: cannot declare array of arrays");
+                                } else if (arrayTypeRecord != null) {
                                     ((TypeRecord) symbolRecord).setSuperType("_array_" + arrayTypeRecord.getSuperType());
+                                    ((TypeRecord) symbolRecord).setParentType("_array_" + arrayTypeRecord.getSuperType());
                                 } else {
                                     System.out.println("No type found named " + tokenLiteral);
                                 }
+                            }
+                            if (lookahead.equalsIgnoreCase("id") || lookahead.equalsIgnoreCase("int_type")
+                                    || lookahead.equalsIgnoreCase("float_type") || lookahead.equalsIgnoreCase("array")) {
 
                                 for (String symbolName : symbolNames) {
                                     typeTable.insert(symbolName, (TypeRecord) symbolRecord);
                                 }
+                                symbolNames.clear();
                                 sfs = SymbolFoundState.NONE;
                             }
                             break;
@@ -320,13 +335,16 @@ public class TigerParser {
                     int currLoc = siblings.indexOf(parseTree);
 
                     if (currLoc < siblings.size() - 1) {
-                        parseTree.setTokenLiteral(infileScanner.peekToken().getTokenLiteral());
+                        if (isTerminal(parseTree.getSymbolName())) {
+                            parseTree.setTokenLiteral(infileScanner.peekToken().getTokenLiteral());
+                        }
                         parseTree = siblings.get(currLoc + 1);
                     } else {
                         int mostRecentChildNo = parseTree.childNo;
                         while(parseTree.childNo >= parseTree.getParent().getChildren().size() - 1) {
-
-                            parseTree.setTokenLiteral(infileScanner.peekToken().getTokenLiteral());
+                            if (isTerminal(parseTree.getSymbolName())) {
+                                parseTree.setTokenLiteral(infileScanner.peekToken().getTokenLiteral());
+                            }
                             parseTree = parseTree.getParent();
                             mostRecentChildNo = parseTree.childNo;
                             if (parseTree.getParent() == null) {
@@ -337,7 +355,6 @@ public class TigerParser {
                             parseTree = parseTree.getParent().getChildren().get(mostRecentChildNo + 1);
                         }
                     }
-
                     stack.pop();
                     infileScanner.nextToken();
 
@@ -367,8 +384,8 @@ public class TigerParser {
                     for (int x = matchedRule.getExpansion().size() - 1; x >= 0; x--) {
                         String currLex = matchedRule.getExpansion().get(x);
 
-                        if (isTerminal(currLex)) {
-                            parseTree.addChildren(currLex, infileScanner.peekToken());
+                        if (isTerminal(currLex) && !currLex.equalsIgnoreCase("NIL")) {
+                            parseTree.addChildren(currLex);
                         } else {
                             parseTree.addChildren(currLex);
                         }
@@ -378,9 +395,10 @@ public class TigerParser {
 
                     parseTree = parseTree.getChildren().get(0);
                 } else {
-                    if (!lookahead.equals("SEMI"))
+                    if (!lookahead.equals("SEMI")) {
+                        parseTree.setTokenLiteral(tokenLiteral);
                         infileScanner.nextToken();
-                    else
+                    } else
                         stack.pop();
                     hasErrors = true;
                     errors.add(lookahead);
@@ -402,5 +420,11 @@ public class TigerParser {
 
     private boolean isTerminal(String str) {
         return !str.contains("<");
+    }
+
+    private boolean isValidType(String symbolName, String tokenLiteral) {
+        return symbolName.equalsIgnoreCase("int") || symbolName.equalsIgnoreCase("float")
+                || symbolName.equalsIgnoreCase("array")
+                || symbolName.equalsIgnoreCase("id") && typeTable.contains(tokenLiteral);
     }
 }

@@ -1,5 +1,15 @@
 public class TypeRecord implements SymbolRecord {
     private String superType;
+
+    public String getParentType() {
+        return parentType;
+    }
+
+    public void setParentType(String parentType) {
+        this.parentType = parentType;
+    }
+
+    private String parentType;
     private int numElements;
 
     public String getSuperType() {
@@ -19,5 +29,7 @@ public class TypeRecord implements SymbolRecord {
         this.numElements = numElements;
     }
 
-
+    public String toString() {
+        return "Num elements: " + numElements + " :: supertype: " + superType;
+    }
 }

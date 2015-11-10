@@ -21,6 +21,7 @@ public class VarRecord implements SymbolRecord {
         this.numElements = numElements;
     }
 
-
-
+    public String toString() {
+        return "Size: " + numElements + " :: Type: " + typeName;
+    }
 }
