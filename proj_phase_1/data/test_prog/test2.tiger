@@ -4,5 +4,5 @@ let
                 printi(n);
         end;
 in
-        print(5);
+        a := print(5 * 10 + 15, abc);
 end

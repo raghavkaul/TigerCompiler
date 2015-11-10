@@ -1,8 +1,5 @@
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SemanticChecker {
     private ParseTree parseTree;
@@ -12,22 +9,10 @@ public class SemanticChecker {
 
     public SemanticChecker(String fileName) {
         TigerParser tp = new TigerParser(new File(fileName));
-        parseTree = tp.getParseTree();
+        parseTree = tp.getParseTreeOld();
         varTable = tp.getVarTable();
         typeTable = tp.getTypeTable();
         functionTable = tp.getFunctionTable();
-    }
-
-    public static ParseTree populateIntermediates(ParseTree pt) {
-        List<ParseTree> children = pt.getChildren();
-
-        for (int i = 0; i < children.size(); i++) {
-            ParseTree child = children.get(i);
-
-            pt.updateChild(i, populateIntermediates(child));
-        }
-
-        return pt;
     }
 
     public boolean checkSemantics(ParseTree pt) {
@@ -47,6 +32,7 @@ public class SemanticChecker {
                     isCorrect = checkVarDeclaration(pt) && isCorrect;
                     break;
 
+                // TODO Fully evaluate the <stat> contained in func
                 case "<func-declaration>":
                     isCorrect = checkFuncDeclaration(pt) && isCorrect;
                     break;
@@ -91,7 +77,38 @@ public class SemanticChecker {
 
             // Hard part
             case "ID":
+                List<ParseTree> stat_id_tail = children.get(1).getChildren();
+                ParseTree first = stat_id_tail.get(0);
+                if (first.getSymbolName().equals("LPAREN")) { // Func
+                    ParseTree func = decision;
+                    String funcName = func.getTokenLiteral();
 
+                    ParseTree expr_list = stat_id_tail.get(1);
+                    // get the list of arguments
+                    List<ParseTree> exprs = new ArrayList<>();
+
+                    exprs.add(expr_list.getChildren().get(0));
+                    expr_list = expr_list.getChildren().get(1);
+
+                    // Recursively get all the <expr>'s
+                    while (expr_list.getChildren().size() != 1) {
+                        exprs.add(expr_list.getChildren().get(1));
+                        expr_list = expr_list.getChildren().get(2);
+                    }
+
+                    List<String> expr_types = new ArrayList<>();
+
+                    for (ParseTree expr : exprs) {
+                        expr_types.add(returnTypeExpr(expr));
+                    }
+
+                    FunctionRecord func_type = functionTable.lookUp(func.getTokenLiteral());
+                    isCorrect = isCorrect && expr_types.equals(func_type.getParamTypes());
+
+                } else { // assign
+                    ParseTree id = decision;
+
+                }
                 break;
         }
 
@@ -104,10 +121,12 @@ public class SemanticChecker {
         return isCorrect;
     }
 
-    public boolean checkExpr(ParseTree pt) {
-        boolean isCorrect = true;
+    public String returnTypeExpr(ParseTree pt) {
+        ParseTree supertype;
 
-        return isCorrect;
+
+
+        return null;
     }
 
     public boolean checkAllTables(ParseTree pt) {

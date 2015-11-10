@@ -32,6 +32,14 @@ public class FunctionRecord implements SymbolRecord {
         return paramNames;
     }
 
+    public List<String> getParamTypes() {
+        List<String> paramTypes = new ArrayList<>();
+        for (Map.Entry<String, String> me : params) {
+            paramTypes.add(me.getValue());
+        }
+        return paramTypes;
+    }
+
     public List<Map.Entry<String, String>> getParams() {
         return params;
     }
