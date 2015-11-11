@@ -21,7 +21,7 @@ public class SemanticChecker {
         List<ParseTree> children = pt.getChildren();
 
         if (children == null) {
-            return isCorrect; // Terminals are semantically correct on their own
+            return true; // Terminals are semantically correct on their own
         } else {
             switch (pt.getSymbolName()) {
                 case "<type-declaration>":
@@ -123,9 +123,7 @@ public class SemanticChecker {
 
     public String returnTypeExpr(ParseTree pt) {
         ParseTree supertype;
-
-
-
+        
         return null;
     }
 
