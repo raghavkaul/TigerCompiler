@@ -17,7 +17,7 @@ public class TestSemanticChecker {
         filenames = new String[NUM_TESTS];
         checkerExpectedResult = new boolean[NUM_TESTS];
 
-        for (int i = 1; i <= 7; i++) {
+        for (int i = 1; i <= 3; i++) {
             checkerExpectedResult[i-1] = true;
         }
 
@@ -37,6 +37,7 @@ public class TestSemanticChecker {
             SemanticChecker semanticChecker = new SemanticChecker(filenames[i]);
 
             assertEquals(checkerExpectedResult[i], semanticChecker.returnSemantic());
+            System.out.println("Semantic Checked without issue");
         }
     }
 

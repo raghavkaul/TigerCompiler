@@ -4,11 +4,8 @@ let
         var X, Y : ArrayInt := 10; 
         var i, sum :int := 0;
 in
-	if ((i < i) | (i > i)) then
-		i := i;
-	endif;
         for i := 1 to 100 do /* for loop for dot product */
-                sum := X[i] * Y [i];
+                sum := sum + X[i] * Y [i];
         enddo;
         printi(sum); /* library call to printi to print the dot product */
 end
