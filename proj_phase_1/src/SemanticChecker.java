@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SemanticChecker {
     public ParseTree parseTree;
@@ -132,7 +133,7 @@ public class SemanticChecker {
                 ParseTree first = stat_id_tail.get(0);
                 if (first.getSymbolName().equals("LPAREN")) { // Func
                     ParseTree func = decision;
-                    String funcName = func.getTokenLiteral();
+//                    String funcName = func.getTokenLiteral();
 
                     ParseTree expr_list = stat_id_tail.get(1);
                     // get the list of arguments
@@ -147,11 +148,8 @@ public class SemanticChecker {
                         expr_list = expr_list.getChildren().get(2);
                     }
 
-                    List<String> expr_types = new ArrayList<>();
+                    List<String> expr_types = exprs.stream().map(this::returnTypeExpr).collect(Collectors.toList());
 
-                    for (ParseTree expr : exprs) {
-                        expr_types.add(returnTypeExpr(expr));
-                    }
                     FunctionRecord func_type = functionTable.lookUp(func.getTokenLiteral());
                     isCorrect = expr_types.equals(func_type.getParamTypes());
                     if (!isCorrect) {
@@ -188,11 +186,8 @@ public class SemanticChecker {
                                 expr_list = expr_list.getChildren().get(2);
                             }
 
-                            List<String> expr_types = new ArrayList<>();
+                            List<String> expr_types = exprs.stream().map(this::returnTypeExpr).collect(Collectors.toList());
 
-                            for (ParseTree expr : exprs) {
-                                expr_types.add(returnTypeExpr(expr));
-                            }
                             FunctionRecord func_type = functionTable.lookUp(func.getTokenLiteral());
                             isCorrect = expr_types.equals(func_type.getParamTypes());
                             if (!isCorrect) {
@@ -211,7 +206,7 @@ public class SemanticChecker {
                             String expr_tail_type = returnTypeExpr(expr_tail); // next parts of expr
                             if (expr_tail.getChildren().size() != 1) {
                                 System.out.println("fuck3");
-                                isCorrect = isCorrect && varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(expr_tail_type);
+                                isCorrect = varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(expr_tail_type);
                             }
 
                             ParseTree term_and_lvalue_only = term_or_lvalue_only.getChildren().get(0);
@@ -308,9 +303,6 @@ public class SemanticChecker {
             } else if (!currType.equalsIgnoreCase(nextType)) {
                 currType = "";
             }
-
-            if (nextType.equalsIgnoreCase("lvalue-tail")) { // Might be dealing with an array index
-            }
         }
 
         return currType;
@@ -328,12 +320,10 @@ public class SemanticChecker {
     }
 
     public boolean checkTypeDeclaration(ParseTree pt) {
-        boolean isCorrect = true;
-
         List<ParseTree> children = pt.getChildren();
         ParseTree id = children.get(1);
 
-        isCorrect = isCorrect && checkAllTables(id);
+        boolean isCorrect = checkAllTables(id);
         if (!isCorrect) {
             System.out.println("fuck6");
         }
@@ -342,13 +332,9 @@ public class SemanticChecker {
     }
 
     public boolean checkVarDeclaration(ParseTree pt) {
-        boolean isCorrect = true;
         List<ParseTree> children = pt.getChildren();
 
-
-        //
-        //	Check for possible duplicate ids
-        //
+        // Check for possible duplicate IDs
 
         ParseTree idList = children.get(1);
 
@@ -357,7 +343,7 @@ public class SemanticChecker {
 
         // Check first id
         ParseTree firstID = id_expansion.get(0);
-        isCorrect = isCorrect && checkAllTables(firstID);
+        boolean isCorrect = checkAllTables(firstID);
         if (!isCorrect) {
             System.out.println("fuck8");
         }

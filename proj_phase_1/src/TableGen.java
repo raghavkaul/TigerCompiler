@@ -13,7 +13,7 @@ public class TableGen {
 	
 	public TableGen(File infile){
 		
-		rules = new ArrayList<Rule>();
+		rules = new ArrayList<>();
 		
 		try {
             infileScanner = new Scanner(infile);
@@ -41,11 +41,11 @@ public class TableGen {
 	public void generateFirstSets(){
 		boolean firstSetchanged = true;
 		
-		firstset = new HashMap<String, Set<String>>();
+		firstset = new HashMap<>();
 		
 		//Add First set for all tokens or terminals
 		for(TokenType token: TokenType.values()){
-			Set<String> tokenSet = new HashSet<String>();
+			Set<String> tokenSet = new HashSet<>();
 			tokenSet.add(token.toString());
 			firstset.put(token.toString(), tokenSet);
 		}
@@ -66,19 +66,19 @@ public class TableGen {
 				Set<String> RuleFirstSet = firstset.get(rule.getName());
 				//If no Set exists add one and make change = true
 				if(RuleFirstSet==null){
-					RuleFirstSet = new HashSet<String>();
+					RuleFirstSet = new HashSet<>();
 					firstset.put(rule.getName(), RuleFirstSet);
 					firstSetchanged = true;
 				}
 				
 				//Get a new rhs for this rule
-				Set<String> rhs = new HashSet<String>();
+				Set<String> rhs = new HashSet<>();
 				
 				//Get first set of B[1](See Algo)
 				String firstLexeme = rule.getExpansion().get(0);
 				Set<String> firstSetofLexeme = firstset.get(firstLexeme);
 				if(firstSetofLexeme == null){
-					firstSetofLexeme = new HashSet<String>();
+					firstSetofLexeme = new HashSet<>();
 					firstset.put(firstLexeme, firstSetofLexeme);
 					firstSetchanged = true;
 				}
@@ -108,7 +108,7 @@ public class TableGen {
 					//Get FIRST set of B[i]
 					Set<String> expansionNullFirstSet = firstset.get(expansion.get(i));
 					if(expansionNullFirstSet==null){
-						expansionNullFirstSet = new HashSet<String>();
+						expansionNullFirstSet = new HashSet<>();
 						firstset.put(expansion.get(i), expansionNullFirstSet);	
 						firstSetchanged = true;
 						//Break as can't say about its first set as of now
@@ -118,7 +118,7 @@ public class TableGen {
 					else if(expansionNullFirstSet.contains(TokenType.NIL.toString()) && i<(expansion.size()-1)){
 						Set<String> expansionFirstSet = firstset.get(expansion.get(i+1));
 						if(expansionFirstSet==null){
-							expansionFirstSet = new HashSet<String>();
+							expansionFirstSet = new HashSet<>();
 							firstset.put(expansion.get(i+1), expansionFirstSet);
 							firstSetchanged = true;
 						}
@@ -139,7 +139,7 @@ public class TableGen {
 				if(expansioncount == expansion.size()-1){
 					Set<String> expansionLast = firstset.get(expansion.get(expansioncount));
 					if(expansionLast==null){
-						expansionLast = new HashSet<String>();
+						expansionLast = new HashSet<>();
 						firstset.put(expansion.get(expansioncount), expansionLast);
 						firstSetchanged = true;
 					}
@@ -167,9 +167,9 @@ public class TableGen {
 	
 	public void generatefollowsets(){
 		boolean followsetschanged = true;
-		followset = new HashMap<String, Set<String>>();
+		followset = new HashMap<>();
 		String firstruleOfgrammar = rules.get(0).getName();
-		Set<String> firstrulefollowset = new HashSet<String>();
+		Set<String> firstrulefollowset = new HashSet<>();
 		firstrulefollowset.add(TokenType.EOF_TOKEN.toString());
 		followset.put(firstruleOfgrammar, firstrulefollowset);
 		
@@ -180,11 +180,11 @@ public class TableGen {
 				//Copy present rules follow set into trailer(TRAILER <- FOLLOW(A))
 				Set<String> presetnRuleFollowSet = followset.get(rule.getName());
 				if(presetnRuleFollowSet==null){
-					presetnRuleFollowSet = new HashSet<String>();
+					presetnRuleFollowSet = new HashSet<>();
 					followset.put(rule.getName(), presetnRuleFollowSet);
 					followsetschanged = true;
 				}
-				Set<String> trailer = new HashSet<String>(followset.get(rule.getName()));
+				Set<String> trailer = new HashSet<>(followset.get(rule.getName()));
 				
 				List<String> expansion = rule.getExpansion();
 				for(int i = expansion.size()-1; i>=0; i--){
@@ -192,7 +192,7 @@ public class TableGen {
 					if(!isTerminal(currexpansion)){
 						Set<String> expansionfollowset = followset.get(currexpansion);
 						if(expansionfollowset==null){
-							expansionfollowset = new HashSet<String>();
+							expansionfollowset = new HashSet<>();
 							followset.put(currexpansion, expansionfollowset);
 							followsetschanged = true;
 						}
@@ -223,11 +223,11 @@ public class TableGen {
 	public void generateParsertable(){
 		generateFirstSets();
 		generatefollowsets();
-		parsertable = new HashMap<String, Rule>();
+		parsertable = new HashMap<>();
 		for(Rule rule: rules){
 			List<String> expansion = rule.getExpansion();
 			boolean addfollowset = true;
-			Set<String> rulefirstset = new HashSet<String>();
+			Set<String> rulefirstset = new HashSet<>();
 			for(String lexeme: expansion){
 				if(!isTerminal(lexeme)){
 					Set<String> firstsetexpansion = firstset.get(lexeme);
@@ -349,30 +349,15 @@ public class TableGen {
 	}
 	
 	public boolean isTerminal(String lexeme){
-		if(lexeme.contains("<")){
-			return false;
-		}
-		else{
-			return true;
-		}
+		return !lexeme.contains("<");
 	}
 	
 	public boolean isNullable(String lexeme){
-		if(!lexeme.contains("<")){
-			if(lexeme.equals("NIL")){
-				return true;
-			}
-			else{
-				return false;
-			}
-		}
-		else{
-			if(firstset.get(lexeme).contains("NIL")){
-				return true;
-			}
-			else{
-				return false;
-			}
+
+		if(!lexeme.contains("<")) {
+			return lexeme.equals("NIL");
+		} else {
+			return firstset.get(lexeme).contains("NIL");
 		}
 	}
 

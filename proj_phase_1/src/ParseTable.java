@@ -20,9 +20,9 @@ public class ParseTable {
     protected HashMap<Nonterminal, HashMap<Terminal, Rule>> row;
 
     public ParseTable(Collection<Nonterminal> ntlist) {
-        row = new HashMap<Nonterminal, HashMap<Terminal, Rule>>();
+        row = new HashMap<>();
         for (Nonterminal nt : ntlist) {
-            row.put(nt, new HashMap<Terminal, Rule>());
+            row.put(nt, new HashMap<>());
             HashMap<Terminal, Rule> col = row.get(nt);
             for (TerminalRuleWrapper trw : nt.getFirstSet()){
                 col.put(trw.getTerminal(),trw.getRule());

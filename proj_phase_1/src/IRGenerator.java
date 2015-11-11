@@ -45,7 +45,7 @@ public class IRGenerator {
                 boolean isSemanticallyCorrect = false;
                 SemanticChecker sc = new SemanticChecker(args[1]);
             } else if (args[0].contains("generate")) {
-
+                File outfile = new File(args[1].split(".")[0] + ".irgen");
             }
         }
     }
