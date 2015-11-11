@@ -1,8 +1,5 @@
 import java.util.*;
 
-/**
- * Created by Raghav K on 11/5/15.
- */
 public class FunctionRecord implements SymbolRecord {
     private List<Map.Entry<String, String>> params; // Map :: parameter name -> parameter type name
     private String returnType;

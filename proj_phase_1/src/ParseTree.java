@@ -4,6 +4,10 @@ public class ParseTree {
     private ParseTree parent;
     private String symbolName;
 
+    public String getTokenLiteral() {
+        return tokenLiteral;
+    }
+
     private String tokenLiteral;
 
     private String scopeName;
@@ -149,11 +153,6 @@ public class ParseTree {
 
 
         return this;
-    }
-
-
-    public String getTokenLiteral() {
-        return "null";
     }
 }
 
