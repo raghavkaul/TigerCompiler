@@ -228,8 +228,11 @@ public class SemanticChecker {
             ParseTree constant = opt_init_expansion.get(1);
             constant = constant.getChildren().get(0);
 
+
             String lhsType = convertLits(type.getTokenLiteral());
-            String rhsType = convertLits(constant.getTokenLiteral());
+            System.out.println(lhsType);
+            String rhsType = convertLits(constant.getSymbolName());
+            System.out.println(rhsType);
 
             String lhsSuperType = typeTable.getSuperType(lhsType);
             String rhsSuperType = typeTable.getSuperType(rhsType);

@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class TestSemanticChecker {
     SemanticChecker sc;
     String [] passingTests = {      "./data/test_prog/test1.tiger"
-                                ,   "./data/test_prog/test12.tiger"};
+                                ,   "./data/test_prog/test2.tiger"};
 
     @Test
     public void passingTests() {
