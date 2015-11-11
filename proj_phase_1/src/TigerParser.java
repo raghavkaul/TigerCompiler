@@ -1,4 +1,3 @@
-import javax.lang.model.element.TypeElement;
 import java.io.File;
 import java.util.*;
 
@@ -419,7 +418,7 @@ public class TigerParser {
     }
 
 
-    private boolean isTerminal(String str) {
+    public static boolean isTerminal(String str) {
         return !str.contains("<");
     }
 
