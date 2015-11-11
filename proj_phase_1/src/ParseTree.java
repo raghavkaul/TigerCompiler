@@ -3,6 +3,8 @@ import java.util.*;
 public class ParseTree {
     private ParseTree parent;
     private String symbolName;
+    private static int ID = 0;
+    private int myID;
 
     public String getTokenLiteral() {
         return tokenLiteral;
@@ -17,8 +19,10 @@ public class ParseTree {
     public ParseTree(String name) {
         children = new ArrayList<>();
         this.symbolName = name;
+        this.myID = ID++;
     }
     public ParseTree(String name, Token tokenLiteral) {
+        this.myID = ID++;
         children = new ArrayList<>();
         this.symbolName = name;
         this.tokenLiteral = tokenLiteral.getTokenLiteral();
@@ -36,6 +40,7 @@ public class ParseTree {
 
         for (int i = 0; i < children.size(); i++) {
             children.get(i).childNo = i;
+            children.get(i).myID = ID++;
         }
     }
 
@@ -46,6 +51,7 @@ public class ParseTree {
 
         for (int i = 0; i < children.size(); i++) {
             children.get(i).childNo = i;
+            children.get(i).myID = ID++;
         }
     }
 
@@ -68,7 +74,8 @@ public class ParseTree {
 
     @Override
     public String toString() {
-        String result = tokenLiteral + "::" + symbolName + " :: Children (" + children.size() + "): {";
+        String result = "Literal: \"" + tokenLiteral + "\"  ID: "
+                + myID + "  Type: " + symbolName + "  Children (" + children.size() + "): {";
 
         for (ParseTree child : children) {
             result += child.getSymbolName() + ", ";
@@ -89,8 +96,8 @@ public class ParseTree {
 
     private void print(String prefix, boolean isTail) {
         System.out.println(prefix + (isTail ? "└── " : "├── ") +
-                (tokenLiteral == null ? "<>" : "\"" + tokenLiteral +"\"")
-                + " :: " + symbolName);
+                (tokenLiteral == null ? "\"\"" : "\"" + tokenLiteral +"\"")
+                + " :: " + symbolName + " " + myID);
 
         for (int i = 0; i < children.size() - 1; i++) {
             if (children.get(i) != null) {

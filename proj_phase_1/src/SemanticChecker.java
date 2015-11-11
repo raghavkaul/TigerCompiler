@@ -39,20 +39,20 @@ public class SemanticChecker {
                 break;
             // Check in case optional-init is being used
             case "<var-declaration>":
-                isCorrect = checkVarDeclaration(pt);
+                isCorrect = isCorrect && checkVarDeclaration(pt);
                 if (!isCorrect) {
                     System.out.println("fuck10");
                 }
                 break;
 
             case "<func-declaration>":
-                isCorrect = checkFuncDeclaration(pt);
+                isCorrect = isCorrect && checkFuncDeclaration(pt);
                 if (!isCorrect) {
                     System.out.println("fuck11");
                 }
                 break;
             case "<stat>":
-                isCorrect = checkStatsDeclaration(pt);
+                isCorrect = isCorrect && checkStatsDeclaration(pt);
                 if (!isCorrect) {
                     System.out.println("fuck12");
                 }
