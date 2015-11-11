@@ -32,17 +32,29 @@ public class SemanticChecker {
         } else switch (pt.getSymbolName()) {
             case "<type-declaration>":
                 isCorrect = checkTypeDeclaration(pt);
+                if (!isCorrect) {
+                    System.out.println("fuck9");
+                }
                 break;
             // Check in case optional-init is being used
             case "<var-declaration>":
                 isCorrect = checkVarDeclaration(pt);
+                if (!isCorrect) {
+                    System.out.println("fuck10");
+                }
                 break;
 
             case "<func-declaration>":
                 isCorrect = checkFuncDeclaration(pt);
+                if (!isCorrect) {
+                    System.out.println("fuck11");
+                }
                 break;
             case "<stat>":
                 isCorrect = checkStatsDeclaration(pt);
+                if (!isCorrect) {
+                    System.out.println("fuck12");
+                }
                 break;
 
             default:
@@ -66,8 +78,17 @@ public class SemanticChecker {
                 ParseTree statelseseq = children.get(4);
                 if (returnTypeExpr(ifexpr).equals(""))
                     isCorrect = false;
+                if (!isCorrect) {
+                    System.out.println("fuckif1");
+                }
                 isCorrect = isCorrect && checkStatsDeclaration(statseq);
+                if (!isCorrect) {
+                    System.out.println("fuckif2");
+                }
                 isCorrect = isCorrect && checkSemantics(statelseseq);
+                if (!isCorrect) {
+                    System.out.println("fuckif3");
+                }
                 break;
 
             case "WHILE":
@@ -133,6 +154,9 @@ public class SemanticChecker {
                     }
                     FunctionRecord func_type = functionTable.lookUp(func.getTokenLiteral());
                     isCorrect = expr_types.equals(func_type.getParamTypes());
+                    if (!isCorrect) {
+                        System.out.println("fuck5");
+                    }
 
                 } else { // assign
                     ParseTree id = decision;
@@ -171,35 +195,49 @@ public class SemanticChecker {
                             }
                             FunctionRecord func_type = functionTable.lookUp(func.getTokenLiteral());
                             isCorrect = expr_types.equals(func_type.getParamTypes());
+                            if (!isCorrect) {
+                                System.out.println("fuck5");
+                            }
 
                             String assigneeType = varTable.lookUp(decision.getTokenLiteral()).getTypeName();
                             isCorrect = isCorrect && functionTable.lookUp(funcName).getReturnType().equals(assigneeType);
+                            if (!isCorrect) {
+                                System.out.println("fuck4");
+                            }
                         } else { // is now an arithmetic expression
                             ParseTree expr_lvalue_only = expr_func_tail.get(0);
                             ParseTree term_or_lvalue_only = expr_lvalue_only.getChildren().get(0);
                             ParseTree expr_tail = expr_lvalue_only.getChildren().get(1);
                             String expr_tail_type = returnTypeExpr(expr_tail); // next parts of expr
-                            if (expr_tail.getChildren().size() != 1)
+                            if (expr_tail.getChildren().size() != 1) {
+                                System.out.println("fuck3");
                                 isCorrect = isCorrect && varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(expr_tail_type);
+                            }
 
                             ParseTree term_and_lvalue_only = term_or_lvalue_only.getChildren().get(0);
                             ParseTree term_comp_lvalue_only = term_and_lvalue_only.getChildren().get(0);
                             ParseTree term_comp_tail = term_comp_lvalue_only.getChildren().get(1);
                             String term_comp_tail_type = returnTypeExpr(term_comp_tail); // op-add and shit
-                            if (term_comp_tail.getChildren().size() != 1)
+                            if (term_comp_tail.getChildren().size() != 1) {
+                                System.out.println("fuck2");
                                 isCorrect = isCorrect && varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(term_comp_tail_type);
+                            }
 
                             ParseTree term_lvalue_only = term_comp_lvalue_only.getChildren().get(0);
                             ParseTree lvalue_tail = term_lvalue_only.getChildren().get(0);
                             ParseTree term_tail = term_lvalue_only.getChildren().get(1);
                             String term_tail_type = returnTypeExpr(term_tail); // op-mul and shit
-                            if (term_tail.getChildren().size() != 1)
+                            if (term_tail.getChildren().size() != 1) {
+                                System.out.println("fuck1");
                                 isCorrect = isCorrect && varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(term_tail_type);
+                            }
 
                             if (lvalue_tail.getChildren().get(0).getSymbolName().equals("LBRACK")) {
                                 String lvalue_tail_lbrack_expr_type = returnTypeExpr(lvalue_tail.getChildren().get(1));
-                                if (!lvalue_tail_lbrack_expr_type.equals("int"))
+                                if (!lvalue_tail_lbrack_expr_type.equals("int")) {
+                                    System.out.println("fuck");
                                     isCorrect = false;
+                                }
                             }
                         }
                     }
@@ -228,7 +266,9 @@ public class SemanticChecker {
                 return varTable.lookUp(pt.getTokenLiteral()).getTypeName();
             } else {
                 return symbolName.equalsIgnoreCase("intlit") ? "int" :
-                        symbolName.equalsIgnoreCase("floatlit") ? "float" : "";
+                        symbolName.equalsIgnoreCase("floatlit") ? "float" :
+                                symbolName.equalsIgnoreCase("_array_int") ? "int" :
+                                        symbolName.equalsIgnoreCase("_array_float") ? "float" : "";
                 // Empty string if there's no type info associated with the tree.
                 // May be a nonterminal, delimiter, etc.
                 // Equivalent to non-AST parse tree nodes.
@@ -294,6 +334,9 @@ public class SemanticChecker {
         ParseTree id = children.get(1);
 
         isCorrect = isCorrect && checkAllTables(id);
+        if (!isCorrect) {
+            System.out.println("fuck6");
+        }
 
         return isCorrect;
     }
@@ -315,6 +358,9 @@ public class SemanticChecker {
         // Check first id
         ParseTree firstID = id_expansion.get(0);
         isCorrect = isCorrect && checkAllTables(firstID);
+        if (!isCorrect) {
+            System.out.println("fuck8");
+        }
 
         ParseTree id_list_tail = id_expansion.get(1);
         id_expansion = id_list_tail.getChildren();
@@ -323,6 +369,9 @@ public class SemanticChecker {
             ParseTree tempID = id_expansion.get(1);
 
             isCorrect = isCorrect && checkAllTables(tempID);
+            if (!isCorrect) {
+                System.out.println("fuck7");
+            }
 
             id_expansion = id_expansion.get(2).getChildren();
         }
