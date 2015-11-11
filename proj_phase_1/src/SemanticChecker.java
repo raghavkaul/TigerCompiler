@@ -211,16 +211,20 @@ public class SemanticChecker {
                             String expr_tail_type = returnTypeExpr(expr_tail); // next parts of expr
                             if (expr_tail.getChildren().size() != 1) {
                                 System.out.println("fuck3");
-                                isCorrect = isCorrect && varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(expr_tail_type);
+                                isCorrect = varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(expr_tail_type);
                             }
 
                             ParseTree term_and_lvalue_only = term_or_lvalue_only.getChildren().get(0);
                             ParseTree term_comp_lvalue_only = term_and_lvalue_only.getChildren().get(0);
                             ParseTree term_comp_tail = term_comp_lvalue_only.getChildren().get(1);
-                            String term_comp_tail_type = returnTypeExpr(term_comp_tail); // op-add and shit
                             if (term_comp_tail.getChildren().size() != 1) {
-                                System.out.println("fuck2");
-                                isCorrect = isCorrect && varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(term_comp_tail_type);
+                                String term_comp_tail_type = returnTypeExpr(term_comp_tail.getChildren().get(1)); // op-add and shit
+                                System.out.println(varTable.lookUp(id.getTokenLiteral()).getTypeName());
+                                String rhsType = convertArrays(typeTable.getSuperType(term_comp_tail_type));
+                                System.out.println(rhsType);
+                                isCorrect = isCorrect && varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(rhsType);
+                                if (!isCorrect)
+                                    System.out.println("fuck2");
                             }
 
                             ParseTree term_lvalue_only = term_comp_lvalue_only.getChildren().get(0);
@@ -250,12 +254,6 @@ public class SemanticChecker {
 
     // TODO rename getTypeExpr
 
-    /**
-     *
-     * @param pt
-     * @return
-     *
-     */
     public String returnTypeExpr(ParseTree pt) {
         // Base case - return the explicit or implied type
         if (pt.getChildren() == null || pt.getChildren().size() == 0) {
@@ -306,10 +304,10 @@ public class SemanticChecker {
             } else if (currType.equalsIgnoreCase("int") && nextType.equalsIgnoreCase("int")) {
                 currType = "int";
             } else if (!currType.equalsIgnoreCase(nextType)) {
-                currType = "";
-            }
+                System.out.println(currType);
+                System.out.println(nextType);
 
-            if (nextType.equalsIgnoreCase("lvalue-tail")) { // Might be dealing with an array index
+                currType = "";
             }
         }
 
