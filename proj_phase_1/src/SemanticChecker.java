@@ -72,6 +72,7 @@ public class SemanticChecker {
                 ifexpr = children.get(1);
                 statseq = children.get(3);
 
+                //TODO
 //                isCorrect = checkExprIDS(ifexpr);
                 isCorrect = isCorrect && checkSemantics(statseq);
                 break;
@@ -133,7 +134,7 @@ public class SemanticChecker {
 
                 } else { // assign
                     ParseTree id = decision;
-                    ParseTree stat_id_expr_tail = children.get(2);
+                    ParseTree stat_id_expr_tail = stat_id_tail.get(2);
 
                     List<ParseTree> twoexpr = stat_id_expr_tail.getChildren();
 
@@ -171,8 +172,33 @@ public class SemanticChecker {
 
                             String assigneeType = varTable.lookUp(decision.getTokenLiteral()).getTypeName();
                             isCorrect = isCorrect && functionTable.lookUp(funcName).getReturnType().equals(assigneeType);
-                        } else { // entire thing is arithmetic, get the return type of rhs of assigning expr and check with lhs
+                        } else { // is now an arithmetic expression
+                            ParseTree expr_lvalue_only = expr_func_tail.get(0);
+                            ParseTree term_or_lvalue_only = expr_lvalue_only.getChildren().get(0);
+                            ParseTree expr_tail = expr_lvalue_only.getChildren().get(1);
+                            String expr_tail_type = returnTypeExpr(expr_tail); // next parts of expr
+                            if (expr_tail.getChildren().size() != 1)
+                                isCorrect = isCorrect && varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(expr_tail_type);
 
+                            ParseTree term_and_lvalue_only = term_or_lvalue_only.getChildren().get(0);
+                            ParseTree term_comp_lvalue_only = term_and_lvalue_only.getChildren().get(0);
+                            ParseTree term_comp_tail = term_comp_lvalue_only.getChildren().get(1);
+                            String term_comp_tail_type = returnTypeExpr(term_comp_tail); // op-add and shit
+                            if (term_comp_tail.getChildren().size() != 1)
+                                isCorrect = isCorrect && varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(term_comp_tail_type);
+
+                            ParseTree term_lvalue_only = term_comp_lvalue_only.getChildren().get(0);
+                            ParseTree lvalue_tail = term_lvalue_only.getChildren().get(0);
+                            ParseTree term_tail = term_lvalue_only.getChildren().get(1);
+                            String term_tail_type = returnTypeExpr(term_tail); // op-mul and shit
+                            if (term_tail.getChildren().size() != 1)
+                                isCorrect = isCorrect && varTable.lookUp(id.getTokenLiteral()).getTypeName().equals(term_tail_type);
+
+                            if (lvalue_tail.getChildren().get(0).getSymbolName().equals("LBRACK")) {
+                                String lvalue_tail_lbrack_expr_type = returnTypeExpr(lvalue_tail.getChildren().get(1));
+                                if (!lvalue_tail_lbrack_expr_type.equals("int"))
+                                    isCorrect = false;
+                            }
                         }
                     }
                 }
