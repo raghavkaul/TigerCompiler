@@ -2,7 +2,7 @@ import java.io.File;
 import java.util.*;
 
 public class SemanticChecker {
-    private ParseTree parseTree;
+    public ParseTree parseTree;
     private VarTable varTable;
     private TypeTable typeTable;
     private FunctionTable functionTable;
@@ -25,7 +25,6 @@ public class SemanticChecker {
 
     public boolean checkSemantics(ParseTree pt) {
         boolean isCorrect = true;
-
         List<ParseTree> children = pt.getChildren();
 
         if (children == null) {
@@ -42,13 +41,13 @@ public class SemanticChecker {
             case "<func-declaration>":
                 isCorrect = checkFuncDeclaration(pt);
                 break;
-            case "<stats>":
+            case "<stat>":
                 isCorrect = checkStatsDeclaration(pt);
                 break;
 
             default:
                 for (ParseTree child : children) {
-                    isCorrect = checkSemantics(child) && isCorrect;
+                    isCorrect = isCorrect && checkSemantics(child);
                 }
                 break;
         }
@@ -73,7 +72,7 @@ public class SemanticChecker {
                 ifexpr = children.get(1);
                 statseq = children.get(3);
 
-                isCorrect = checkIFExpr(ifexpr);
+//                isCorrect = checkExprIDS(ifexpr);
                 isCorrect = isCorrect && checkSemantics(statseq);
                 break;
 
@@ -84,6 +83,7 @@ public class SemanticChecker {
 
                 String firsttype = returnTypeExpr(firstexpr);
                 String secondtype = returnTypeExpr(secondexpr);
+
 
                 isCorrect = firsttype.equals(secondtype);
                 isCorrect = isCorrect && checkSemantics(statseq);
@@ -128,13 +128,53 @@ public class SemanticChecker {
                     for (ParseTree expr : exprs) {
                         expr_types.add(returnTypeExpr(expr));
                     }
-
                     FunctionRecord func_type = functionTable.lookUp(func.getTokenLiteral());
                     isCorrect = expr_types.equals(func_type.getParamTypes());
 
                 } else { // assign
                     ParseTree id = decision;
+                    ParseTree stat_id_expr_tail = children.get(2);
 
+                    List<ParseTree> twoexpr = stat_id_expr_tail.getChildren();
+
+                    String returntype;
+                    if (twoexpr.size() == 1) { // simple EXPR
+                        returntype = returnTypeExpr(twoexpr.get(0));
+
+                    } else { // possible function call
+                        ParseTree assignID = twoexpr.get(0);
+                        List<ParseTree> expr_func_tail = twoexpr.get(1).getChildren();
+                        if (expr_func_tail.size() == 3) { // Assign with function call
+                            ParseTree func = assignID;
+                            String funcName = func.getTokenLiteral();
+
+                            ParseTree expr_list = stat_id_tail.get(1);
+                            // get the list of arguments
+                            List<ParseTree> exprs = new ArrayList<>();
+
+                            exprs.add(expr_func_tail.get(1).getChildren().get(0));
+                            expr_list = expr_list.getChildren().get(1);
+
+                            // Recursively get all the <expr>'s
+                            while (expr_list.getChildren().size() != 1) {
+                                exprs.add(expr_list.getChildren().get(1));
+                                expr_list = expr_list.getChildren().get(2);
+                            }
+
+                            List<String> expr_types = new ArrayList<>();
+
+                            for (ParseTree expr : exprs) {
+                                expr_types.add(returnTypeExpr(expr));
+                            }
+                            FunctionRecord func_type = functionTable.lookUp(func.getTokenLiteral());
+                            isCorrect = expr_types.equals(func_type.getParamTypes());
+
+                            String assigneeType = varTable.lookUp(decision.getTokenLiteral()).getTypeName();
+                            isCorrect = isCorrect && functionTable.lookUp(funcName).getReturnType().equals(assigneeType);
+                        } else { // entire thing is arithmetic, get the return type of rhs of assigning expr and check with lhs
+
+                        }
+                    }
                 }
                 break;
         }
@@ -142,16 +182,37 @@ public class SemanticChecker {
         return isCorrect;
     }
 
-    public boolean checkIFExpr(ParseTree pt) {
-        boolean isCorrect = true;
+    public String checkExprIDS(ParseTree pt) {
+        String type = "";
+        List<ParseTree> lvals = new ArrayList<>();
 
-        return isCorrect;
+        List<ParseTree> bfs = new LinkedList<>();
+
+        bfs.addAll(pt.getChildren());
+        while (!bfs.isEmpty()) {
+            ParseTree temp = bfs.remove(0);
+            if (temp.getSymbolName().equals("ID") ||
+                    temp.getSymbolName().equals("INTLIT") ||
+                    temp.getSymbolName().equals("FLOATLIT"))
+                lvals.add(temp);
+            else if (temp.getSymbolName().equals("<lvalue-tail>"))
+            bfs.addAll(temp.getChildren());
+        }
+
+        for (ParseTree idNode : lvals) {
+            if (varTable.lookUp(idNode.getTokenLiteral()) == null)
+                System.out.println(idNode.getTokenLiteral());
+//            isCorrect = isCorrect && (varTable.lookUp(idNode.getTokenLiteral()) == null);
+        }
+
+        return type;
     }
 
     public String returnTypeExpr(ParseTree pt) {
         ParseTree supertype;
+        String str = null;
 
-        return null;
+        return str;
     }
 
     public boolean checkAllTables(ParseTree pt) {
@@ -230,16 +291,16 @@ public class SemanticChecker {
 
 
             String lhsType = convertLits(type.getTokenLiteral());
-            System.out.println(lhsType);
             String rhsType = convertLits(constant.getSymbolName());
-            System.out.println(rhsType);
 
             String lhsSuperType = typeTable.getSuperType(lhsType);
             String rhsSuperType = typeTable.getSuperType(rhsType);
             lhsSuperType = convertArrays(lhsSuperType);
 
-            if (!lhsSuperType.equals(rhsSuperType))
+            if (!lhsSuperType.equals(rhsSuperType)) {
+                System.out.println("fuck");
                 isCorrect = false;
+            }
         }
 
         return isCorrect;
@@ -267,9 +328,18 @@ public class SemanticChecker {
         ParseTree id = children.get(1);
         ParseTree type = children.get(5);
 
-        inFuncDec = true;
+        List<ParseTree> typechildren = type.getChildren();
+        if (typechildren.size() != 1) {
+            inFuncDec = true;
+            ParseTree typent = typechildren.get(1);
+            typent = typent.getChildren().get(0);
+            typent = typent.getChildren().get(0);
+            if (typent.getSymbolName().equals("ID")) {
+                String tokenLiteral = typent.getTokenLiteral();
+                recentFuncDeclType = varTable.lookUp(tokenLiteral).getTypeName();
+            }
+        }
 
-        recentFuncDeclType = type.getTokenLiteral();
         return checkAllTables(type) && checkAllTables(id) && checkSemantics(children.get(7));
     }
 
