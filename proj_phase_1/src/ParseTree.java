@@ -150,4 +150,10 @@ public class ParseTree {
 
         return this;
     }
+
+
+    public String getTokenLiteral() {
+        return "null";
+    }
 }
+
