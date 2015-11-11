@@ -137,6 +137,7 @@ public class TestParser {
     @Test
     public void testDumpSymbolTable() {
         int i = 0;
+        filenames = Arrays.asList(PREFIX+"1.tiger");
 //        filenames = Arrays.asList(PREFIX+"3.tiger", PREFIX+"5.tiger");
 
         for (String s : filenames) {

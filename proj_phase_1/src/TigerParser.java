@@ -260,12 +260,13 @@ public class TigerParser {
                             }
                             break;
                         case EXPECTING_VARTYPE:
-                            if (lookahead.equalsIgnoreCase("id")) {
+                            if (lookahead.equalsIgnoreCase("id") || lookahead.equalsIgnoreCase("int_type") || lookahead.equalsIgnoreCase("float_type")) {
                                 ((VarRecord) symbolRecord).setTypeName(tokenLiteral);
 
                                 for (String symbolName : symbolNames) {
                                     varTable.insert(symbolName, ((VarRecord) symbolRecord));
                                 }
+                                symbolNames.clear();
                                 sfs = SymbolFoundState.NONE;
                             }
 
