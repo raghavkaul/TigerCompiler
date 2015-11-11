@@ -148,10 +148,70 @@ public class SemanticChecker {
         return isCorrect;
     }
 
-    public String returnTypeExpr(ParseTree pt) {
-        ParseTree supertype;
+    // TODO rename getTypeExpr
 
-        return null;
+    /**
+     *
+     * @param pt
+     * @return
+     *
+     */
+    public String returnTypeExpr(ParseTree pt) {
+        // Base case - return the explicit or implied type
+        if (pt.getChildren() == null || pt.getChildren().size() == 0) {
+//            assertTrue(ParseTree.isTerminal())
+            String symbolName = pt.getSymbolName();
+
+            if (symbolName.equalsIgnoreCase("id") && varTable.contains(pt.getTokenLiteral())) {
+                return varTable.lookUp(pt.getTokenLiteral()).getTypeName();
+            } else {
+                return symbolName.equalsIgnoreCase("intlit") ? "int" :
+                        symbolName.equalsIgnoreCase("floatlit") ? "float" : "";
+                // Empty string if there's no type info associated with the tree.
+                // May be a nonterminal, delimiter, etc.
+                // Equivalent to non-AST parse tree nodes.
+            }
+        }
+
+        // Recursive case - accumulate entire subtree expansion to a single type
+        String currType, nextType;
+        currType = returnTypeExpr(pt.getChildren().get(0));
+        boolean expectingArrayIndex = false;
+
+        for (int i = 1; i < pt.getChildren().size(); i++) {
+            if (pt.getChildren().get(i).getSymbolName().equals("lvalue-tail")) {
+                List<ParseTree> potential_lval = pt.getChildren().get(i).getChildren();
+                if (potential_lval.size() == 3) {
+                    if (returnTypeExpr(potential_lval.get(1)).equals("int")) {
+                        currType = "int";
+                    } else {
+                        currType = "";
+                    }
+                }
+                continue;
+            }
+
+            nextType = returnTypeExpr(pt.getChildren().get(i)); // is one of {id , "intlit" "floatlit" or empty}
+
+            if (nextType.isEmpty()) {
+                continue;
+            }
+
+            if ((currType.equalsIgnoreCase("int") && nextType.equalsIgnoreCase("float"))
+            || (currType.equalsIgnoreCase("float") && nextType.equalsIgnoreCase("int"))
+                    || currType.equalsIgnoreCase("float") && nextType.equalsIgnoreCase("float")) {
+                currType = "float";
+            } else if (currType.equalsIgnoreCase("int") && nextType.equalsIgnoreCase("int")) {
+                currType = "int";
+            } else if (!currType.equalsIgnoreCase(nextType)) {
+                currType = "";
+            }
+
+            if (nextType.equalsIgnoreCase("lvalue-tail")) { // Might be dealing with an array index
+            }
+        }
+
+        return currType;
     }
 
     public boolean checkAllTables(ParseTree pt) {
@@ -272,5 +332,4 @@ public class SemanticChecker {
         recentFuncDeclType = type.getTokenLiteral();
         return checkAllTables(type) && checkAllTables(id) && checkSemantics(children.get(7));
     }
-
 }
