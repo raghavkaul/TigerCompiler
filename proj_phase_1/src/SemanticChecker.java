@@ -7,12 +7,20 @@ public class SemanticChecker {
     private TypeTable typeTable;
     private FunctionTable functionTable;
 
+    private String recentFuncDeclType;
+    private boolean inFuncDec;
+
     public SemanticChecker(String fileName) {
         TigerParser tp = new TigerParser(new File(fileName));
+        tp.parse();
         parseTree = tp.getParseTreeOld();
         varTable = tp.getVarTable();
         typeTable = tp.getTypeTable();
         functionTable = tp.getFunctionTable();
+    }
+
+    public boolean returnSemantic() {
+        return checkSemantics(parseTree);
     }
 
     public boolean checkSemantics(ParseTree pt) {
@@ -22,29 +30,27 @@ public class SemanticChecker {
 
         if (children == null) {
             return true; // Terminals are semantically correct on their own
-        } else {
-            switch (pt.getSymbolName()) {
-                case "<type-declaration>":
-                    isCorrect = checkTypeDeclaration(pt) && isCorrect;
-                    break;
-                // Check in case optional-init is being used
-                case "<var-declaration>":
-                    isCorrect = checkVarDeclaration(pt) && isCorrect;
-                    break;
+        } else switch (pt.getSymbolName()) {
+            case "<type-declaration>":
+                isCorrect = checkTypeDeclaration(pt);
+                break;
+            // Check in case optional-init is being used
+            case "<var-declaration>":
+                isCorrect = checkVarDeclaration(pt);
+                break;
 
-                // TODO Fully evaluate the <stat> contained in func
-                case "<func-declaration>":
-                    isCorrect = checkFuncDeclaration(pt) && isCorrect;
-                    break;
-                case "<stats>":
-                    isCorrect = checkStatsDeclaration(pt) && isCorrect;
-                    break;
+            case "<func-declaration>":
+                isCorrect = checkFuncDeclaration(pt);
+                break;
+            case "<stats>":
+                isCorrect = checkStatsDeclaration(pt);
+                break;
 
-                default:
-                    for (ParseTree child : children) {
-                        isCorrect = checkSemantics(child) && isCorrect;
-                    }
-            }
+            default:
+                for (ParseTree child : children) {
+                    isCorrect = checkSemantics(child) && isCorrect;
+                }
+                break;
         }
         return isCorrect;
     }
@@ -56,23 +62,44 @@ public class SemanticChecker {
         ParseTree decision = children.get(0);
         switch (decision.getSymbolName()) {
             case "IF":
+                ParseTree ifexpr = children.get(1);
+                ParseTree statseq = children.get(3);
+                ParseTree statelseseq = children.get(4);
 
+                //TODO
                 break;
 
             case "WHILE":
+                ifexpr = children.get(1);
+                statseq = children.get(3);
 
+                isCorrect = checkIFExpr(ifexpr);
+                isCorrect = isCorrect && checkSemantics(statseq);
                 break;
 
             case "FOR":
+                ParseTree firstexpr = children.get(3);
+                ParseTree secondexpr = children.get(5);
+                statseq = children.get(7);
 
+                String firsttype = returnTypeExpr(firstexpr);
+                String secondtype = returnTypeExpr(secondexpr);
+
+                isCorrect = firsttype.equals(secondtype);
+                isCorrect = isCorrect && checkSemantics(statseq);
                 break;
 
             case "BREAK":
-
                 break;
 
             case "RETURN":
-
+                if (inFuncDec) {
+                    String returntype = returnTypeExpr(children.get(1));
+                    isCorrect = recentFuncDeclType.equals(returntype);
+                    inFuncDec = false;
+                } else {
+                    isCorrect = false;
+                }
                 break;
 
             // Hard part
@@ -103,7 +130,7 @@ public class SemanticChecker {
                     }
 
                     FunctionRecord func_type = functionTable.lookUp(func.getTokenLiteral());
-                    isCorrect = isCorrect && expr_types.equals(func_type.getParamTypes());
+                    isCorrect = expr_types.equals(func_type.getParamTypes());
 
                 } else { // assign
                     ParseTree id = decision;
@@ -123,7 +150,7 @@ public class SemanticChecker {
 
     public String returnTypeExpr(ParseTree pt) {
         ParseTree supertype;
-        
+
         return null;
     }
 
@@ -201,8 +228,11 @@ public class SemanticChecker {
             ParseTree constant = opt_init_expansion.get(1);
             constant = constant.getChildren().get(0);
 
+
             String lhsType = convertLits(type.getTokenLiteral());
-            String rhsType = convertLits(constant.getTokenLiteral());
+            System.out.println(lhsType);
+            String rhsType = convertLits(constant.getSymbolName());
+            System.out.println(rhsType);
 
             String lhsSuperType = typeTable.getSuperType(lhsType);
             String rhsSuperType = typeTable.getSuperType(rhsType);
@@ -235,51 +265,12 @@ public class SemanticChecker {
     public boolean checkFuncDeclaration(ParseTree pt) {
         List<ParseTree> children = pt.getChildren();
         ParseTree id = children.get(1);
+        ParseTree type = children.get(5);
 
-        return checkAllTables(id);
+        inFuncDec = true;
+
+        recentFuncDeclType = type.getTokenLiteral();
+        return checkAllTables(type) && checkAllTables(id) && checkSemantics(children.get(7));
     }
 
-    private boolean isAssignOp(String token) {
-        return token.equals("ASSIGN");
-    }
-
-    /**
-     * Checks the agreement of binary operands in an expression
-     * @param expression
-     * @return
-     */
-    private boolean checkBinopAgreement(List<ParseTree> expression) {
-        int binopLocation = -1;
-        for (int i = 0; i < expression.size(); i++) {
-            if (isBinaryOp(expression.get(i).getSymbolName())) {
-                binopLocation = i;
-            }
-        }
-
-        if (binopLocation != -1) {
-            String lhs, rhs, lhsType, rhsType, lhsSuperType, rhsSuperType;
-
-            lhs = expression.get(binopLocation - 1).getSymbolName();
-            rhs = expression.get(binopLocation + 1).getSymbolName();
-
-            lhsType = varTable.lookUp(lhs).getTypeName();
-            rhsType = varTable.lookUp(rhs).getTypeName();
-
-            lhsSuperType = typeTable.lookUp(lhsType).getSuperType();
-            rhsSuperType = typeTable.lookUp(rhsType).getSuperType();
-
-            return lhsSuperType.equalsIgnoreCase(rhsSuperType);
-        }
-
-        return true;
-    }
-
-    private static boolean isBinaryOp(String token) {
-        String[] binaryOpsArr = {"PLUS", "MINUS", "AND", "OR",
-                "EQ", "NEQ", "LESSER", "GREATER", "LESSEREQ", "GREATEREQ"};
-
-        Set<String> binaryOps = new HashSet<>(Arrays.asList(binaryOpsArr));
-
-        return binaryOps.contains(token);
-    }
 }
