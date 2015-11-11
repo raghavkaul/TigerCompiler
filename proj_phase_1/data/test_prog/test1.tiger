@@ -6,7 +6,6 @@ let
 in
         for i := 1 to 100 do /* for loop for dot product */
                 sum := sum + X[i] * Y [i];
-                a := sum + b + c + d + e;
         enddo;
         printi(sum); /* library call to printi to print the dot product */
 end
