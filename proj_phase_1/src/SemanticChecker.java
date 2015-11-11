@@ -64,16 +64,18 @@ public class SemanticChecker {
                 ParseTree ifexpr = children.get(1);
                 ParseTree statseq = children.get(3);
                 ParseTree statelseseq = children.get(4);
-
-                //TODO
+                if (returnTypeExpr(ifexpr).equals(""))
+                    isCorrect = false;
+                isCorrect = isCorrect && checkStatsDeclaration(statseq);
+                isCorrect = isCorrect && checkSemantics(statelseseq);
                 break;
 
             case "WHILE":
                 ifexpr = children.get(1);
                 statseq = children.get(3);
 
-                //TODO
-//                isCorrect = checkExprIDS(ifexpr);
+                if (returnTypeExpr(ifexpr).equals(""))
+                    isCorrect = false;
                 isCorrect = isCorrect && checkSemantics(statseq);
                 break;
 
@@ -206,32 +208,6 @@ public class SemanticChecker {
         }
 
         return isCorrect;
-    }
-
-    public String checkExprIDS(ParseTree pt) {
-        String type = "";
-        List<ParseTree> lvals = new ArrayList<>();
-
-        List<ParseTree> bfs = new LinkedList<>();
-
-        bfs.addAll(pt.getChildren());
-        while (!bfs.isEmpty()) {
-            ParseTree temp = bfs.remove(0);
-            if (temp.getSymbolName().equals("ID") ||
-                    temp.getSymbolName().equals("INTLIT") ||
-                    temp.getSymbolName().equals("FLOATLIT"))
-                lvals.add(temp);
-            else if (temp.getSymbolName().equals("<lvalue-tail>"))
-            bfs.addAll(temp.getChildren());
-        }
-
-        for (ParseTree idNode : lvals) {
-            if (varTable.lookUp(idNode.getTokenLiteral()) == null)
-                System.out.println(idNode.getTokenLiteral());
-//            isCorrect = isCorrect && (varTable.lookUp(idNode.getTokenLiteral()) == null);
-        }
-
-        return type;
     }
 
     // TODO rename getTypeExpr
