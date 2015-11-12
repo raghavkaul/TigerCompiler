@@ -243,7 +243,7 @@ public class TestParser {
 
     @Test
     public void mymethod() {
-        filenames = Arrays.asList(new String[] {PREFIX+"42.tiger"});
+        filenames = Arrays.asList(new String[] {PREFIX+"1.tiger"});
         for (String s : filenames) {
             TigerParser tp = new TigerParser(new File(s));
             TigerParser.debug = true;

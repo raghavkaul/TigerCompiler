@@ -478,10 +478,10 @@ public class IRCodeGenerator {
     		String incIrCode;
     		//Insert increment code
     		if(getType(idLiteral).contains("int")){
-    			incIrCode = "add, " + idLiteral + ", 1," + idLiteral;
+    			incIrCode = "add, " + idLiteral + ", 1, " + idLiteral;
     		}
     		else{
-    			incIrCode = "add, " + idLiteral + ", 1.0," + idLiteral;
+    			incIrCode = "add, " + idLiteral + ", 1.0, " + idLiteral;
     		}
     		
     		//Add it to IR code list
