@@ -209,11 +209,17 @@ public class TigerParser {
                             }
                             break;
                         case EXPECTING_PARAMTYPE:
-                            if (lookahead.equalsIgnoreCase("id") && typeTable.contains(tokenLiteral)) {
+                            if (lookahead.equalsIgnoreCase("id") && ! typeTable.contains(tokenLiteral)) {
                                 System.out.println("Semantic error: type " + tokenLiteral + " not defined.");
                             } else if (lookahead.equalsIgnoreCase("id") || lookahead.contains("array")
                                     || lookahead.equalsIgnoreCase("float_type") || lookahead.equalsIgnoreCase("int_type")){
                                 ((FunctionRecord) symbolRecord).addParam(currParamName, tokenLiteral);
+
+                                // Also add it to the var table - all vars are globally scoped
+                                VarRecord paramVarRecord = new VarRecord();
+                                paramVarRecord.setTypeName(tokenLiteral);
+                                varTable.insert(currParamName, paramVarRecord);
+
                                 sfs = SymbolFoundState.FOUND_PARAMTYPE;
                             }
                             break;
