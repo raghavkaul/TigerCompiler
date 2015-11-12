@@ -365,7 +365,7 @@ public class IRCodeGenerator {
     			
     			String tempLabel = getLoopLabel();
     			
-    			String branchCode = "breq, " + tempVar.getKey() + ", 0," + tempLabel;
+    			String branchCode = "breq, " + tempVar.getKey() + ", 0, " + tempLabel;
     			
     			IRCodeList.add(branchCode);
     			
