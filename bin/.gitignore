@@ -1,0 +1,14 @@
+proj_phase_1/src/*.class
+proj_phase_1/out/*
+proj_phase_1/.idea/*
+proj_phase_1/proj_phase_1.iml
+.DS_Store
+.classpath
+.project
+grammar.txt~
+states.csv~
+.idea/
+out/
+TigerCompiler.iml
+*.swp
+/proj_phase_1/
