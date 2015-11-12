@@ -568,7 +568,7 @@ public class IRCodeGenerator {
         			Map.Entry<String, String> id2 = exprList.get(exprList.size()-1);
         			exprList.remove(exprList.size()-1);
         			
-        			String irCode = "assign, " + id1.getKey() + ", " + id2.getKey();
+        			String irCode = "assign, " + id1.getKey() + ", " + id2.getKey() + ",";
         			IRCodeList.add(irCode);
     			}
     			
