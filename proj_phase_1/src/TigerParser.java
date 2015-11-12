@@ -231,6 +231,10 @@ public class TigerParser {
                             }
                             break;
                         case EXPECTING_RETURNTYPE:
+                            if (lookahead.equalsIgnoreCase("begin")) {
+                                ((FunctionRecord) symbolRecord).setReturnType("void");
+                                sfs = SymbolFoundState.POPULATE;
+                            }
                             if (lookahead.equalsIgnoreCase("id") || lookahead.equalsIgnoreCase("float_type") || lookahead.equalsIgnoreCase("int_type") || lookahead.contains("array")) {
                                 ((FunctionRecord) symbolRecord).setReturnType(tokenLiteral);
                                 sfs = SymbolFoundState.POPULATE;
