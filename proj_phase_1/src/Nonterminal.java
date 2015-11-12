@@ -15,8 +15,8 @@ public class Nonterminal implements Lexeme {
     public Nonterminal(String name) {
         this.name = name;
         this.expansions = new ArrayList<>();
-        this.firstSet = new HashSet<TerminalRuleWrapper>();
-        this.followSet = new HashSet<TerminalRuleWrapper>();
+        this.firstSet = new HashSet<>();
+        this.followSet = new HashSet<>();
     }
 
     public String getName() {

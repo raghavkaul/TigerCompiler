@@ -1,6 +1,8 @@
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -30,12 +32,25 @@ public class TestSemanticChecker {
 
     @Test
     public void testSemanticChecker() {
-        for (int i = 0; i < filenames.length; i++) {
+        for (int i = 0; i < 7; i++) {
             System.out.println("------- " + filenames[i] + " -------");
             SemanticChecker semanticChecker = new SemanticChecker(filenames[i]);
 
-            assertEquals(checkerExpectedResult[i], semanticChecker.returnSemantic());
+            System.out.println(i);
+            if (!semanticChecker.tp.hasErrors) {
+                assertEquals(checkerExpectedResult[i], semanticChecker.returnSemantic());
+            }
             System.out.println("Semantic Checked without issue");
         }
+    }
+
+    @Test
+    public void testCheckerUnit() {
+        filenames = new String[] {testProgFilePath + "1.tiger", testProgFilePath + "2.tiger"};
+        TigerParser tp = new TigerParser(new File(filenames[0]));
+        tp.parse(); ParseTree pt = tp.getParseTreeOld();
+        SemanticChecker semanticChecker = new SemanticChecker(filenames[0]);
+        pt.print();
+        assertEquals(true, semanticChecker.returnSemantic());
     }
 }

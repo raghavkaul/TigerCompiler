@@ -13,9 +13,9 @@ public class Rule {
             return;
         }
         else{
-            this.name = productionList[0];
-            this.name.trim();
-            this.expansion = new ArrayList<String>(Arrays.asList(productionList[1].trim().split(" ")));
+            name = productionList[0];
+            name = name.trim();
+            this.expansion = new ArrayList<>(Arrays.asList(productionList[1].trim().split(" ")));
             this.lineno  = lineno;
         }
     }

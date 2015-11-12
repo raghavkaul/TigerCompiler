@@ -55,19 +55,13 @@ public class TestParser {
         expectedVarsByFile = new ArrayList<>();
         expectedTypesByFile = new ArrayList<>();
 
-        TypeRecord intTr = new TypeRecord(),
-                floatTr = new TypeRecord(),
-                _floatArrTr = new TypeRecord(),
-                _intArrTr = new TypeRecord();
-
-
         String[] stdTypes = {"int", "float", "_array_float", "array_int"};
         String[] stdLib = {"print", "printi", "flush", "getchar",
                 "ord", "chr", "size", "substring", "concat", "not", "exit"};
 
         for (int i = 0; i < numFiles; i++) {
             expectedTypesByFile.add(new HashSet<>(Arrays.asList(stdTypes)));
-            expectedFunctionsByFile.add(new HashSet<String>(Arrays.asList(stdLib)));
+            expectedFunctionsByFile.add(new HashSet<>(Arrays.asList(stdLib)));
 
             expectedFunctionsByFile.add(new HashSet<>(Arrays.asList(functions[i])));
             expectedVarsByFile.add(new HashSet<>(Arrays.asList(vars[i])));
@@ -137,7 +131,10 @@ public class TestParser {
     @Test
     public void testDumpSymbolTable() {
         int i = 0;
+
         filenames = Arrays.asList(PREFIX+"2.tiger");
+
+
 //        filenames = Arrays.asList(PREFIX+"3.tiger", PREFIX+"5.tiger");
 
         for (String s : filenames) {
@@ -159,7 +156,6 @@ public class TestParser {
             assertNotNull(vt.getTable());
             assertNotNull(ft.getTable());
 
-            // FIXME ArrayInt appears in both Var table and Type table
             // Dumps
             System.out.println("-------- Types --------");
             System.out.println("Expected types: " + expectedTypesByFile.get(i));
@@ -209,6 +205,7 @@ public class TestParser {
             TigerParser.debug = true;
             tp.parse();
             TypeTable tt = tp.getTypeTable();
+            System.out.println(tt);
         }
 
     }
@@ -222,13 +219,16 @@ public class TestParser {
             TigerParser.debug = true;
             tp.parse();
             FunctionTable ft = tp.getFunctionTable();
+            System.out.println(ft);
         }
 
     }
 
     @Test
     public void dumpParseTree() {
+
         filenames = Arrays.asList(PREFIX + "2.tiger");
+
         for (String filename : filenames) {
             System.out.println("============Filename: " + filename + "============");
             TigerParser tp = new TigerParser(new File(filename));

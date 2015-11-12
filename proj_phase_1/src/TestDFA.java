@@ -37,7 +37,7 @@ public class TestDFA {
 //            System.out.println(states.get(str));
 //        }
 
-        ArrayList<Character> al = new ArrayList<Character>(81);
+        ArrayList<Character> al = new ArrayList<>(81);
 //        System.out.println("Printing out all the transitions");
         for (StateInputWrapper siw : dfa.transitions.keySet()) {
 //            if (siw.getState() == null)

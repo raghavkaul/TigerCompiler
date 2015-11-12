@@ -19,16 +19,6 @@ public class ParseTable {
 
     protected HashMap<Nonterminal, HashMap<Terminal, Rule>> row;
 
-    public ParseTable(Collection<Nonterminal> ntlist) {
-        row = new HashMap<Nonterminal, HashMap<Terminal, Rule>>();
-        for (Nonterminal nt : ntlist) {
-            row.put(nt, new HashMap<Terminal, Rule>());
-            HashMap<Terminal, Rule> col = row.get(nt);
-            for (TerminalRuleWrapper trw : nt.getFirstSet()){
-                col.put(trw.getTerminal(),trw.getRule());
-            }
-        }
-    }
 
     public ParseTable(List<Rule> rules) {
 

@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,14 +24,28 @@ public class IRGenerator {
             tigerParser.parse();
 
             if (args[0].contains("symbols")) {
+                System.out.println("-------- Types --------");
+                for (Map.Entry<String, TypeRecord> me : tigerParser.getTypeTable().getTable().entrySet()) {
+                    System.out.println(me.getKey() + "\t\t" + me.getValue());
+                }
 
+                System.out.println("-------- Vars --------");
+                for (Map.Entry<String, VarRecord> me : tigerParser.getVarTable().getTable().entrySet()) {
+                    System.out.println(me.getKey() + "\t\t" + me.getValue());
+                }
+
+                System.out.println("-------- Functions --------");
+                for (Map.Entry<String, FunctionRecord> me : tigerParser.getFunctionTable().getTable().entrySet()) {
+                    System.out.println(me.getKey() + "\t\t" + me.getValue());
+                }
             } else if (args[0].contains("tree")) {
                 ParseTree parseTree = tigerParser.getParseTreeOld();
                 parseTree.print();
             } else if (args[0].contains("check")) {
-
+                boolean isSemanticallyCorrect = false;
+                SemanticChecker sc = new SemanticChecker(args[1]);
             } else if (args[0].contains("generate")) {
-
+                File outfile = new File(args[1].split(".")[0] + ".irgen");
             }
         }
     }
