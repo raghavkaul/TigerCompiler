@@ -412,7 +412,7 @@ public class IRCodeGenerator {
     			String tempLabel2 = getLoopLabel();
     			//push for return
     			loopStack.push(tempLabel2);
-    			String branchCode = "breq, " + tempVar.getKey() + ", 0," + tempLabel2;
+    			String branchCode = "breq, " + tempVar.getKey() + ", 0, " + tempLabel2;
     			IRCodeList.add(branchCode);
     			
     			//Generate stat sequences
