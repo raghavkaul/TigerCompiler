@@ -240,4 +240,24 @@ public class TestParser {
             pt.print();
         }
     }
+
+    @Test
+    public void mymethod() {
+        filenames = Arrays.asList(new String[] {PREFIX+"42.tiger"});
+        for (String s : filenames) {
+            TigerParser tp = new TigerParser(new File(s));
+            TigerParser.debug = true;
+            tp.parse();
+            ParseTree pt = tp.getParseTreeOld();
+            TypeTable tt = tp.getTypeTable();
+            VarTable vt = tp.getVarTable();
+            FunctionTable ft = tp.getFunctionTable();
+            IRCodeGenerator ircg = new IRCodeGenerator(pt, vt, tt, ft);
+
+            List<String> instrs = ircg.generateIrCode();
+            for (String instr : instrs) {
+                System.out.println(instr);
+            }
+        }
+    }
 }

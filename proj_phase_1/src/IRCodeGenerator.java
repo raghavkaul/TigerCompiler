@@ -252,7 +252,7 @@ public class IRCodeGenerator {
     		ParseTree returnNode = functDeclarationNode.getChildren().get(5);
     		String funcRetType = irFuncTable.lookUp(funcIdNode.getTokenLiteral()).getReturnType();
 
-			System.out.println(funcRetType);
+			//System.out.println(funcRetType);
 			if(funcRetType.equals("void") && returnNode.getChildren().get(0).getSymbolName().equals("NIL")){
 				IRCodeList.add("return, , ,");
     		}
@@ -593,8 +593,11 @@ public class IRCodeGenerator {
     		}
     		else{
     			String id = statIdExprTailNodeChild.getTokenLiteral();
-    			String idType = irVarTable.lookUp(id).getTypeName();
-    			
+				//Check if function or not
+				String idType = "";
+				if(irVarTable.lookUp(id)!=null){
+					idType = irVarTable.lookUp(id).getTypeName();
+				}
     			//Add it to exprList
     			exprList.add(new AbstractMap.SimpleEntry<>(id,idType));
     			
@@ -813,7 +816,7 @@ public class IRCodeGenerator {
     			String opcode = tokenToIR.get(op.getKey());
     			
     			//get a tempvar, this also adds it to symbol table
-    			String tempVar = getTempVar(getType(id2.getValue()));
+    			String tempVar = getTempVar(id2.getValue());
     			
     			//Make an IR
     			String irCode = opcode + ", " + id1.getKey() + ", " + id2.getKey() + ", " + tempVar;
