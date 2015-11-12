@@ -137,7 +137,7 @@ public class TestParser {
     @Test
     public void testDumpSymbolTable() {
         int i = 0;
-        filenames = Arrays.asList(PREFIX+"1.tiger");
+        filenames = Arrays.asList(PREFIX+"2.tiger");
 //        filenames = Arrays.asList(PREFIX+"3.tiger", PREFIX+"5.tiger");
 
         for (String s : filenames) {
@@ -179,6 +179,7 @@ public class TestParser {
                 System.out.println(me.getKey() + "\t\t" + me.getValue());
             }
             i++;
+            break;
         }
     }
 
@@ -227,7 +228,7 @@ public class TestParser {
 
     @Test
     public void dumpParseTree() {
-        filenames = Arrays.asList(PREFIX + "1.tiger");
+        filenames = Arrays.asList(PREFIX + "2.tiger");
         for (String filename : filenames) {
             System.out.println("============Filename: " + filename + "============");
             TigerParser tp = new TigerParser(new File(filename));

@@ -44,7 +44,7 @@ public class SemanticChecker {
                 }
                 break;
 
-            case "<func-declaration>":
+            case "<funct-declaration>":
                 isCorrect = checkFuncDeclaration(pt);
                 if (!isCorrect) {
                     System.out.println("fuck11");
@@ -133,13 +133,16 @@ public class SemanticChecker {
                 if (first.getSymbolName().equals("LPAREN")) { // Func
                     ParseTree func = decision;
                     String funcName = func.getTokenLiteral();
+                    System.out.println(funcName);
 
                     ParseTree expr_list = stat_id_tail.get(1);
                     // get the list of arguments
                     List<ParseTree> exprs = new ArrayList<>();
 
-                    exprs.add(expr_list.getChildren().get(0));
-                    expr_list = expr_list.getChildren().get(1);
+                    if (expr_list.getChildren().size() != 1) {
+                        exprs.add(expr_list.getChildren().get(0));
+                        expr_list = expr_list.getChildren().get(1);
+                    }
 
                     // Recursively get all the <expr>'s
                     while (expr_list.getChildren().size() != 1) {
@@ -150,12 +153,14 @@ public class SemanticChecker {
                     List<String> expr_types = new ArrayList<>();
 
                     for (ParseTree expr : exprs) {
-                        expr_types.add(returnTypeExpr(expr));
+                        expr_types.add(convertLits(convertArrays(returnTypeExpr(expr))));
                     }
                     FunctionRecord func_type = functionTable.lookUp(func.getTokenLiteral());
+                    System.out.println(expr_types);
+                    System.out.println(func_type.getParamTypes());
                     isCorrect = expr_types.equals(func_type.getParamTypes());
                     if (!isCorrect) {
-                        System.out.println("fuck5");
+                        System.out.println("fuck50");
                     }
 
                 } else { // assign
@@ -255,12 +260,16 @@ public class SemanticChecker {
     // TODO rename getTypeExpr
 
     public String returnTypeExpr(ParseTree pt) {
+        if (pt.getSymbolName().equalsIgnoreCase("<const>"))
+            System.out.println("YOLO420");
         // Base case - return the explicit or implied type
         if (pt.getChildren() == null || pt.getChildren().size() == 0) {
 //            assertTrue(ParseTree.isTerminal())
             String symbolName = pt.getSymbolName();
+            System.out.println(pt.getTokenLiteral());
 
             if (symbolName.equalsIgnoreCase("id") && varTable.contains(pt.getTokenLiteral())) {
+                System.out.println(pt.getTokenLiteral());
                 return varTable.lookUp(pt.getTokenLiteral()).getTypeName();
             } else {
                 return symbolName.equalsIgnoreCase("intlit") ? "int" :
@@ -432,12 +441,13 @@ public class SemanticChecker {
     }
 
     public boolean checkFuncDeclaration(ParseTree pt) {
+        boolean isCorrect = true;
         List<ParseTree> children = pt.getChildren();
         ParseTree id = children.get(1);
         ParseTree type = children.get(5);
 
         List<ParseTree> typechildren = type.getChildren();
-        if (typechildren.size() != 1) {
+        if (typechildren.size() != 1) { // If there is a return type
             inFuncDec = true;
             ParseTree typent = typechildren.get(1);
             typent = typent.getChildren().get(0);
@@ -445,9 +455,17 @@ public class SemanticChecker {
             if (typent.getSymbolName().equals("ID")) {
                 String tokenLiteral = typent.getTokenLiteral();
                 recentFuncDeclType = varTable.lookUp(tokenLiteral).getTypeName();
+            } else if (typent.getSymbolName().equals("INT_TYPE")) {
+                recentFuncDeclType = "int";
+            } else if (typent.getSymbolName().equals("FLOAT_TYPE")) {
+                recentFuncDeclType = "float";
+            } else {
+                return false;
             }
+        } else { // IF void return type
+            isCorrect = checkAllTables(id) && checkSemantics(children.get(7));
         }
 
-        return checkAllTables(type) && checkAllTables(id) && checkSemantics(children.get(7));
+        return isCorrect;
     }
 }
