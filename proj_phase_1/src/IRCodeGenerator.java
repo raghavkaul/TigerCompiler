@@ -468,7 +468,7 @@ public class IRCodeGenerator {
     		loopStack.push(forEndLabel);
     		
     		//Get for branch
-    		String forBranch =  "brgt, " + idLiteral + ", " + toVar.getKey() + "," + forEndLabel;
+    		String forBranch =  "brgt, " + idLiteral + ", " + toVar.getKey() + ", " + forEndLabel;
     		IRCodeList.add(forBranch);
     		
     		//Generate stat sequence
