@@ -421,7 +421,6 @@ public class TigerParser {
         }
 
         hasErrors = hasErrors || infileScanner.hasErrors();
-        System.out.println("Parse completed with " + (errors.size() + infileScanner.getNumErrors()) + " errors.");
 
         parseCompleted = true;
         return hasErrors;

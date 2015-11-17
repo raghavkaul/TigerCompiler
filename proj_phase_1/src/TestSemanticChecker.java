@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TestSemanticChecker {
     private static final String testProgFilePath = "./data/test_prog/test";
-    private static final int NUM_TESTS = 12;
+    private static final int NUM_TESTS = 13;
     private String[] filenames;
     private boolean[] checkerExpectedResult;
 
@@ -24,8 +24,9 @@ public class TestSemanticChecker {
         checkerExpectedResult[9] = false;
         checkerExpectedResult[10] = false;
         checkerExpectedResult[11] = false;
+        checkerExpectedResult[12] = false;
 
-        for (int i = 1; i <= 9; i++) {
+        for (int i = 1; i <= 12; i++) {
             filenames[i-1] = testProgFilePath + i + ".tiger";
         }
     }
@@ -52,5 +53,19 @@ public class TestSemanticChecker {
         SemanticChecker semanticChecker = new SemanticChecker(filenames[0]);
         pt.print();
         assertEquals(true, semanticChecker.returnSemantic());
+    }
+
+    @Test
+    public void testWrongUnit() {
+        for (int i = 9; i < 12; i++) {
+            System.out.println("------- " + filenames[i] + " -------");
+            SemanticChecker semanticChecker = new SemanticChecker(filenames[i]);
+
+            System.out.println(i);
+            if (!semanticChecker.tp.hasErrors) {
+                assertEquals(checkerExpectedResult[i], semanticChecker.returnSemantic());
+            }
+            System.out.println("Semantic Checked without issue");
+        }
     }
 }

@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.PrintWriter;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -6,7 +8,7 @@ import java.util.Set;
  * Driver class for middle-end.
  */
 public class IRGenerator {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String helpStr = "Tiger language IR generator options:" +
                 "\n Usage : java IRGenerator [options] [filename]" +
                 "\n --symbols:\t displays symbol tables" +
@@ -45,7 +47,24 @@ public class IRGenerator {
                 boolean isSemanticallyCorrect = false;
                 SemanticChecker sc = new SemanticChecker(args[1]);
             } else if (args[0].contains("generate")) {
-                File outfile = new File(args[1].split(".")[0] + ".irgen");
+                File outfile = new File(args[1].substring(0, args[1].length()-6) + ".irgen");
+                SemanticChecker semanticChecker = new SemanticChecker(args[1]);
+                if (!semanticChecker.tp.hasErrors) {
+                   if (!semanticChecker.returnSemantic()) {
+                       System.out.println("Contains semantic error");
+                       System.exit(-1);
+                   }
+                } else {
+                    System.out.println("Contains parse errors");
+                    System.exit(-1);
+                }
+                PrintWriter writer = new PrintWriter(outfile);
+                IRCodeGenerator ircg = new IRCodeGenerator(tigerParser.getParseTreeOld(), tigerParser.getVarTable(), tigerParser.getTypeTable(), tigerParser.getFunctionTable());
+                List<String> instrs = ircg.generateIrCode();
+                for (String instr : instrs) {
+                    writer.println(instr);
+                }
+                writer.close();
             }
         }
     }
