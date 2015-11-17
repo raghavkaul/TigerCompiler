@@ -365,7 +365,7 @@ public class IRCodeGenerator {
     			
     			String tempLabel = getLoopLabel();
     			
-    			String branchCode = "breq, " + tempVar.getKey() + ", 0," + tempLabel;
+    			String branchCode = "breq, " + tempVar.getKey() + ", 0, " + tempLabel;
     			
     			IRCodeList.add(branchCode);
     			
@@ -412,7 +412,7 @@ public class IRCodeGenerator {
     			String tempLabel2 = getLoopLabel();
     			//push for return
     			loopStack.push(tempLabel2);
-    			String branchCode = "breq, " + tempVar.getKey() + ", 0," + tempLabel2;
+    			String branchCode = "breq, " + tempVar.getKey() + ", 0, " + tempLabel2;
     			IRCodeList.add(branchCode);
     			
     			//Generate stat sequences
@@ -468,7 +468,7 @@ public class IRCodeGenerator {
     		loopStack.push(forEndLabel);
     		
     		//Get for branch
-    		String forBranch =  "brgt, " + idLiteral + ", " + toVar.getKey() + "," + forEndLabel;
+    		String forBranch =  "brgt, " + idLiteral + ", " + toVar.getKey() + ", " + forEndLabel;
     		IRCodeList.add(forBranch);
     		
     		//Generate stat sequence
@@ -478,10 +478,10 @@ public class IRCodeGenerator {
     		String incIrCode;
     		//Insert increment code
     		if(getType(idLiteral).contains("int")){
-    			incIrCode = "add, " + idLiteral + ", 1," + idLiteral;
+    			incIrCode = "add, " + idLiteral + ", 1, " + idLiteral;
     		}
     		else{
-    			incIrCode = "add, " + idLiteral + ", 1.0," + idLiteral;
+    			incIrCode = "add, " + idLiteral + ", 1.0, " + idLiteral;
     		}
     		
     		//Add it to IR code list
@@ -568,7 +568,7 @@ public class IRCodeGenerator {
         			Map.Entry<String, String> id2 = exprList.get(exprList.size()-1);
         			exprList.remove(exprList.size()-1);
         			
-        			String irCode = "assign, " + id1.getKey() + ", " + id2.getKey();
+        			String irCode = "assign, " + id1.getKey() + ", " + id2.getKey() + ",";
         			IRCodeList.add(irCode);
     			}
     			
