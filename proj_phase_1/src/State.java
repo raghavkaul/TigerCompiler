@@ -13,7 +13,7 @@ public class State {
     public TokenType tokenType() {
         return tokenType;
     }
-
+    
     @Override
     public boolean equals(Object o) {
         if (o == null) {
