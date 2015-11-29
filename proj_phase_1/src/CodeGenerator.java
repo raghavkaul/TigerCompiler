@@ -3,7 +3,9 @@ public class CodeGenerator {
     private static final int NUM_REGS = 8;
     private String[] REGFILE = new String[NUM_REGS];
     private static final String
-            LD_INSTR = "LD";
+            LD_INSTR = "lw",
+            ST_INSTR = "sw",
+            LA_INSTR = "la";
 
     public CodeGenerator(String filename) {
         graphSolver = new GraphSolver(RegisterAllocationType.NAIVE, filename);
@@ -24,11 +26,11 @@ public class CodeGenerator {
 
         // If source variables not found in expected REGFILE, load them from memory
         if (physicalReg1No == -1) {
-            instr += LD_INSTR + " " + physicalReg1 + ", " + getMemoryLocation(srcReg1) + "\n";
+            instr += LA_INSTR + " " + physicalReg1 + ", " + getMemoryLocation(srcReg1) + "\n";
         }
 
         if (physicalReg2No == -1) {
-            instr += LD_INSTR + " " + physicalReg2 + ", " + getMemoryLocation(srcReg2) + "\n";
+            instr += LA_INSTR + " " + physicalReg2 + ", " + getMemoryLocation(srcReg2) + "\n";
         }
 
         // Emit the instruction
@@ -37,6 +39,7 @@ public class CodeGenerator {
         return instr;
     }
 
+    // TODO I don't think we need this
     private int getMemoryLocation(String virtualReg) {
         // Decide a memory location for each virtual register on the stack
         // When loading and storing within a stack frame, we will use this offset

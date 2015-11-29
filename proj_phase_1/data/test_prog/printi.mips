@@ -1,0 +1,4 @@
+li		$v0, 1
+
+move	$a0, $t0		# must set a0, will assume the int is stored in t0
+syscall

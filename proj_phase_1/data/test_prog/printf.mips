@@ -1,0 +1,4 @@
+li		$v0, 2
+
+move	$f12, $t0			#load float from t0 to f12.
+syscall
