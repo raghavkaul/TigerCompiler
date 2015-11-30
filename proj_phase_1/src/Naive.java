@@ -7,8 +7,10 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Naive {
+    private static boolean main_found = false;
     private Scanner scanner;
     private String output;
+    boolean func_done = false;
 
 
     public Naive(String filepath) {
@@ -116,8 +118,56 @@ public class Naive {
 
     public void generate() {
         //before main
+        String data, inst, func;
+        while (!main_found) {
+            String next = scanner.nextLine();
+            next = next.replace(",", "");
+            String[] split = next.split(" ");
 
+            switch (split.length) {
+                case 1: // function
+                    while (!func_done) { // push to func block
+                        
+                    }
+                    break;
+                default: // assign
+
+                    break;
+            }
+        }
         //after main
+    }
+
+    public String handleOps(String op, String first, String second, String third) {
+        String str = "";
+
+        switch (op) {
+            case "add":
+            case "sub":
+            case "div":
+            case "mult":
+            case "or":
+            case "and":
+                str = binaryOp(op, first, second, third);
+                break;
+            case "assign":
+                str = assign(op, first, second, third);
+                break;
+            case "array_load":
+                str = array_load(op, first, second, third);
+                break;
+            case "return":
+                str = ret(op, first, second, third);
+                func_done = true;
+                break;
+        }
+
+        return str;
+    }
+
+    // TODO
+    private String ret(String op, String first, String second, String third) {
+        return "";
     }
 
     public String getSolution() {
