@@ -24,6 +24,12 @@ public class CodeGeneratorTest {
         String[] split = test.split(" ");
         assertEquals(cg.fillData(split[0], split[1], split[2], ""), "\tX:\t.word\t10");
 
+        // Float assignment
+        test = "assign F, 10.0,";
+        test = test.replace(",", "");
+        split = test.split(" ");
+        assertEquals(cg.fillData(split[0], split[1], split[2], ""), "\tF:\t.word\t10.0");
+
         // Array assignment
         test = "assign Y, 100, 10";
         test = test.replace(",", "");

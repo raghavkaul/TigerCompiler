@@ -44,13 +44,6 @@ public class Naive {
         return temp;
     }
 
-    // TODO do i even need it?
-    public String array_store(String op, String dest, String variable,  String index){
-        String temp = "";
-
-        return temp;
-    }
-
     // assign, X, 100, 10
     // assign, sum, 0,
     public String assign(String op, String variable, String reg1, String reg2) {
