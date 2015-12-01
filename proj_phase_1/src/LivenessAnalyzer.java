@@ -6,7 +6,7 @@ public class LivenessAnalyzer {
     private Map<Integer, BasicBlock> lineNoToBasicBlock;
     private List<BasicBlock> basicBlockAdjList;
     private List<Instruction> instructionList;
-    private boolean defUseSetsGenerated = false;
+    private boolean defUseSetsGenerated = false, inSetsOutSetsGenerated = false;
 
     public LivenessAnalyzer(String filename) {
         irParser = new IRParser(filename);
@@ -32,6 +32,7 @@ public class LivenessAnalyzer {
     }
 
     public IRParser getIrParser() { return irParser; }
+
     public Map<BasicBlock, Set<String>> getInSets() {
         return inSets;
     }
@@ -130,6 +131,14 @@ public class LivenessAnalyzer {
                 outSetChanged = !setsAreSame(outSetOld, outSet) || outSetChanged;
             }
         } while (inSetChanged || outSetChanged);
+
+        inSetsOutSetsGenerated = true;
+    }
+
+    private void generateLiveInOut() {
+        if (!inSetsOutSetsGenerated) generateInOutSets();
+
+
     }
 
     private <T> boolean setsAreSame(Set<T> a, Set<T> b) {

@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class IRParser {
     private Scanner irFileScanner;
@@ -146,11 +147,62 @@ public class IRParser {
     }
 
     public Map<Integer, BasicBlock> lineNoToBasicBlock() {
-        return null; // TODO implement
+        Map<Integer, BasicBlock> lineToBasicBlock = new HashMap<>();
+        List<BasicBlock> basicBlockAdjList = getBasicBlockAdjList();
+
+        for (BasicBlock basicBlock : basicBlockAdjList) {
+            for (int i = basicBlock.startingLine; i < basicBlock.endingLine; i++) {
+                lineToBasicBlock.put(i, basicBlock);
+            }
+        }
+
+        return lineToBasicBlock;
+    }
+
+    /**
+     * A variable "reaches" block i if a definition or use of the variable
+     * reaches the basic block along the edges of the CFG
+     * A variable is "live" at block i if there is a direct reference to
+     * the variable at block i or at some block that succeeds i in the CFG
+     * provided the variable is not redefined.
+     * @return
+     */
+    public Map<String, LiveRange> getLiveRanges() {
+        // FIXME: 12/1/15 is this method necessary?
+        List<Map<String, VarUseBlock>> livenessAndNextUse = getLivenessAndNextUse();
+        Map<Integer, BasicBlock> lineNoToBasicBlock = lineNoToBasicBlock();
+        Map<String, LiveRange> liveRanges = new HashMap<>();
+
+        for (int i = 0; i < instructions.size(); i++) {
+            BasicBlock currentBb = lineNoToBasicBlock.get(i);
+            Set<String> currentlyLiveVars = livenessAndNextUse.get(i).entrySet()
+                    .stream().filter(me -> me.getValue().live)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toSet());
+
+            for (String currentlyLiveVar : currentlyLiveVars) {
+                LiveRange currLiveRange = liveRanges.get(currentlyLiveVar);
+                currLiveRange.addBbToRange(currentBb);
+                liveRanges.put(currentlyLiveVar, currLiveRange);
+            }
+        }
+
+        return liveRanges;
+    }
+
+    class LiveRange {
+        Set<BasicBlock> range;
+
+        LiveRange() {
+            range = new HashSet<>();
+        }
+
+        boolean addBbToRange(BasicBlock bb) {
+            return range.add(bb);
+        }
     }
 
     // Not sure if this is useful.
-    @Deprecated
     public List<Map<String,VarUseBlock>> getLivenessAndNextUse() {
         // Read file backwards from last line
         List<String> linesInReverse = getLinesInReverse();
@@ -194,7 +246,7 @@ public class IRParser {
         return result;
     }
 
-    private class VarUseBlock {
+    class VarUseBlock {
         boolean live;
         int nextUse;
 
