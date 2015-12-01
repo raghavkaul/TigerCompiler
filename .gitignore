@@ -2,6 +2,7 @@ proj_phase_1/src/*.class
 proj_phase_1/out/*
 proj_phase_1/.idea/*
 proj_phase_1/proj_phase_1.iml
+proj_phase_1/manifests/
 .DS_Store
 .classpath
 .project

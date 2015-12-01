@@ -6,6 +6,8 @@ public class IRParser {
     private Scanner irFileScanner;
     private File irFile;
     private Set<String> virtualRegs;
+    private List<Instruction> instructions;
+    public int numInstructions;
 
     public IRParser(String infileName) {
         irFile = new File(infileName);
@@ -15,23 +17,40 @@ public class IRParser {
             fnfe.printStackTrace();
         }
 
-        virtualRegs = getAllVirtualRegs();
+        virtualRegs = generateVirtualRegs();
+        instructions = generateInstructions();
     }
 
     /**
      * Lists the names of all possible virtual registers
      * @return set of strings of virtual reg names
      */
-    private Set<String> getAllVirtualRegs() {
+    private Set<String> generateVirtualRegs() {
         Set<String> virtualRegs = new HashSet<>();
 
-        String[][] regsByProgPt = allocRegsByProgPt();
+        String[][] regsByProgPt = getRegsByProgPt();
 
         for (String[] sa : regsByProgPt) {
             Collections.addAll(virtualRegs, sa);
         }
 
         return virtualRegs;
+    }
+
+    public List<Instruction> getInstructions() {
+        return instructions;
+    }
+
+    private List<Instruction> generateInstructions() {
+        List<Instruction> instructions = new ArrayList<>();
+        while (irFileScanner.hasNextLine()) {
+            Instruction i = new Instruction(irFileScanner.nextLine());
+            instructions.add(i);
+        }
+
+        resetScanner();
+
+        return instructions;
     }
 
     private String[] getNextInstr() {
@@ -43,13 +62,13 @@ public class IRParser {
      * @param instr to parse
      * @return string array [OPCODE, SR1, SR2, DR]
      */
-    private String[] parseInstr(String instr) { return instr.split("[\\s,]"); }
+    private String[] parseInstr(String instr) { return instr.split(":")[1].split("[\\s,]"); }
 
     /**
      * Gets array of virtual registers, indexed by IR program points
      * @return String[][] of registers at each line of IR code
      */
-    public String[][] allocRegsByProgPt() {
+    public String[][] getRegsByProgPt() {
         String[][] regs = {};
 
         for (int i = 0; irFileScanner.hasNextLine(); i++) {
@@ -76,7 +95,7 @@ public class IRParser {
      * on block "leaders"
      * @return map from line number -> corresponding block number
      */
-    public Map getIRBlocks() { // TODO not sure if return type makes sense
+    public Map<Integer, Integer> getIRBlocks() { // TODO not sure if return type makes sense
         Map<Integer, Integer> irLineToBlock = new HashMap<>();
 
         // For each leader its basic block consists of itself and all
@@ -97,7 +116,41 @@ public class IRParser {
         return irLineToBlock;
     }
 
+    public List<BasicBlock> getBasicBlockAdjList() {
+        Map<String, BasicBlock> labels = new HashMap<>();
+        List<BasicBlock> basicBlockAdjList = new LinkedList<>();
+        BasicBlock currBlock = new BasicBlock();
+        currBlock.startingLine = 0;
+
+        for (int i = 0; i < instructions.size(); i++) {
+            Instruction instruction = instructions.get(i);
+
+            if (instruction.isBranchInstruction()) {
+                currBlock.endingLine = i;
+
+                String target = instruction.getBranchLabel();
+                labels.put(target, currBlock);
+
+                basicBlockAdjList.add(currBlock);
+
+                currBlock = new BasicBlock();
+                currBlock.startingLine = i + 1;
+            } else if (instruction.isBranchTarget()) {
+                String label = instruction.getLabel();
+                BasicBlock predecessor = labels.get(label);
+                predecessor.successors.add(currBlock);
+            }
+        }
+
+        return basicBlockAdjList;
+    }
+
+    public Map<Integer, BasicBlock> lineNoToBasicBlock() {
+        return null; // TODO implement
+    }
+
     // Not sure if this is useful.
+    @Deprecated
     public List<Map<String,VarUseBlock>> getLivenessAndNextUse() {
         // Read file backwards from last line
         List<String> linesInReverse = getLinesInReverse();
