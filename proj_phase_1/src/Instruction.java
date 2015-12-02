@@ -1,7 +1,4 @@
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Instruction {
     private String label, opName, branchLabel, destinationReg, instrLiteral;
@@ -9,13 +6,22 @@ public class Instruction {
     private List<String> sourceRegs;
     private int arrayIndex;
 
+    public Instruction() {
+
+    }
+
     public Instruction(String instrLiteral) {
         this.instrLiteral = instrLiteral;
-        label = instrLiteral.split(":")[0];
-        instrLiteral = instrLiteral.split(":")[1];
+        label = instrLiteral.contains(":") ? instrLiteral.split(":")[0] : null;
+        instrLiteral = instrLiteral.contains(":") ? instrLiteral.split(":")[1] : instrLiteral;
         String[] splitInstr = instrLiteral.split(",");
+
+        for (int i = 0; i < splitInstr.length; i++) {
+            splitInstr[i] = splitInstr[i].trim();
+        }
+
         opName = splitInstr[0];
-        sourceRegs = new LinkedList<>();
+        sourceRegs = new ArrayList<>();
         destinationReg = null;
         branchLabel = null;
         arrayIndex = 0;
@@ -77,10 +83,12 @@ public class Instruction {
                 break;
             case "array_load":
                 destinationReg = splitInstr[1];
-                arrayIndex = Integer.parseInt(splitInstr[2]);
-                sourceRegs.add(splitInstr[3]);
+                sourceRegs.add(splitInstr[2]);
+                arrayIndex = Integer.parseInt(splitInstr[3]);
                 instructionClass = InstructionClass.ARR_LD;
                 break;
+            default:
+                throw new IllegalArgumentException("invalid instruction type: " + splitInstr[0]);
         }
     }
 

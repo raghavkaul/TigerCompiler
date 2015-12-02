@@ -168,7 +168,6 @@ public class IRParser {
      * @return
      */
     public Map<String, LiveRange> getLiveRanges() {
-        // FIXME: 12/1/15 is this method necessary?
         List<Map<String, VarUseBlock>> livenessAndNextUse = getLivenessAndNextUse();
         Map<Integer, BasicBlock> lineNoToBasicBlock = lineNoToBasicBlock();
         Map<String, LiveRange> liveRanges = new HashMap<>();

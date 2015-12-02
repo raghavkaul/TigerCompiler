@@ -1,14 +1,9 @@
 import java.util.*;
-import java.util.stream.BaseStream;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class GraphSolver {
     private RegisterAllocationType rat;
     private LivenessAnalyzer la;
     private IRParser irp;
-    private static final String REG_PREFIX = "$R";
-
 
     public GraphSolver(RegisterAllocationType rat, String filename) {
         this.rat = rat;
@@ -28,11 +23,48 @@ public class GraphSolver {
                 break;
             case NAIVE:
                 return "$R0";
-                break;
             default: // Fallthrough.
                 throw new IllegalStateException("The register allocation type state machine broke.");
         }
         return null; // TODO fix
+    }
+
+    private Map<BasicBlock, Map<String, Integer>> getLoadCounts() {
+        // Gets the greedy coloring for each block
+        Map<BasicBlock, Set<String>> liveSets = la.getLiveSets();
+        Map<BasicBlock, Map<String, Integer>> loadCounts = new HashMap<>();
+        Map<Integer, BasicBlock> lineNoToBasicBlock = irp.lineNoToBasicBlock();
+
+        List<Instruction> instructions = irp.getInstructions();
+
+        BasicBlock currBasicBlock = lineNoToBasicBlock.get(0);
+        Set<String> currLiveSet = liveSets.get(currBasicBlock);
+        Map<String, Integer> currLoadCounts = loadCounts.get(currBasicBlock);
+
+        for (int i = 0; i < instructions.size(); i++) {
+            if (!lineNoToBasicBlock.get(i).equals(currBasicBlock)) {
+                currBasicBlock = lineNoToBasicBlock.get(i);
+                currLiveSet = liveSets.get(currBasicBlock);
+                currLoadCounts = loadCounts.get(currBasicBlock);
+
+            }
+
+            Instruction currInstruction = instructions.get(i);
+
+            for (String sourceReg : currInstruction.getSourceRegs()) {
+                if (!currLiveSet.contains(sourceReg)) continue; // TODO Not sure what this is for.
+
+                // Update load counts
+                Integer count = currLoadCounts.get(sourceReg);
+
+                if (count == null) currLoadCounts.put(sourceReg, 1);
+                else currLoadCounts.put(sourceReg, count + 1);
+
+                loadCounts.put(currBasicBlock, currLoadCounts);
+            }
+        }
+
+        return loadCounts;
     }
 
     /**
@@ -43,12 +75,56 @@ public class GraphSolver {
      * adjacencyList representation of each register and collisions
      * a map of register names -> their colors
      */
-    private Map<String, Integer> getGreedyColoring(SortedMap<String, List<String>> adjacencyList) {
-//        return greedyColoring(adjacencyList);
-        return null; // TODO
+    private Map<BasicBlock, Map<String, Integer>> getGreedyColoring() {
+        Map<BasicBlock, Set<String>> liveSets = la.getLiveSets();
+        Map<BasicBlock, Map<String, Integer>> globalGreedyColoring = new HashMap<>();
+        Map<Integer, BasicBlock> lineNoToBasicBlock = irp.lineNoToBasicBlock();
+        List<Instruction> instructions = irp.getInstructions();
+
+        BasicBlock currBasicBlock = lineNoToBasicBlock.get(0);
+        Set<String> currLiveSet = liveSets.get(currBasicBlock);
+        SortedMap<String, Set<String>> currAdjacencyList = new TreeMap<>();
+
+        for (int i = 0; i < instructions.size(); i++) {
+            if (!lineNoToBasicBlock.get(i).equals(currBasicBlock)) {
+                Map<String, Integer> greedyColoring = greedyColoring(currAdjacencyList);
+                globalGreedyColoring.put(currBasicBlock, greedyColoring);
+                currBasicBlock = lineNoToBasicBlock.get(i);
+                currLiveSet = liveSets.get(currBasicBlock);
+            }
+
+            Instruction currInstruction = instructions.get(i);
+
+            for (String sourceReg : currInstruction.getSourceRegs()) {
+                if (!currLiveSet.contains(sourceReg)) continue; // TODO Not sure what this is for.
+
+                // Populate adjacency list
+                for (String sourceReg1 : currInstruction.getSourceRegs()) {
+                    if (sourceReg1.equals(sourceReg)) continue; // No self loops
+
+                    // Get current edgeset
+                    Set<String> srSet = currAdjacencyList.get(sourceReg),
+                            sr1Set = currAdjacencyList.get(sourceReg1);
+
+                    // Add edges
+                    if (srSet == null) srSet = new HashSet<>();
+                    srSet.add(sourceReg1);
+
+                    if (sr1Set == null) sr1Set = new HashSet<>();
+                    sr1Set.add(sourceReg);
+
+                    // Update adjacencylist
+                    currAdjacencyList.put(sourceReg, srSet);
+                    currAdjacencyList.put(sourceReg1, sr1Set);
+
+                }
+            }
+        }
+
+        return globalGreedyColoring;
     }
 
-    private <V> Map<V, Integer> greedyColoring(SortedMap<V, Collection<V>> adjacencyList) {
+    private <V> Map<V, Integer> greedyColoring(SortedMap<V, ? extends Collection<V>> adjacencyList) {
         Map<V, Integer> coloring = new HashMap<>();
 
         // Initialize all vertices to unassigned
@@ -65,7 +141,6 @@ public class GraphSolver {
         for (int i = 0; i < coloring.size(); i++) {
             V currVertex = adjacencyList.lastKey();
 
-            int j = 0;
             for (V adjacency : adjacencyList.get(currVertex)) {
                 if (coloring.get(adjacency) == -1) {
                     available[coloring.get(adjacency)] = false;
@@ -107,12 +182,14 @@ public class GraphSolver {
 
     /**
      * Builds interference graph across all program points.
+     * This essentially computes interference within a live range -
+     * if a register is live in the same basic block as another
+     * register, then there is an overlap in live ranges and they
+     * are therefore adjacent
      * @return adjacency list representation of interference graph from infile
      */
     private SortedMap<String, Set<String>> getRegInterferenceAdjList() {
         SortedMap<String, Set<String>> regInterferenceAdjList = new TreeMap<>();
-        List<Map<String, IRParser.VarUseBlock>> livenessAndNextUse
-                = irp.getLivenessAndNextUse();
         Map<Integer, BasicBlock> lineNoToBasicBlock = irp.lineNoToBasicBlock();
         List<Instruction> instructions = irp.getInstructions();
 
@@ -153,7 +230,7 @@ public class GraphSolver {
         Map<V, Integer> coloring = new HashMap<>();
         boolean graphIsRColorable = false;
         Stack<V> stack = new Stack<>();
-        Set<String> spilledRegisters = new HashSet<>();
+        Set<V> spilled = new HashSet<>();
         while (!graphIsRColorable) {
             // TODO make sure this matches the semantics of actual algo
             // While the graph has a node N with degree < R
@@ -162,26 +239,44 @@ public class GraphSolver {
                     // Remove the node and its' associated edges, and
                     // push N onto the stack
                     adjacencyList.remove(N);
-                    adjacencyList.forEach((vertex, adjacencies) -> {
-                        adjacencies.remove(N);
-                    });
+                    adjacencyList.forEach((vertex, adjacencies) -> adjacencies.remove(N));
                     stack.push(N);
                 }
             }
 
             if (!adjacencyList.isEmpty()) {
                 V N = adjacencyList.firstKey();
-                // Todo Spill live range associated with n
+                // Spill live range associated with n
                 // Remove n from G, along with all edges incident to it
-                // Spill n
+                spilled.add(N);
+                adjacencyList.remove(N);
+                adjacencyList.forEach((vertex, adjacencies) -> adjacencies.remove(N));
 
             } else { // This implies the graph is R-colorable
                 while (!stack.isEmpty()) {
                     graphIsRColorable = true;
                     V N = stack.pop();
-                    // TODO get adjacencies of V
-                    // color V the lowest color that doesn't clash with
-                    // the color of one of the adjacencies
+                    Collection<V> adjacencies = adjacencyList.get(N);
+                    boolean[] availableColors = new boolean[R];
+                    for (V adjacency : adjacencies) {
+                        Integer colorOfAdj = coloring.get(adjacency);
+                        if (colorOfAdj != null) {
+                            availableColors[colorOfAdj] = false;
+                        }
+                    }
+
+                    boolean foundColor = false;
+                    for (int i = 0; i < availableColors.length; i++) {
+                        if (availableColors[i]) {
+                            coloring.put(N, i);
+                            foundColor = true;
+                            break;
+                        }
+                    }
+
+                    if (!foundColor) {
+                        spilled.add(N);
+                    }
                 }
             }
         }

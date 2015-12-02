@@ -13,7 +13,7 @@ public class CodeGenerator {
 
     public CodeGenerator(String filename) {
         graphSolver = new GraphSolver(RegisterAllocationType.NAIVE, filename);
-        datamap = new HashMap<String, String>();
+        datamap = new HashMap<>();
     }
 
     // assign X, 10,
@@ -110,12 +110,12 @@ public class CodeGenerator {
         return instr;
     }
 
-    // TODO I don't think we need this
     private int getMemoryLocation(String virtualReg) {
         // Decide a memory location for each virtual register on the stack
         // When loading and storing within a stack frame, we will use this offset
         return 0; // TODO implement
     }
+
 
     private static <T> int getIndexOf(T elem, T[] myArray) {
         for (int i = 0; i < myArray.length; i++) {

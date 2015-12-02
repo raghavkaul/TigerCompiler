@@ -33,6 +33,9 @@ public class LivenessAnalyzer {
 
     public IRParser getIrParser() { return irParser; }
 
+    public Map<BasicBlock, Set<String>> getLiveSets() {
+        return null; // TODO
+    }
     public Map<BasicBlock, Set<String>> getInSets() {
         return inSets;
     }
