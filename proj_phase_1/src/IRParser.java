@@ -8,7 +8,6 @@ public class IRParser {
     private File irFile;
     private Set<String> virtualRegs;
     private List<Instruction> instructions;
-    public int numInstructions;
 
     public IRParser(String infileName) {
         irFile = new File(infileName);
@@ -69,7 +68,7 @@ public class IRParser {
      * Gets array of virtual registers, indexed by IR program points
      * @return String[][] of registers at each line of IR code
      */
-    public String[][] getRegsByProgPt() {
+    private String[][] getRegsByProgPt() {
         String[][] regs = {};
 
         for (int i = 0; irFileScanner.hasNextLine(); i++) {
@@ -125,6 +124,7 @@ public class IRParser {
 
         for (int i = 0; i < instructions.size(); i++) {
             Instruction instruction = instructions.get(i);
+            currBlock.addInstruction(instruction);
 
             if (instruction.isBranchInstruction()) {
                 currBlock.endingLine = i;

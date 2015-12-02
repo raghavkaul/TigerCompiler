@@ -1,11 +1,18 @@
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 public class BasicBlock implements Comparable<BasicBlock> {
     public Set<BasicBlock> successors, predecessors;
     public  int startingLine, endingLine;
+    public List<Instruction> instructions = new LinkedList<>();
 
     public int degree() {
         return successors.size() + predecessors.size();
+    }
+
+    public void addInstruction(Instruction i) {
+        instructions.add(i);
     }
 
     @Override

@@ -5,6 +5,7 @@ public class Instruction {
     private InstructionClass instructionClass;
     private List<String> sourceRegs;
     private int arrayIndex;
+    private static final String matchIntTemp = "i\\d+", matchFloatTemp = "f\\d+";
 
     public Instruction() {
 
@@ -13,6 +14,12 @@ public class Instruction {
     public Instruction(String instrLiteral) {
         this.instrLiteral = instrLiteral;
         label = instrLiteral.contains(":") ? instrLiteral.split(":")[0] : null;
+
+        if (instrLiteral.split(":").length == 1) {
+            instructionClass = InstructionClass.BARE_LABEL;
+            return;
+        }
+
         instrLiteral = instrLiteral.contains(":") ? instrLiteral.split(":")[1] : instrLiteral;
         String[] splitInstr = instrLiteral.split(",");
 
@@ -77,14 +84,25 @@ public class Instruction {
                 break;
             case "array_store":
                 destinationReg = splitInstr[1];
-                arrayIndex = Integer.parseInt(splitInstr[2]);
+                // check if array is indexed by var or int lit
+                if (splitInstr[2].matches("\\d+")) {
+                    arrayIndex = Integer.parseInt(splitInstr[2]);
+                } else {
+                    arrayIndex = -1;
+                    sourceRegs.add(splitInstr[2]);
+                }
                 sourceRegs.add(splitInstr[3]);
                 instructionClass = InstructionClass.ARR_ST;
                 break;
             case "array_load":
                 destinationReg = splitInstr[1];
                 sourceRegs.add(splitInstr[2]);
-                arrayIndex = Integer.parseInt(splitInstr[3]);
+                if (splitInstr[3].matches("\\d+")) {
+                    arrayIndex = Integer.parseInt(splitInstr[3]);
+                } else {
+                    arrayIndex = -1;
+                    sourceRegs.add(splitInstr[3]);
+                }
                 instructionClass = InstructionClass.ARR_LD;
                 break;
             default:
