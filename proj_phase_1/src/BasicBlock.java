@@ -3,13 +3,9 @@ import java.util.List;
 import java.util.Set;
 
 public class BasicBlock implements Comparable<BasicBlock> {
-    public Set<BasicBlock> successors, predecessors;
+    public Set<BasicBlock> successors;
     public  int startingLine, endingLine;
     public List<Instruction> instructions = new LinkedList<>();
-
-    public int degree() {
-        return successors.size() + predecessors.size();
-    }
 
     public void addInstruction(Instruction i) {
         instructions.add(i);
@@ -26,5 +22,12 @@ public class BasicBlock implements Comparable<BasicBlock> {
                 && ((BasicBlock) o).successors.equals(this.successors)
                 && ((BasicBlock) o).startingLine == this.startingLine
                 && ((BasicBlock) o).endingLine == this.endingLine;
+    }
+
+    //    \pi(k_1,k_2) := \frac{1}{2}(k_1 + k_2)(k_1 + k_2 + 1)+k_2.
+    @Override
+    public int hashCode() {
+        return (startingLine + endingLine) * (startingLine + endingLine
+         + 1) + endingLine;
     }
 }

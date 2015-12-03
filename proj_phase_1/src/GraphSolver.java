@@ -15,7 +15,9 @@ public class GraphSolver {
         this.rat = rat;
     }
 
-    public String getReg(String virtualReg) {
+    // TODO implement
+    public String getReg(String regName) {
+        Map<Integer, BasicBlock> lineNoToBasicBlock = irp.lineNoToBasicBlock();
         switch (rat) {
             case INTRA_BLOCK:
                 break;
@@ -29,42 +31,77 @@ public class GraphSolver {
         return null; // TODO fix
     }
 
-    private Map<BasicBlock, Map<String, Integer>> getLoadCounts() {
-        // Gets the greedy coloring for each block
-        Map<BasicBlock, Set<String>> liveSets = la.getLiveSets();
-        Map<BasicBlock, Map<String, Integer>> loadCounts = new HashMap<>();
-        Map<Integer, BasicBlock> lineNoToBasicBlock = irp.lineNoToBasicBlock();
-
+    /*** PART II b ***/
+    
+    private Map<String, Set<String>> buildInterferenceGraph(BasicBlock basicBlock) {
         List<Instruction> instructions = irp.getInstructions();
+        List<Set<String>> liveSetsByLine = la.generateLiveSetsByLine();
+        Map<String, Set<String>> currAdjacencyList = new HashMap<>();
 
-        BasicBlock currBasicBlock = lineNoToBasicBlock.get(0);
-        Set<String> currLiveSet = liveSets.get(currBasicBlock);
-        Map<String, Integer> currLoadCounts = loadCounts.get(currBasicBlock);
-
-        for (int i = 0; i < instructions.size(); i++) {
-            if (!lineNoToBasicBlock.get(i).equals(currBasicBlock)) {
-                currBasicBlock = lineNoToBasicBlock.get(i);
-                currLiveSet = liveSets.get(currBasicBlock);
-                currLoadCounts = loadCounts.get(currBasicBlock);
-
-            }
-
+        for (int i = basicBlock.startingLine; i < basicBlock.endingLine; i++) {
             Instruction currInstruction = instructions.get(i);
+            Set<String> liveSet = liveSetsByLine.get(i);
 
-            for (String sourceReg : currInstruction.getSourceRegs()) {
-                if (!currLiveSet.contains(sourceReg)) continue; // TODO Not sure what this is for.
+            for (String liveVar : liveSet) {
+                for (String liveVar2 : liveSet) {
+                    if (!liveVar.equals(liveVar2)) {
+                        // Get current edgeset
+                        Set<String> srSet = currAdjacencyList.get(liveVar),
+                                sr1Set = currAdjacencyList.get(liveVar2);
 
-                // Update load counts
-                Integer count = currLoadCounts.get(sourceReg);
+                        // Add edges
+                        if (srSet == null) srSet = new HashSet<>();
+                        srSet.add(liveVar2);
 
-                if (count == null) currLoadCounts.put(sourceReg, 1);
-                else currLoadCounts.put(sourceReg, count + 1);
+                        if (sr1Set == null) sr1Set = new HashSet<>();
+                        sr1Set.add(liveVar);
 
-                loadCounts.put(currBasicBlock, currLoadCounts);
+                        // Update adjacencylist
+                        currAdjacencyList.put(liveVar, srSet);
+                        currAdjacencyList.put(liveVar2, sr1Set);
+                    }
+                }
             }
         }
 
-        return loadCounts;
+        return currAdjacencyList;
+    }
+
+    private <T> Set<T> union(Set<T> a, Set<T> b) {
+        Set<T> c = new HashSet<>(a);
+        c.addAll(b);
+        return c;
+    }
+
+    private Map<BasicBlock, Map<String, Integer>> getUseCounts() {
+        Map<Integer, BasicBlock> lineNoToBasicBlock = irp.lineNoToBasicBlock();
+        List<Instruction> instructions = irp.getInstructions();
+        List<Set<String>> liveSetByLine = la.generateLiveSetsByLine();
+        
+        Map<BasicBlock, Map<String, Integer>> useCounts = new HashMap<>();
+
+        for (BasicBlock basicBlock : lineNoToBasicBlock.values()) {
+            Map<String, Integer> currLoadCounts = useCounts.containsKey(basicBlock) ?
+                    useCounts.get(basicBlock) : new HashMap<>();
+
+            for (int i = basicBlock.startingLine; i < basicBlock.endingLine; i++) {
+                Set<String> liveVars = liveSetByLine.get(i);
+
+                for (String liveVar : liveVars) {
+                    Integer liveVarCount = currLoadCounts.get(liveVar);
+
+                    if (liveVarCount == null) {
+                        currLoadCounts.put(liveVar, 1);
+                    } else {
+                        currLoadCounts.put(liveVar, liveVarCount + 1);
+                    }
+                }
+            }
+            
+            useCounts.put(basicBlock, currLoadCounts);
+        }
+        
+        return useCounts;
     }
 
     /**
@@ -76,7 +113,7 @@ public class GraphSolver {
      * a map of register names -> their colors
      */
     private Map<BasicBlock, Map<String, Integer>> getGreedyColoring() {
-        Map<BasicBlock, Set<String>> liveSets = la.getLiveSets();
+        Map<BasicBlock, Set<String>> liveSets = new HashMap<>(); // FIXME: 12/3/15
         Map<BasicBlock, Map<String, Integer>> globalGreedyColoring = new HashMap<>();
         Map<Integer, BasicBlock> lineNoToBasicBlock = irp.lineNoToBasicBlock();
         List<Instruction> instructions = irp.getInstructions();
@@ -96,7 +133,7 @@ public class GraphSolver {
             Instruction currInstruction = instructions.get(i);
 
             for (String sourceReg : currInstruction.getSourceRegs()) {
-                if (!currLiveSet.contains(sourceReg)) continue; // TODO Not sure what this is for.
+                if (!currLiveSet.contains(sourceReg)) continue;
 
                 // Populate adjacency list
                 for (String sourceReg1 : currInstruction.getSourceRegs()) {
@@ -164,20 +201,6 @@ public class GraphSolver {
         }
 
         return coloring;
-    }
-
-    /**
-     * Part I.c
-     * Runs optimized algorithm on register interference graph,
-     * producing a mapping of register names -> colors, corresponding to a
-     * mapping of virtual registers to physical registers. Discrete colors/PRs
-     * for two different VRs implies they are used in the same instruction,
-     * and therefore may not exist in the same physical register at the same time
-     * @return Mapping from register name to physical register number
-     */
-    private Object getGlobalAggressiveColoring() {
-
-        return null; // TODO implement
     }
 
     /**

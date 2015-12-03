@@ -7,21 +7,25 @@ public class RegisterAllocator {
     private GraphSolver graphSolver;
     private static final String LD_PREFIX = "LD", ST_PREFIX = "ST";
 
-    public RegisterAllocator(String filename) {
+    public RegisterAllocator(String filename, RegisterAllocationType rat) {
         irParser = new IRParser(filename);
         livenessAnalyzer = new LivenessAnalyzer(filename);
-        graphSolver = new GraphSolver(RegisterAllocationType.NAIVE, filename);
+        graphSolver = new GraphSolver(rat, filename);
+    }
+
+    public void setRegisterAllocationType(RegisterAllocationType rat) {
+        graphSolver.setRegisterAllocationType(rat);
     }
 
     public List<String> getModifiedIR() {
         List<String> result = new LinkedList<>();
         BasicBlock[] orderedBasicBlocks = getBasicBlockOrdering(irParser.lineNoToBasicBlock());
         List<BasicBlock> mylist = Arrays.asList(orderedBasicBlocks);
-        mylist.forEach(bb -> result.addAll(injectRegNames(bb)));
+        mylist.forEach(bb -> result.addAll(allocateRegsCFG(bb)));
         return result;
     }
 
-    public BasicBlock[] getBasicBlockOrdering(Map<Integer, BasicBlock> lineNoToBasicBlock) {
+    private BasicBlock[] getBasicBlockOrdering(Map<Integer, BasicBlock> lineNoToBasicBlock) {
         Set<BasicBlock> tempSet = new HashSet<>();
         tempSet.addAll(lineNoToBasicBlock.values());
         BasicBlock[] result = new BasicBlock[tempSet.size()];
@@ -39,16 +43,16 @@ public class RegisterAllocator {
         return result;
     }
 
+    private List<String> allocateRegsCFG(BasicBlock basicBlock) {
+        graphSolver.setRegisterAllocationType(RegisterAllocationType.INTRA_BLOCK);
 
-    public List<String> injectRegNames(BasicBlock basicBlock) {
         List<String> instrsWithRegNames = new LinkedList<>();
         List<Instruction> instructions = basicBlock.instructions;
-        Set<String> inSet = livenessAnalyzer.getInSets().get(basicBlock);
-        Set<String> outSet = livenessAnalyzer.getOutSets().get(basicBlock);
+        Set<String> defSet = livenessAnalyzer.getDefSets().get(basicBlock),
+                useSet = livenessAnalyzer.getUseSets().get(basicBlock);
 
-        // Load all the values in the inset
-        instrsWithRegNames.addAll(inSet.stream()
-                .map(inVal -> LD_PREFIX + ", " + inVal + ", " + graphSolver.getReg(inVal))
+        instrsWithRegNames.addAll(useSet.stream()
+                .map(useVal -> LD_PREFIX + ", " + useVal + ", " + graphSolver.getReg(useVal))
                 .collect(Collectors.toList()));
 
         for (Instruction instruction : instructions) {
@@ -66,10 +70,11 @@ public class RegisterAllocator {
         }
 
         // Store all values in the outset
-        instrsWithRegNames.addAll(outSet.stream()
-                .map(outVal -> ST_PREFIX + ", " + graphSolver.getReg(outVal) + ", " + outVal)
+        instrsWithRegNames.addAll(defSet.stream()
+                .map(defVal -> ST_PREFIX + ", " + graphSolver.getReg(defVal) + ", " + defVal)
                 .collect(Collectors.toList()));
 
         return instrsWithRegNames;
+
     }
 }

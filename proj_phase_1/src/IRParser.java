@@ -21,6 +21,24 @@ public class IRParser {
         instructions = generateInstructions();
     }
 
+    public Map<String, String> virtualRegType() {
+        Map<String, String> virtualRegType = new HashMap<>();
+        for (Instruction instruction : instructions) {
+            for (String srcReg : instruction.getSourceRegs()) {
+                if (srcReg.matches("\\d+\\.\\d+")) {
+                    virtualRegType.put(instruction.getDestinationReg(), "float");
+                } else if (srcReg.matches("\\d+")) {
+                    virtualRegType.put(instruction.getDestinationReg(), "int");
+                } else {
+                    virtualRegType.put(instruction.getDestinationReg(), virtualRegType.get(srcReg));
+                    break;
+                }
+            }
+        }
+
+        return virtualRegType;
+    }
+
     /**
      * Lists the names of all possible virtual registers
      * @return set of strings of virtual reg names
