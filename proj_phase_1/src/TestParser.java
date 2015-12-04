@@ -243,8 +243,8 @@ public class TestParser {
 
     @Test
     public void mymethod() {
-        filenames = Arrays.asList(new String[] {PREFIX+"1.tiger"});
-        for (String s : filenames) {
+        filenames = Arrays.asList(new String[] {PREFIX+"_float_arr.tiger"});
+        for (String s   : filenames) {
             TigerParser tp = new TigerParser(new File(s));
             TigerParser.debug = true;
             tp.parse();
@@ -256,6 +256,30 @@ public class TestParser {
 
             List<String> instrs = ircg.generateIrCode();
             for (String instr : instrs) {
+                System.out.println(instr);
+            }
+        }
+    }
+
+    @Test
+    public void mymethodMips() {
+        filenames = Arrays.asList(new String[] {PREFIX+"_float_arr.tiger"});
+        for (String s   : filenames) {
+            TigerParser tp = new TigerParser(new File(s));
+            TigerParser.debug = true;
+            tp.parse();
+            ParseTree pt = tp.getParseTreeOld();
+            TypeTable tt = tp.getTypeTable();
+            VarTable vt = tp.getVarTable();
+            FunctionTable ft = tp.getFunctionTable();
+            IRCodeGenerator ircg = new IRCodeGenerator(pt, vt, tt, ft);
+
+            List<String> instrs = ircg.generateIrCode();
+
+            Naive nv = new Naive(instrs);
+            List<String> mipscode = nv.generate();
+
+            for (String instr : mipscode) {
                 System.out.println(instr);
             }
         }

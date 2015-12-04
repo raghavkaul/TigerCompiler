@@ -12,6 +12,7 @@ public class FunctionTable {
         String[] stdLib = {
                 "print",
                 "printi",
+                "printf",
                 "flush",
                 "getchar",
                 "ord",
@@ -26,6 +27,7 @@ public class FunctionTable {
         String[][] paramLists = {
                 {"s:string"},
                 {"i:int"},
+                {"f:float"},
                 {},
                 {},
                 {"s:string"},
@@ -38,6 +40,7 @@ public class FunctionTable {
         };
 
         String[] returnTypes = {
+                null,
                 null,
                 null,
                 null,
